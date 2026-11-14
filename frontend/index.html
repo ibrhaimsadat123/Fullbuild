@@ -1,0 +1,86 @@
+<!doctype html>
+<!-- AI-assisted (Claude): TwinWorlds app shell. -->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TwinWorlds</title>
+    <meta name="description" content="Find the places on Earth that best match real sites on the Moon and Mars, using measurements taken the same way on both worlds." />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='11' cy='16' r='8' fill='%23c1440e'/%3E%3Ccircle cx='21' cy='16' r='8' fill='%232f7fd1' fill-opacity='.85'/%3E%3C/svg%3E" />
+  </head>
+  <body class="mode-normal">
+    <header class="topbar">
+      <div class="brand">
+        <span class="logo" aria-hidden="true"></span>
+        <span class="name">TwinWorlds</span>
+      </div>
+
+      <div class="controls">
+        <div class="seg" role="group" aria-label="World">
+          <button data-world="mars" class="on">Mars</button>
+          <button data-world="moon">Moon</button>
+        </div>
+        <label class="field">
+          <span>Target</span>
+          <select id="target-select"></select>
+        </label>
+        <label class="field">
+          <span>Lens</span>
+          <select id="lens-select"><option value="">Default</option></select>
+        </label>
+      </div>
+
+      <form id="ask-form" class="ask" autocomplete="off">
+        <input id="ask-input" type="text" placeholder="Ask the Planet: e.g. flat dusty ground for a lander" maxlength="300" />
+        <button type="submit">Ask</button>
+      </form>
+
+      <button id="mode-toggle" class="mode" title="Switch Normal / Nerd mode" aria-pressed="false">
+        <span class="normal-only">😎 Normal</span><span class="nerd-only">🤓 Nerd</span>
+      </button>
+    </header>
+
+    <main class="stage">
+      <section class="pane" id="pane-planet">
+        <div id="planet-globe" class="globe"></div>
+        <div class="pane-label"><span id="planet-label">Mars</span><span id="planet-site" class="site"></span></div>
+        <div class="source-tag" id="planet-source"></div>
+      </section>
+      <section class="pane" id="pane-earth">
+        <div id="earth-globe" class="globe"></div>
+        <div class="pane-label"><span>Earth</span><span id="earth-site" class="site"></span></div>
+        <div class="badges" id="earth-badges"></div>
+        <div class="legend" id="legend" hidden>
+          <div class="legend-bar"></div>
+          <div class="legend-ticks"><span>weak match</span><span>exact</span></div>
+        </div>
+        <div class="source-tag" id="earth-source"></div>
+      </section>
+
+      <div class="dive-hud">
+        <button id="dive-btn" class="primary">Dive</button>
+        <button id="reset-btn">Reset</button>
+        <button id="mt-btn" hidden>Mission Twin</button>
+        <button id="mt-play" hidden aria-label="Play or pause">▶</button>
+        <input id="mt-seek" type="range" min="0" max="1000" value="0" hidden aria-label="Mission progress" />
+        <span id="dive-readout" class="readout"></span>
+      </div>
+
+      <aside class="drawer" id="drawer">
+        <button class="drawer-toggle" id="drawer-toggle" aria-label="Show or hide the panel">⟨</button>
+        <div class="drawer-body">
+          <section class="card" id="card-target"></section>
+          <section class="card" id="card-mission" hidden></section>
+          <section class="card" id="card-match"></section>
+          <section class="card" id="card-nerd" hidden></section>
+          <section class="card" id="card-ask" hidden></section>
+          <section class="card" id="card-gaps"></section>
+          <section class="card" id="card-blind"></section>
+          <section class="card" id="card-status"></section>
+        </div>
+      </aside>
+    </main>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

@@ -1,0 +1,219 @@
+// AI-assisted (Claude): HTML for the side cards. Normal Mode shows plain language;
+// Nerd Mode (.nerd-only) adds the technical names, numbers and full source tags.
+import { featureValue, fmt } from './data.js';
+import { TIER_COLORS } from './config.js';
+import { dimLabel } from './charts.js';
+
+export const esc = (s) =>
+  String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+
+// Display names only. Values, units in the data and sources all come from the files.
+const FEATURES = {
+  elevation_m: { normal: 'Height', nerd: 'Elevation', unit: 'm' },
+  slope_deg: { normal: 'Steepness', nerd: 'Slope, 5 km baseline', unit: '°' },
+  roughness_m: { normal: 'Bumpiness', nerd: 'Roughness', unit: 'm' },
+  lst_day_c: { normal: 'Ground temperature by day', nerd: 'Surface temperature, day', unit: '°C' },
+  lst_night_c: { normal: 'Ground temperature at night', nerd: 'Surface temperature, night', unit: '°C' },
+  lst_swing_c: { normal: 'Day-night temperature swing', nerd: 'Diurnal temperature swing', unit: '°C' },
+  albedo: { normal: 'Brightness', nerd: 'Albedo', unit: '' },
+  ndvi: { normal: 'Plant cover', nerd: 'NDVI', unit: '' },
+  thermal_inertia_si: { normal: 'Ground type (dust to bedrock)', nerd: 'Thermal inertia', unit: 'J m⁻² K⁻¹ s⁻½' },
+  ice_depth_m: { normal: 'Depth to buried ice', nerd: 'Ice depth', unit: 'm' },
+  sun_elevation_deg: { normal: 'How high the sun gets', nerd: 'Sun elevation', unit: '°' },
+  pit_shade_temp_c: { normal: 'Temperature in the shaded pit', nerd: 'Pit shade temperature', unit: '°C' },
+  pit_depth_m: { normal: 'Pit depth', nerd: 'Pit depth', unit: 'm' },
+};
+
+export function featureMeta(key) {
+  return FEATURES[key] || { normal: dimLabel(key), nerd: key, unit: '' };
+}
+
+function withUnit(text, unit, pending) {
+  if (pending || !unit) return text;
+  return unit === '°' || unit === '°C' ? `${text}${unit === '°' ? '°' : ' °C'}` : `${text} ${unit}`;
+}
+
+function latLon(lat, lon) {
+  return `${Math.abs(lat).toFixed(2)}°${lat >= 0 ? 'N' : 'S'}, ${Math.abs(lon).toFixed(2)}°${lon >= 0 ? 'E' : 'W'}`;
+}
+
+export function targetCard(t, world) {
+  if (!t) return `<h3>No target</h3><p class="empty">targets.json has no ${esc(world)} targets yet.</p>`;
+  const rows = Object.entries(t.features || {})
+    .map(([key, f]) => {
+      const m = featureMeta(key);
+      const v = featureValue(f);
+      const status = f?.status === 'sourced' ? 'sourced' : 'pending';
+      return `<tr>
+        <td><span class="normal-only">${esc(m.normal)}</span><span class="nerd-only">${esc(m.nerd)}${m.unit ? ` (${esc(m.unit)})` : ''}</span>
+          <span class="src nerd-only">${esc(f?.source || 'no source given')}</span></td>
+        <td class="${v.pending ? 'pending' : ''}">${esc(v.pending ? 'pending' : withUnit(v.text, m.unit))}<span class="chip ${status}">${status}</span></td>
+      </tr>`;
+    })
+    .join('');
+  const sourced = Object.values(t.features || {}).filter((f) => f?.status === 'sourced').length;
+  const total = Object.keys(t.features || {}).length;
+  return `
+    <h3>${esc(t.name)}</h3>
+    <p class="why">${esc(t.why || '')}</p>
+    <p class="muted">${latLon(t.lat, t.lon)}${t.coords_note ? `<span class="src nerd-only">${esc(t.coords_note)}</span>` : ''}</p>
+    <h4>Measurements <span class="chip">${sourced} of ${total} sourced</span></h4>
+    <table class="kv">${rows}</table>`;
+}
+
+const LEVELS = [
+  [0.85, 'excellent'],
+  [0.7, 'strong'],
+  [0.5, 'fair'],
+  [0, 'poor'],
+];
+const level = (v) => LEVELS.find(([t]) => v >= t)[1];
+
+/** Plain-English verdict from the per-dimension scores, e.g. "Excellent terrain analog, poor temperature analog". */
+export function verdict(dims) {
+  const entries = Object.entries(dims || {}).filter(([, v]) => typeof v === 'number');
+  if (!entries.length) return 'No per-dimension scores for this cell.';
+  entries.sort((a, b) => b[1] - a[1]);
+  const [bestK, bestV] = entries[0];
+  const [worstK, worstV] = entries[entries.length - 1];
+  if (level(bestV) === level(worstV)) return `${cap(level(bestV))} analog on all ${entries.length} dimensions.`;
+  return `${cap(level(bestV))} ${dimLabel(bestK).toLowerCase()} analog, ${level(worstV)} ${dimLabel(worstK).toLowerCase()} analog.`;
+}
+const cap = (s) => s[0].toUpperCase() + s.slice(1);
+
+export function tierChip(tier) {
+  if (!tier) return '';
+  const c = TIER_COLORS[String(tier).toLowerCase()] || '#888';
+  return `<span class="tier" style="background:${c}">${esc(tier)}</span>`;
+}
+
+export function matchEmpty({ target, scoresError, heat }) {
+  if (scoresError) {
+    return `<h3>Earth matches</h3>
+      <p class="empty">Waiting for the similarity engine: ${esc(scoresError)}.</p>
+      <p class="muted">The heatmap, tiers and fingerprint appear here as soon as Ibrahim commits <code>scores_${esc(target?.id || '<target>')}.json</code>.</p>`;
+  }
+  if (!heat) return `<h3>Earth matches</h3><p class="empty">Loading scores…</p>`;
+  const top = heat.ranked.slice(0, 5)
+    .map((c, i) => `<tr data-lat="${c.lat}" data-lon="${c.lon}" class="top-row" style="cursor:pointer">
+      <td>${i + 1}. ${latLon(c.lat, c.lon)}</td><td>${fmt(c.score)}${tierChip(c.tier)}</td></tr>`)
+    .join('');
+  return `<h3>Earth matches</h3>
+    <p class="muted">Click anywhere on Earth to see how well it matches ${esc(target?.name || 'the target')}.</p>
+    <h4>Top cells</h4><table class="kv">${top}</table>`;
+}
+
+export function matchCell({ cell, target, earthRow, grid, apiOn }) {
+  const head = `<h3>${latLon(cell.lat, cell.lon)}</h3>
+    <div><span class="score-big">${typeof cell.score === 'number' ? fmt(cell.score) : '—'}</span>${tierChip(cell.tier)}</div>
+    <p class="verdict">${esc(verdict(cell.dims))}</p>
+    <div class="radar-wrap"><canvas id="radar"></canvas></div>`;
+
+  const dimsTable = `<table class="kv nerd-only">${Object.entries(cell.dims || {})
+    .map(([k, v]) => `<tr><td>${esc(dimLabel(k))}</td><td>${typeof v === 'number' ? v.toFixed(3) : 'pending'}</td></tr>`)
+    .join('')}</table>`;
+
+  // Side-by-side values: only features measured on both worlds under the same name.
+  let compare = '';
+  if (earthRow && target) {
+    const keys = Object.keys(target.features || {}).filter((k) => k in earthRow);
+    if (keys.length) {
+      compare = `<h4>Earth vs ${esc(target.name)}</h4><table class="kv">${keys
+        .map((k) => {
+          const m = featureMeta(k);
+          const tv = featureValue(target.features[k]);
+          const ev = earthRow[k];
+          const earthSrc = grid?.sources?.[k] ? `${grid.sources[k]}${grid.year ? `, ${grid.year} yearly mean` : ''}` : `Earth grid${grid?.year ? `, ${grid.year}` : ''}`;
+          return `<tr><td><span class="normal-only">${esc(m.normal)}</span><span class="nerd-only">${esc(m.nerd)}</span>
+              <span class="src nerd-only">Earth: ${esc(earthSrc)}</span>
+              <span class="src nerd-only">Target: ${esc(target.features[k]?.source || '')}</span></td>
+            <td>${esc(withUnit(fmt(ev), m.unit))} <span class="muted">vs</span> <span class="${tv.pending ? 'pending' : ''}">${esc(tv.pending ? 'pending' : withUnit(tv.text, m.unit))}</span></td></tr>`;
+        })
+        .join('')}</table>`;
+    }
+  } else if (!earthRow && grid) {
+    compare = `<p class="empty">No Earth grid cell here (ocean or outside the grid).</p>`;
+  }
+
+  const actions = `<div class="row">
+      <button id="dive-here">Dive here</button>
+      ${apiOn ? '<button id="explain-btn">Explain (AI)</button>' : ''}
+    </div>
+    <div id="analyst-out"></div>`;
+
+  return head + dimsTable + compare + actions;
+}
+
+export function gapsCard(gaps, world, error) {
+  const title = `<h3>Earth can't do this</h3>`;
+  if (error) return `${title}<p class="empty">Waiting for <code>gaps.json</code>.</p><p class="muted">Every permanent gap (gravity, vacuum, atmosphere, radiation…) and its "How to Fake It" hardware will be listed here.</p>`;
+  const list = (gaps.gaps || []).filter((g) => !g.worlds || g.worlds.includes(world));
+  if (!list.length) return `${title}<p class="empty">No gaps listed for ${esc(world)}.</p>`;
+  return `${title}${list
+    .map((g) => `<div class="gap"><div><b>${esc(g.gap)}</b>${g.detail?.[world] ? ` <span class="muted">${esc(g.detail[world])}</span>` : ''}</div>
+      ${(g.how_to_fake_it || []).length ? `<div class="fake"><b>How to fake it:</b> ${g.how_to_fake_it.map(esc).join(' · ')}</div>` : ''}
+      ${g.source ? `<span class="src nerd-only">${esc(g.source)}</span>` : ''}</div>`)
+    .join('')}`;
+}
+
+export function blindCard(blind, error) {
+  const title = `<h3>Blind test</h3>`;
+  if (error) return `${title}<p class="empty">Waiting for <code>blind_test.json</code>.</p><p class="muted">Shows how many known analog sites the engine found without being told about them.</p>`;
+  const r = blind.recall || {};
+  const rows = (blind.known_analogs || [])
+    .map((k) => `<tr><td>${k.in_top_n ? '✅' : '❌'} ${esc(k.name)}</td><td>${k.rank != null ? `#${fmt(k.rank)}` : '—'}</td></tr>`)
+    .join('');
+  return `${title}
+    <p><span class="score-big">${fmt(r.found ?? 0)} of ${fmt(r.total ?? (blind.known_analogs || []).length)}</span></p>
+    <p class="muted">known analogs ranked in the top ${fmt(blind.top_n ?? '?')} cells${blind.target ? ` for ${esc(blind.target)}` : ''}, with no site names given to the engine.</p>
+    <table class="kv">${rows}</table>
+    ${blind.illustrative ? '<p class="ai-label">Illustrative data</p>' : ''}`;
+}
+
+export function statusCard(files, wanted) {
+  const items = wanted
+    .map((f) => {
+      const have = files.has(f);
+      return `<li class="${have ? 'ok' : ''}">${have ? '✓' : '…'} ${esc(f)}</li>`;
+    })
+    .join('');
+  return `<h3>Data status</h3><p class="muted">Files in <code>data/processed</code> that this screen reads.</p><ul class="status-list">${items}</ul>`;
+}
+
+/** Mission Twin card: current segment, match quality bar, fingerprint, gaps, itinerary. */
+export function missionCard(m, i) {
+  const segs = m.segments || [];
+  const seg = segs[i];
+  if (!seg) return `<h3>Mission Twin</h3><p class="empty">mission_twin.json has no segments.</p>`;
+  const q = typeof seg.match === 'number' ? seg.match : null;
+  const qColor = q == null ? '#555' : q >= 0.7 ? '#6fd18b' : q >= 0.5 ? '#ffcc4d' : '#ff6b5a';
+  const quality = q == null
+    ? '<p class="empty">No good Earth match for this segment.</p>'
+    : `<div class="qbar"><i style="width:${Math.round(q * 100)}%;background:${qColor}"></i></div>
+       <p class="muted">Match quality ${fmt(q)}${q < 0.5 ? ' · weak match, shown on purpose' : ''}</p>`;
+  const keys = [...new Set([...Object.keys(seg.planet || {}), ...Object.keys(seg.earth || {})])];
+  const fp = keys.length
+    ? `<h4>Segment fingerprint</h4><table class="kv"><tr><td></td><td class="muted">${esc(m.planet?.world || 'planet')} · Earth</td></tr>${keys
+        .map((k) => {
+          const meta = featureMeta(k);
+          const pv = seg.planet?.[k];
+          const ev = seg.earth?.[k];
+          const show = (v) => (v === null || v === undefined ? '<span class="pending">pending</span>' : esc(typeof v === 'number' ? withUnit(fmt(v), meta.unit) : v));
+          return `<tr><td><span class="normal-only">${esc(meta.normal)}</span><span class="nerd-only">${esc(meta.nerd)}</span></td><td>${show(pv)} · ${show(ev)}</td></tr>`;
+        })
+        .join('')}</table>`
+    : '';
+  const gaps = (seg.gaps || []).length ? `<h4>Earth can't do this here</h4><p>${seg.gaps.map(esc).join(' · ')}</p>` : '';
+  const itin = (m.itinerary || []).length
+    ? `<h4>Rehearsal itinerary</h4><ol class="itin">${m.itinerary
+        .map((it) => `<li class="${it.segment === seg.id ? 'now' : ''}">${it.day != null ? `Day ${esc(it.day)}, ` : ''}${esc(it.time || '')}${it.time ? ': ' : ''}${esc(it.text || '')}</li>`)
+        .join('')}</ol>`
+    : '';
+  return `<h3>Mission Twin <span class="chip">${esc(m.mission || '')}</span></h3>
+    ${m.illustrative ? '<p class="ai-label">Illustrative data</p>' : ''}
+    <p><b>Segment ${i + 1} of ${segs.length}</b>${seg.label ? ` · ${esc(seg.label)}` : ''}${seg.length_m ? ` <span class="muted">(${fmt(seg.length_m)} m)</span>` : ''}</p>
+    ${quality}${fp}${gaps}${itin}
+    ${m.timing_note ? `<p class="muted">${esc(m.timing_note)}</p>` : ''}
+    <span class="src nerd-only">Route: ${esc(m.planet?.source || 'source missing')}</span>
+    <span class="src nerd-only">Earth path: ${esc(m.earth?.source || 'source missing')}</span>`;
+}
