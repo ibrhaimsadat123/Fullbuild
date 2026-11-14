@@ -108,6 +108,35 @@ async function loadData(env, ctx, name, { optional = false } = {}) {
 }
 
 // ---------- /v1/analogs ----------
+// Same reader as frontend/src/data.js normalizeScores (compact table -> object cells).
+
+/**
+ * scores_<target>.json comes as a compact table: `fields` + rows, per-feature
+ * similarities in `s_<feature>` columns, tier cut-offs in `tiers`. Column order is
+ * read from `fields`. Returns the same file with cells as objects:
+ * { lat, lon, score, tier, dims: { <feature>: similarity } }.
+ * Files already in object form pass through unchanged.
+ */
+function normalizeScores(raw) {
+  if (!raw || !Array.isArray(raw.cells) || !Array.isArray(raw.fields) || !Array.isArray(raw.cells[0])) return raw;
+  const f = raw.fields;
+  const iLat = f.indexOf('lat');
+  const iLon = f.indexOf('lon');
+  const iScore = f.indexOf('score');
+  const iTier = f.indexOf('tier');
+  const dimCols = f.map((name, i) => [name, i]).filter(([n]) => n.startsWith('s_')).map(([n, i]) => [n.slice(2), i]);
+  const cuts = raw.tiers && typeof raw.tiers === 'object' ? Object.entries(raw.tiers).sort((a, b) => b[1] - a[1]) : null;
+  const tierOf = (s) => (cuts && typeof s === 'number' ? cuts.find(([, t]) => s >= t)?.[0] || null : null);
+  const cells = raw.cells.map((r) => ({
+    lat: r[iLat],
+    lon: r[iLon],
+    score: r[iScore],
+    tier: iTier >= 0 ? r[iTier] : tierOf(r[iScore]),
+    dims: Object.fromEntries(dimCols.map(([n, i]) => [n, r[i]])),
+  }));
+  return { ...raw, cells };
+}
+
 const NEED_ALIASES = {
   slope: 'slope_deg',
   roughness: 'roughness_m',
@@ -127,7 +156,9 @@ async function analogs(env, ctx, q) {
   const limit = Math.max(1, Math.min(100, parseInt(q.limit, 10) || 10));
 
   // Prefer a precomputed top list (small, fast); fall back to the full scores file.
-  const scores = (await loadData(env, ctx, `top_${target.id}.json`, { optional: true })) || (await loadData(env, ctx, `scores_${target.id}.json`));
+  const scores = normalizeScores(
+    (await loadData(env, ctx, `top_${target.id}.json`, { optional: true })) || (await loadData(env, ctx, `scores_${target.id}.json`)),
+  );
 
   let weights = null;
   let lensLabel = scores.lens || null;
@@ -187,6 +218,9 @@ async function analogs(env, ctx, q) {
     needs_applied: parsed.map((p) => p.text),
     needs_ignored: ignored,
     illustrative: !!scores.illustrative,
+    dims_used: scores.dims_used || null,
+    dims_missing: scores.dims_missing || null,
+    earth_gaps: scores.earth_gaps || null,
     count: Math.min(limit, results.length),
     results: results.slice(0, limit),
     method: 'Per-dimension Gaussian similarity, combined as a weighted mean (TwinWorlds PROJECT.md Section 12).',

@@ -12,7 +12,7 @@ import {
   NearFarScalar,
 } from 'cesium';
 import { createPlanetViewer, createEarthViewer, toCartesian, toLonLat, flyHome } from './globes.js';
-import { load, dataIndex, indexGrid } from './data.js';
+import { load, dataIndex, indexGrid, normalizeScores } from './data.js';
 import { buildHeat, addHeatLayer, rampCss } from './heatmap.js';
 import { TwinDive } from './dive.js';
 import { MissionTwin } from './mission.js';
@@ -183,14 +183,14 @@ async function loadScores() {
     renderBadges();
     return;
   }
-  state.scores = r.data;
+  state.scores = normalizeScores(r.data);
   await drawHeat();
 }
 
 async function drawHeat() {
   removeHeat();
   if (!state.scores) return;
-  state.heat = buildHeat(state.scores, state.weights, state.lenses?.tier_thresholds);
+  state.heat = buildHeat(state.scores, state.weights, state.lenses?.tier_thresholds || state.scores?.tiers);
   const credit = `TwinWorlds similarity scores, ${state.target.name}${state.weights ? ` (${state.lensLabel})` : ''}`;
   state.heatLayer = await addHeatLayer(state.earth.viewer, state.heat, credit);
   $('legend').hidden = false;
@@ -230,8 +230,8 @@ function selectCell(lat, lon, fly = false) {
     return;
   }
   state.radar?.destroy();
-  $('card-match').innerHTML = P.matchCell({ cell, target: state.target, earthRow, grid: state.grid, apiOn: apiEnabled() });
-  if (Object.keys(cell.dims || {}).length) state.radar = radarChart($('radar'), cell.dims);
+  $('card-match').innerHTML = P.matchCell({ cell, target: state.target, earthRow, grid: state.grid, apiOn: apiEnabled(), scores: state.scores });
+  if (Object.keys(cell.dims || {}).length) state.radar = radarChart($('radar'), cell.dims, (k) => P.featureMeta(k).normal);
   $('dive-here').onclick = () => startDive({ lat, lon, name: `${lat.toFixed(2)}, ${lon.toFixed(2)}` });
   const ex = $('explain-btn');
   if (ex) ex.onclick = () => explain(cell, earthRow);
@@ -241,7 +241,7 @@ function renderMatch() {
   if (state.cell && (state.scores || state.grid)) return selectCell(state.cell.lat, state.cell.lon);
   state.radar?.destroy();
   state.radar = null;
-  $('card-match').innerHTML = P.matchEmpty({ target: state.target, scoresError: state.scoresError, heat: state.heat });
+  $('card-match').innerHTML = P.matchEmpty({ target: state.target, scoresError: state.scoresError, heat: state.heat, scores: state.scores });
   document.querySelectorAll('.top-row').forEach((tr) =>
     tr.addEventListener('click', () => selectCell(+tr.dataset.lat, +tr.dataset.lon, true)),
   );

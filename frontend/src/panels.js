@@ -78,7 +78,7 @@ export function verdict(dims) {
   const [bestK, bestV] = entries[0];
   const [worstK, worstV] = entries[entries.length - 1];
   if (level(bestV) === level(worstV)) return `${cap(level(bestV))} analog on all ${entries.length} dimensions.`;
-  return `${cap(level(bestV))} ${dimLabel(bestK).toLowerCase()} analog, ${level(worstV)} ${dimLabel(worstK).toLowerCase()} analog.`;
+  return `${cap(level(bestV))} ${featureMeta(bestK).normal.toLowerCase()} analog, ${level(worstV)} ${featureMeta(worstK).normal.toLowerCase()} analog.`;
 }
 const cap = (s) => s[0].toUpperCase() + s.slice(1);
 
@@ -88,7 +88,7 @@ export function tierChip(tier) {
   return `<span class="tier" style="background:${c}">${esc(tier)}</span>`;
 }
 
-export function matchEmpty({ target, scoresError, heat }) {
+export function matchEmpty({ target, scoresError, heat, scores }) {
   if (scoresError) {
     return `<h3>Earth matches</h3>
       <p class="empty">Waiting for the similarity engine: ${esc(scoresError)}.</p>
@@ -101,17 +101,17 @@ export function matchEmpty({ target, scoresError, heat }) {
     .join('');
   return `<h3>Earth matches</h3>
     <p class="muted">Click anywhere on Earth to see how well it matches ${esc(target?.name || 'the target')}.</p>
-    <h4>Top cells</h4><table class="kv">${top}</table>`;
+    <h4>Top cells</h4><table class="kv">${top}</table>${scoresMeta(scores)}`;
 }
 
-export function matchCell({ cell, target, earthRow, grid, apiOn }) {
+export function matchCell({ cell, target, earthRow, grid, apiOn, scores }) {
   const head = `<h3>${latLon(cell.lat, cell.lon)}</h3>
     <div><span class="score-big">${typeof cell.score === 'number' ? fmt(cell.score) : '—'}</span>${tierChip(cell.tier)}</div>
     <p class="verdict">${typeof cell.score === 'number' ? esc(verdict(cell.dims)) : 'Match score pending: the similarity engine has not published scores for this target yet.'}</p>
     <div class="radar-wrap"><canvas id="radar"></canvas></div>`;
 
   const dimsTable = `<table class="kv nerd-only">${Object.entries(cell.dims || {})
-    .map(([k, v]) => `<tr><td>${esc(dimLabel(k))}</td><td>${typeof v === 'number' ? v.toFixed(3) : 'pending'}</td></tr>`)
+    .map(([k, v]) => `<tr><td>${esc(featureMeta(k).nerd)} similarity</td><td>${typeof v === 'number' ? v.toFixed(3) : 'pending'}</td></tr>`)
     .join('')}</table>`;
 
   // Side-by-side values: only features measured on both worlds under the same name.
@@ -142,7 +142,24 @@ export function matchCell({ cell, target, earthRow, grid, apiOn }) {
     </div>
     <div id="analyst-out"></div>`;
 
-  return head + dimsTable + compare + actions;
+  return head + dimsTable + compare + actions + scoresMeta(scores);
+}
+
+/** What the score is built from, what is not scored yet, and where Earth can't reach the target. */
+function scoresMeta(scores) {
+  if (!scores) return '';
+  const name = (k) => esc(featureMeta(k).normal);
+  const used = (scores.dims_used || []).map(name).join(', ');
+  const missing = (scores.dims_missing || []).map(name).join(', ');
+  const gaps = Object.entries(scores.earth_gaps || {})
+    .map(([k, g]) => {
+      const u = featureMeta(k).unit;
+      return `<tr><td>${name(k)}</td><td>${esc(withUnit(fmt(g.target), u))} <span class="muted">vs Earth's most extreme</span> ${esc(withUnit(fmt(g.earth_extreme), u))}</td></tr>`;
+    })
+    .join('');
+  return `${used ? `<h4>Scored on</h4><p>${used}</p>` : ''}${missing ? `<p class="muted">Not scored yet: ${missing}</p>` : ''}${
+    gaps ? `<h4>Beyond anything on Earth</h4><table class="kv">${gaps}</table><p class="muted">These are scored by closeness to Earth's most extreme value; the gap stays visible.</p>` : ''
+  }`;
 }
 
 export function gapsCard(gaps, world, error) {

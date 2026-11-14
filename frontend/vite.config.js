@@ -1,43 +1,51 @@
 // AI-assisted (Claude): Vite config for the TwinWorlds frontend.
-// - Copies Cesium's static assets (workers, widgets, textures) next to the app.
+// - Serves Cesium's static assets (workers, widgets, textures) at /cesiumStatic in dev
+//   and copies them to dist/cesiumStatic on build. Done by hand, not with a copy
+//   plugin, because the plugin stopped serving after Vite's auto-restart.
 // - Serves ../data/processed at /data in dev and copies it to dist/data on build,
 //   so the app always reads Ibrahim's files directly (never a frontend copy).
 import { defineConfig } from 'vite';
-import { viteStaticCopy } from 'vite-plugin-static-copy';
 import fs from 'node:fs';
 import path from 'node:path';
 
-const cesiumSource = 'node_modules/cesium/Build/Cesium';
+const cesiumSource = path.resolve(import.meta.dirname, 'node_modules/cesium/Build/Cesium');
+const cesiumDirs = ['Workers', 'ThirdParty', 'Assets', 'Widgets'];
 const cesiumBaseUrl = 'cesiumStatic';
 // TWINWORLDS_DATA_DIR lets a test run point at a fixtures folder instead.
 const dataDir = process.env.TWINWORLDS_DATA_DIR
   ? path.resolve(process.env.TWINWORLDS_DATA_DIR)
   : path.resolve(import.meta.dirname, '../data/processed');
 
-function processedData() {
-  return {
-    name: 'twinworlds-processed-data',
-    configureServer(server) {
-      server.middlewares.use('/data', (req, res, next) => {
-        const name = decodeURIComponent((req.url || '/').split('?')[0]).replace(/^\/+/, '');
-        const file = path.resolve(dataDir, name);
-        if (!file.startsWith(dataDir) || !fs.existsSync(file) || fs.statSync(file).isDirectory()) {
-          res.statusCode = 404;
-          res.end('not found');
-          return;
-        }
-        res.setHeader('Content-Type', file.endsWith('.json') ? 'application/json' : 'application/octet-stream');
-        res.setHeader('Cache-Control', 'no-store');
-        fs.createReadStream(file).pipe(res);
-      });
-    },
-    closeBundle() {
-      if (!fs.existsSync(dataDir)) return;
-      const out = path.resolve(import.meta.dirname, 'dist/data');
-      fs.cpSync(dataDir, out, { recursive: true });
-      // Index of available files, so the app knows what exists without 404 probing.
-      fs.writeFileSync(path.join(out, 'index.json'), JSON.stringify({ files: listFiles(dataDir) }));
-    },
+const TYPES = {
+  '.js': 'text/javascript',
+  '.mjs': 'text/javascript',
+  '.json': 'application/json',
+  '.css': 'text/css',
+  '.wasm': 'application/wasm',
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.svg': 'image/svg+xml',
+  '.xml': 'application/xml',
+  '.glb': 'model/gltf-binary',
+  '.ktx2': 'image/ktx2',
+  '.woff': 'font/woff',
+  '.woff2': 'font/woff2',
+};
+
+/** Static file middleware for one folder. Unknown paths 404 (never fall through to index.html). */
+function serveDir(root, { noStore = false } = {}) {
+  return (req, res) => {
+    const name = decodeURIComponent((req.url || '/').split('?')[0]).replace(/^\/+/, '');
+    const file = path.resolve(root, name);
+    if (!file.startsWith(root) || !fs.existsSync(file) || fs.statSync(file).isDirectory()) {
+      res.statusCode = 404;
+      res.end('not found');
+      return;
+    }
+    res.setHeader('Content-Type', TYPES[path.extname(file).toLowerCase()] || 'application/octet-stream');
+    if (noStore) res.setHeader('Cache-Control', 'no-store');
+    fs.createReadStream(file).pipe(res);
   };
 }
 
@@ -47,15 +55,29 @@ function listFiles(dir, base = '') {
   );
 }
 
-function dataIndexDev() {
+function twinworldsStatic() {
   return {
-    name: 'twinworlds-data-index',
+    name: 'twinworlds-static',
     configureServer(server) {
+      // Index of available data files, so the app knows what exists without 404 probing.
       server.middlewares.use('/data/index.json', (_req, res) => {
         res.setHeader('Content-Type', 'application/json');
         res.setHeader('Cache-Control', 'no-store');
         res.end(JSON.stringify({ files: fs.existsSync(dataDir) ? listFiles(dataDir) : [] }));
       });
+      server.middlewares.use('/data', serveDir(dataDir, { noStore: true }));
+      server.middlewares.use(`/${cesiumBaseUrl}`, serveDir(cesiumSource));
+    },
+    closeBundle() {
+      const dist = path.resolve(import.meta.dirname, 'dist');
+      for (const d of cesiumDirs) {
+        fs.cpSync(path.join(cesiumSource, d), path.join(dist, cesiumBaseUrl, d), { recursive: true });
+      }
+      if (fs.existsSync(dataDir)) {
+        const out = path.join(dist, 'data');
+        fs.cpSync(dataDir, out, { recursive: true });
+        fs.writeFileSync(path.join(out, 'index.json'), JSON.stringify({ files: listFiles(dataDir) }));
+      }
     },
   };
 }
@@ -64,19 +86,7 @@ export default defineConfig({
   define: {
     CESIUM_BASE_URL: JSON.stringify(`/${cesiumBaseUrl}`),
   },
-  plugins: [
-    dataIndexDev(),
-    processedData(),
-    viteStaticCopy({
-      targets: [
-        // stripBase 4 drops "node_modules/cesium/Build/Cesium" so files land at /cesiumStatic/Workers/...
-        { src: `${cesiumSource}/ThirdParty`, dest: cesiumBaseUrl, rename: { stripBase: 4 } },
-        { src: `${cesiumSource}/Workers`, dest: cesiumBaseUrl, rename: { stripBase: 4 } },
-        { src: `${cesiumSource}/Assets`, dest: cesiumBaseUrl, rename: { stripBase: 4 } },
-        { src: `${cesiumSource}/Widgets`, dest: cesiumBaseUrl, rename: { stripBase: 4 } },
-      ],
-    }),
-  ],
+  plugins: [twinworldsStatic()],
   build: {
     chunkSizeWarningLimit: 6000,
   },

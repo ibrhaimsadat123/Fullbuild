@@ -27,12 +27,12 @@ export function dimLabel(dim) {
   return dim.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
-export function radarChart(canvas, dims) {
+export function radarChart(canvas, dims, labelOf = dimLabel) {
   const keys = Object.keys(dims).filter((k) => typeof dims[k] === 'number');
   return new Chart(canvas, {
     type: 'radar',
     data: {
-      labels: keys.map(dimLabel),
+      labels: keys.map(labelOf),
       datasets: [
         {
           label: 'Match',

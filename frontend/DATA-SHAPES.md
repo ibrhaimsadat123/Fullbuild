@@ -1,6 +1,6 @@
 # Data shapes the app reads
 
-Proposed by Zohaib for the 10 PM check-in. `earth_grid.json`, `targets.json` and `scores_<target>.json` follow `TASKS-IBRAHIM.md` exactly. The rest are proposals: change anything, just tell me so I can match it.
+Proposed by Zohaib for the 10 PM check-in. The app reads `earth_grid.json`, `targets.json` and `scores_<target>.json` as Ibrahim committed them. The rest are proposals: change anything, just tell me so I can match it.
 
 All files sit in `data/processed/`. The app never fills gaps: a missing file shows "waiting for <file>", and a `null` value shows "pending".
 
@@ -8,28 +8,27 @@ All files sit in `data/processed/`. The app never fills gaps: a missing file sho
 
 - **`earth_grid.json`**: read through `fields`; the column order is never hard-coded. `year` shows in the Earth source tag. `sources[field]` shows under each Earth value in Nerd Mode.
 - **`targets.json`**: `value` / `range` / `status` / `source` per feature. `null` shows as "pending", and `range` shows as "180 to 605".
-- **`scores_<target>.json`**: `cells[]` with `lat`, `lon`, `score`, `tier`, `dims`. Two optional extras help:
-  - `"resolution_deg": 0.5` (otherwise the app works it out from the latitudes)
-  - `"illustrative": true` while it's sample data (shows the yellow badge)
+- **`scores_<target>.json`** (commit 479987c): a compact table read through `fields`. Each `s_<feature>` column is that feature's similarity. `tiers` holds the cut-offs, so each cell's tier comes from them; this matches your `top50` for every cell. `dims_used` / `dims_missing` show as "Scored on" / "Not scored yet". `earth_gaps` shows as "Beyond anything on Earth", with the target value next to Earth's most extreme value. Optional extras: `"resolution_deg": 0.5`, and `"illustrative": true` for sample data (shows the yellow badge).
+- **Earth grid gap:** the cell holding the Hingol mud volcanoes (25.25 N, 65.75 E) isn't in `earth_grid.json` or the scores, and neither is 25.25 N, 66.25 E. Probably coast masked as sea. Hingol is our Pakistan hero site, so it needs a value.
 
 ## Proposed
 
 ### Lens switching happens in the browser
 
-Section 12 step 5 says overall = weighted mean of the per-dimension scores. If **`dims` in the scores file are the per-dimension similarities**, the app can rescore the whole globe instantly for any lens, and Gemini "Ask the Planet" only has to pick weights. That means one scores file per target, not one per lens.
+Section 12 step 5 says overall = weighted mean of the per-dimension scores. The `s_<feature>` columns already are those per-dimension similarities, so the app rescores the whole globe instantly for any lens, and Gemini "Ask the Planet" only has to pick weights. That means one scores file per target, not one per lens.
 
-**`lenses.json`**: the weight keys must match the `dims` keys in the scores files.
+**`lenses.json`**: the weight keys are feature names, without the `s_` prefix. The weights below are placeholders; the real ones are yours.
 ```json
 {
   "lenses": [
     { "id": "rover_testing", "name": "Rover Testing",
       "description": "Roughness, boulders, crater walls",
-      "weights": { "terrain": 0.6, "temperature": 0.1, "albedo": 0.2, "barrenness": 0.1 } }
+      "weights": { "slope_deg": 0.5, "relief_55km_m": 0.4, "ndvi": 0.1 } }
   ],
-  "tier_thresholds": { "exact": 0.9, "strong": 0.75, "moderate": 0.6, "variable": 0.4 }
+  "tier_thresholds": { "exact": 0.9, "strong": 0.75, "moderate": 0.6, "variable": 0.45 }
 }
 ```
-`tier_thresholds` are your numbers. Without them, a rescored cell shows its score but no tier.
+`tier_thresholds` is optional. Without it, the app uses the `tiers` from the scores file.
 
 ### `sites.json`
 ```json

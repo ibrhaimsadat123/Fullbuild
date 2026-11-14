@@ -76,6 +76,33 @@ export function inferResolution(lats) {
   return Number.isFinite(best) ? best : 0.5;
 }
 
+/**
+ * scores_<target>.json comes as a compact table: `fields` + rows, per-feature
+ * similarities in `s_<feature>` columns, tier cut-offs in `tiers`. Column order is
+ * read from `fields`. Returns the same file with cells as objects:
+ * { lat, lon, score, tier, dims: { <feature>: similarity } }.
+ * Files already in object form pass through unchanged.
+ */
+export function normalizeScores(raw) {
+  if (!raw || !Array.isArray(raw.cells) || !Array.isArray(raw.fields) || !Array.isArray(raw.cells[0])) return raw;
+  const f = raw.fields;
+  const iLat = f.indexOf('lat');
+  const iLon = f.indexOf('lon');
+  const iScore = f.indexOf('score');
+  const iTier = f.indexOf('tier');
+  const dimCols = f.map((name, i) => [name, i]).filter(([n]) => n.startsWith('s_')).map(([n, i]) => [n.slice(2), i]);
+  const cuts = raw.tiers && typeof raw.tiers === 'object' ? Object.entries(raw.tiers).sort((a, b) => b[1] - a[1]) : null;
+  const tierOf = (s) => (cuts && typeof s === 'number' ? cuts.find(([, t]) => s >= t)?.[0] || null : null);
+  const cells = raw.cells.map((r) => ({
+    lat: r[iLat],
+    lon: r[iLon],
+    score: r[iScore],
+    tier: iTier >= 0 ? r[iTier] : tierOf(r[iScore]),
+    dims: Object.fromEntries(dimCols.map(([n, i]) => [n, r[i]])),
+  }));
+  return { ...raw, cells };
+}
+
 /** A target feature's display value: "pending", a range, or the number. */
 export function featureValue(f) {
   if (!f) return { text: 'pending', pending: true };
