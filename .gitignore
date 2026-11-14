@@ -218,3 +218,15 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+.env
+.venv/
+data/raw/
+*.tif
+*.tiff
+*.img
+*.hdf
+*.h5
+*.nc
+*.zip
+.DS_Store
+Thumbs.db
