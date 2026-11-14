@@ -20,6 +20,19 @@ Do not edit `pipeline/` or `data/processed/` without telling Ibrahim first. Read
 
 ---
 
+## ⚠️ Changes since the first version of this file (Sat 9 PM)
+
+1. **`earth_grid.json` is a compact table now**, not one object per cell. It has a `fields` list and `cells` as rows: `[lat, lon, elevation_m, slope_deg, roughness_m, lst_day_c, lst_night_c, lst_swing_c, albedo, ndvi]`. Read the column order from `fields`, never hard-code it. ~60k land cells, 0.5 deg.
+2. **v1 dimensions are:** elevation, slope, roughness, day/night temperature, temperature swing, albedo, NDVI. **No dust (aerosol) or soil moisture yet.** Don't build UI that needs them until v2 lands.
+3. **A sharper 0.05 deg (~5.5 km) grid also exists** for the regional zoom level. Same fields, one file per 90 deg tile.
+4. **`targets.json` features are objects:** `{ "value", "range"?, "status", "source" }`. `status` is `sourced` or `pending`, and `value` can be `null`. The UI must show **"pending"** for null values (never 0), show a range like "180 to 605" when `range` is given, and put the `source` in the source tag. Target coordinates are in, so markers can go on the globes now.
+5. **Slope is defined at a ~5 km baseline on both worlds.** Label it that way in Nerd Mode ("slope, 5 km baseline").
+6. **Data year is 2023** (yearly means). Show it in the source tag.
+7. **No Python backend.** All backend work stays in Cloudflare Workers (JS). Gemini lives only in your Worker.
+8. **Repo is `Fullbuild`.** `(final)PROJECT.md` is being renamed to `PROJECT.md`.
+
+---
+
 ## Before kickoff (now until 8:00 PM PKT)
 
 Setup only. No project code before 8 PM. The earlier prototype stays private as inspiration; don't copy its code into this repo.

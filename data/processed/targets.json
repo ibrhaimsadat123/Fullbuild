@@ -1,0 +1,109 @@
+{
+  "version": "0.1",
+  "illustrative": false,
+  "note": "Every value is either 'sourced' (with a citation) or 'pending' (with the dataset to pull it from). Nothing is filled in by guesswork. Slope is defined at a ~5 km baseline to match the Earth grid.",
+  "targets": [
+    {
+      "id": "jezero",
+      "world": "mars",
+      "name": "Jezero crater floor",
+      "lat": 18.44,
+      "lon": 77.45,
+      "why": "Perseverance landing site; ancient lake and river delta",
+      "features": {
+        "thermal_inertia_si": {
+          "value": null, "range": [180, 605], "status": "sourced",
+          "source": "Martinez et al. 2023, JGR Planets, 'Surface Energy Budget, Albedo and Thermal Inertia at Jezero Crater, Mars, as Observed From the Mars 2020 MEDA Instrument' (180 = sand dune, 605 = bedrock-dominated)"
+        },
+        "albedo": { "value": null, "status": "pending", "source": "MGS TES Lambert albedo map, or Martinez et al. 2023 MEDA albedo" },
+        "lst_day_c": { "value": null, "status": "pending", "source": "Mars Climate Database (surface temperature, local noon, Jezero, annual mean)" },
+        "lst_night_c": { "value": null, "status": "pending", "source": "Mars Climate Database (surface temperature, pre-dawn, annual mean)" },
+        "slope_deg": { "value": null, "status": "pending", "source": "Compute from MGS MOLA MEGDR at ~5 km baseline" },
+        "roughness_m": { "value": null, "status": "pending", "source": "Compute from MOLA (elevation std dev within cell)" },
+        "ndvi": { "value": 0.0, "status": "sourced", "source": "No vegetation on Mars (target value by definition)" }
+      }
+    },
+    {
+      "id": "acidalia",
+      "world": "mars",
+      "name": "Acidalia Planitia mound field",
+      "lat": 44.0,
+      "lon": -30.0,
+      "coords_note": "Approximate centre of the mound field; refine from Oehler & Allen 2010 (Icarus) before demo",
+      "why": "Mounds proposed as mud volcanoes; process analog for Hingol",
+      "features": {
+        "thermal_inertia_si": { "value": null, "status": "pending", "source": "MGS TES / Mars Odyssey THEMIS thermal inertia maps" },
+        "albedo": { "value": null, "status": "pending", "source": "MGS TES Lambert albedo" },
+        "lst_day_c": { "value": null, "status": "pending", "source": "Mars Climate Database" },
+        "lst_night_c": { "value": null, "status": "pending", "source": "Mars Climate Database" },
+        "slope_deg": { "value": null, "status": "pending", "source": "MOLA MEGDR, ~5 km baseline" },
+        "roughness_m": { "value": null, "status": "pending", "source": "MOLA MEGDR" },
+        "ndvi": { "value": 0.0, "status": "sourced", "source": "No vegetation on Mars" }
+      }
+    },
+    {
+      "id": "arcadia",
+      "world": "mars",
+      "name": "Arcadia Planitia",
+      "lat": 40.0,
+      "lon": -165.0,
+      "coords_note": "Approximate; refine from NASA SWIM (Subsurface Water Ice Mapping) project maps",
+      "why": "Shallow buried ice; candidate for human landings",
+      "features": {
+        "thermal_inertia_si": { "value": null, "status": "pending", "source": "TES / THEMIS thermal inertia" },
+        "albedo": { "value": null, "status": "pending", "source": "MGS TES Lambert albedo" },
+        "lst_day_c": { "value": null, "status": "pending", "source": "Mars Climate Database" },
+        "lst_night_c": { "value": null, "status": "pending", "source": "Mars Climate Database" },
+        "slope_deg": { "value": null, "status": "pending", "source": "MOLA MEGDR, ~5 km baseline" },
+        "roughness_m": { "value": null, "status": "pending", "source": "MOLA MEGDR" },
+        "ice_depth_m": { "value": null, "status": "pending", "source": "SWIM project / SHARAD" },
+        "ndvi": { "value": 0.0, "status": "sourced", "source": "No vegetation on Mars" }
+      }
+    },
+    {
+      "id": "shackleton",
+      "world": "moon",
+      "name": "Shackleton crater rim (lunar south pole)",
+      "lat": -89.67,
+      "lon": 129.8,
+      "coords_note": "Crater centre; rim/ridge sites lie within ~10 km. Refine from Artemis III candidate regions",
+      "why": "Artemis base candidate; near-constant low sun, cold traps",
+      "features": {
+        "lst_day_c": { "value": null, "status": "pending", "source": "LRO Diviner polar temperature products" },
+        "lst_night_c": { "value": null, "status": "pending", "source": "LRO Diviner polar temperature products" },
+        "albedo": { "value": null, "status": "pending", "source": "LRO LOLA normal albedo" },
+        "slope_deg": { "value": null, "status": "pending", "source": "LRO LOLA polar DEM, ~5 km baseline" },
+        "roughness_m": { "value": null, "status": "pending", "source": "LRO LOLA" },
+        "sun_elevation_deg": { "value": null, "status": "pending", "source": "Computed from latitude: sun stays within ~1.5 deg of horizon at the pole" },
+        "ndvi": { "value": 0.0, "status": "sourced", "source": "No vegetation on the Moon" }
+      }
+    },
+    {
+      "id": "tranquillitatis_pit",
+      "world": "moon",
+      "name": "Mare Tranquillitatis pit",
+      "lat": 8.335,
+      "lon": 33.222,
+      "coords_note": "Pit location as reported by LROC; verify before demo",
+      "why": "Lava tube skylight; thermally stable shelter for a base",
+      "features": {
+        "lst_day_c": {
+          "value": 127, "status": "sourced",
+          "source": "Horvath et al. 2022, Geophysical Research Letters, doi:10.1029/2022GL099710 (surrounding surface daytime high, LRO Diviner)"
+        },
+        "lst_night_c": {
+          "value": -173, "status": "sourced",
+          "source": "Horvath et al. 2022, GRL (surrounding surface nighttime low)"
+        },
+        "pit_shade_temp_c": {
+          "value": 17, "status": "sourced",
+          "source": "Horvath et al. 2022, GRL (permanently shadowed part of the pit stays near 17 C)"
+        },
+        "pit_depth_m": { "value": 100, "status": "sourced", "source": "Horvath et al. 2022 / NASA release (pit roughly 100 m deep)" },
+        "albedo": { "value": null, "status": "pending", "source": "LRO LOLA normal albedo" },
+        "slope_deg": { "value": null, "status": "pending", "source": "LRO LOLA / Moon Trek DEM, ~5 km baseline" },
+        "ndvi": { "value": 0.0, "status": "sourced", "source": "No vegetation on the Moon" }
+      }
+    }
+  ]
+}

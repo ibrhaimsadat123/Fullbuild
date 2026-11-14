@@ -21,6 +21,16 @@ Do not edit `frontend/` or `worker/` without telling Zohaib first. This is how w
 
 ---
 
+## ⚠️ Changes since the first version of this file (Sat 9 PM)
+
+- **Earth Engine runs in Google Colab**, project `thermal-list-367916` (laptop sign-in is blocked by Google). Laptop Python is for scoring, the blind test and git.
+- **Global grid exported as 8 tiles at 0.05 deg**, then averaged to 0.5 deg in Colab (direct 0.5 deg export hit Earth Engine limits).
+- **Slope is defined at a ~5 km baseline.** Compute Mars/Moon slope from MOLA/LOLA at the same baseline.
+- **`earth_grid.json` and `targets.json` formats changed** (see the data contract below). Zohaib's file lists the same changes.
+- **v1 has no dust or soil moisture.** Add them in v2 once v1 is done.
+
+---
+
 ## Before kickoff (now until 8:00 PM PKT)
 
 Setup only. No project code before 8 PM.
@@ -109,30 +119,39 @@ These are the files you produce and Zohaib's app reads. **Do not change a field 
 
 All files live in `data/processed/`. Every number has a source.
 
-**`earth_grid.json`**
+**`earth_grid.json`** (compact table: read column order from `fields`)
 ```json
 {
   "illustrative": false,
   "resolution_deg": 0.5,
+  "year": 2023,
+  "fields": ["lat", "lon", "elevation_m", "slope_deg", "roughness_m",
+             "lst_day_c", "lst_night_c", "lst_swing_c", "albedo", "ndvi"],
   "cells": [
-    { "lat": 25.25, "lon": 65.75,
-      "slope_deg": 4.2, "roughness": 0.31,
-      "lst_day_c": 41.0, "lst_night_c": 18.5,
-      "albedo": 0.27, "ndvi": 0.05, "aod": 0.42, "soil_moisture": 0.04 }
+    [-24.25, -69.75, 741.9, 4.95, 7.73, 37.19, 12.12, 25.06, 0.188, 0.061]
   ],
-  "sources": { "slope_deg": "NASADEM", "lst_day_c": "MODIS MOD11A2" }
+  "sources": { "slope_deg": "USGS GMTED2010 (derived, ~5 km baseline)",
+               "lst_day_c": "NASA MODIS MOD11A2 v061" }
 }
 ```
+v1 has no aerosol (dust) or soil moisture yet; those come in v2.
+A sharper 0.05 deg version exists for regional zoom (format: same fields, one file per tile).
 
-**`targets.json`**
+**`targets.json`** (each feature is an object, not a plain number)
 ```json
-[
-  { "id": "jezero", "world": "mars", "name": "Jezero crater",
-    "lat": 18.38, "lon": 77.58,
-    "features": { "slope_deg": 3.1, "thermal_inertia": 350 },
-    "sources": { "slope_deg": "MOLA", "thermal_inertia": "THEMIS" } }
-]
+{
+  "targets": [
+    { "id": "jezero", "world": "mars", "name": "Jezero crater floor",
+      "lat": 18.44, "lon": 77.45,
+      "features": {
+        "thermal_inertia_si": { "value": null, "range": [180, 605],
+                                "status": "sourced", "source": "Martinez et al. 2023, JGR Planets" },
+        "slope_deg": { "value": null, "status": "pending",
+                       "source": "Compute from MOLA at ~5 km baseline" } } }
+  ]
+}
 ```
+`status` is `sourced` or `pending`. `value` may be `null` (pending) or replaced by `range`.
 
 **`scores_<target>.json`**
 ```json
