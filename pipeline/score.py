@@ -7,9 +7,12 @@ For every Earth cell and every Moon/Mars target:
   2. Per-dimension similarity  s_i = exp(-(x_earth - x_target)^2 / (2 * sigma_i^2))
      sigma_i = a quarter of Earth's 5th-95th percentile range for that dimension.
      Slope and relief are compared in log space (they are heavily skewed).
-  3. If the target is beyond anything on Earth (e.g. lunar night), the target is
-     clamped to Earth's most extreme value for scoring, and the true gap is reported.
-  4. Overall score = weighted mean of s_i (weights from the Mission Lens).
+  3. If the target is beyond anything on Earth (e.g. lunar night), that dimension is
+     scored by percentile rank toward the extreme (the coldest place on Earth scores 1,
+     the median 0.5), and the true gap to the target is reported.
+  4. Overall score = weighted GEOMETRIC mean of s_i (weights from the Mission Lens).
+     A geometric mean means one badly failed dimension (e.g. bright ice vs dark Mars rock)
+     pulls the whole score down, instead of being averaged away by the others.
 
 Run from the repo root:   python pipeline/score.py
 """
@@ -30,7 +33,9 @@ DIMS = {
     "ndvi":          False,
 }
 MIN_DIMS = 3   # don't score a target on fewer than 3 shared dimensions (too easy to match)
-TIERS = [("exact", 0.90), ("strong", 0.75), ("moderate", 0.60), ("variable", 0.45)]
+# Map tiers are RELATIVE: the top X% of Earth's land cells for this target.
+# The raw score (0-1) still says how close Earth gets in absolute terms.
+TIER_PCT = [("exact", 0.5), ("strong", 2.0), ("moderate", 5.0), ("variable", 10.0)]
 
 
 def load():
@@ -57,9 +62,13 @@ def target_value(feat):
     return None
 
 
-def tier_of(score):
-    for name, t in TIERS:
-        if score >= t:
+def tier_thresholds(score):
+    return {name: round(float(np.percentile(score, 100 - pct)), 3) for name, pct in TIER_PCT}
+
+
+def tier_of(score, th):
+    for name, _ in TIER_PCT:
+        if score >= th[name]:
             return name
     return None
 
@@ -80,10 +89,17 @@ def score_target(grid, target, weights=None):
         clamped = min(max(tv, lo), hi)
         if clamped != tv:
             gaps[dim] = {"target": tv, "earth_extreme": clamped, "gap": round(tv - clamped, 2)}
-        e, t = tx(earth, log), tx(np.array(clamped), log)
-        p5, p95 = np.percentile(e, [5, 95])
-        sigma = max((p95 - p5) / 4, 1e-6)
-        sims.append(np.exp(-((e - t) ** 2) / (2 * sigma ** 2)))
+        if clamped != tv:
+            # Target is beyond anything on Earth: no cell can truly match, so score each
+            # cell by how far toward that extreme it sits (percentile rank). Coldest cell = 1,
+            # median = 0.5. This avoids one extreme corner of Earth winning by default.
+            ranks = earth.argsort().argsort() / (len(earth) - 1)
+            sims.append(ranks if tv > hi else 1 - ranks)
+        else:
+            e, t = tx(earth, log), tx(np.array(clamped), log)
+            p5, p95 = np.percentile(e, [5, 95])
+            sigma = max((p95 - p5) / 4, 1e-6)
+            sims.append(np.exp(-((e - t) ** 2) / (2 * sigma ** 2)))
         w.append((weights or {}).get(dim, 1.0))
         used.append(dim)
 
@@ -91,26 +107,27 @@ def score_target(grid, target, weights=None):
         raise ValueError(f"{target['id']}: only {len(used)} sourced dimension(s) {used}; need {MIN_DIMS}")
     S = np.vstack(sims)                       # (dims, cells)
     W = np.array(w)[:, None]
-    score = (S * W).sum(axis=0) / W.sum()
+    score = np.exp((np.log(np.maximum(S, 0.01)) * W).sum(axis=0) / W.sum())
     return cells, used, missing, gaps, S, score
 
 
 def export(target, cells, used, missing, gaps, S, score):
     order = np.argsort(-score)
+    th = tier_thresholds(score)
     rows = []
     for i in range(len(score)):
         rows.append([round(cells[i, 0], 2), round(cells[i, 1], 2), round(float(score[i]), 3)] +
                     [round(float(v), 2) for v in S[:, i]])
     top = [{"lat": round(cells[i, 0], 2), "lon": round(cells[i, 1], 2),
-            "score": round(float(score[i]), 3), "tier": tier_of(score[i])} for i in order[:50]]
+            "score": round(float(score[i]), 3), "tier": tier_of(score[i], th)} for i in order[:50]]
     out = {
         "target": target["id"], "world": target["world"], "name": target["name"],
         "dims_used": used, "dims_missing": missing, "earth_gaps": gaps,
-        "tiers": dict(TIERS),
+        "tiers": th, "tiers_note": "relative: exact = top 0.5% of Earth land cells, strong = top 2%, moderate = top 5%, variable = top 10%",
         "fields": ["lat", "lon", "score"] + [f"s_{d}" for d in used],
         "cells": rows, "top50": top,
         "method": "Gaussian similarity per dimension, sigma = 1/4 of Earth 5-95th percentile range; "
-                  "slope and relief in log space; equal weights unless a lens is applied",
+                  "slope and relief in log space; weighted geometric mean across dimensions (equal weights unless a lens is applied)",
     }
     path = os.path.join(DATA, f"scores_{target['id']}.json")
     json.dump(out, open(path, "w"), separators=(",", ":"))

@@ -1,5 +1,5 @@
 {
-  "version": "0.3",
+  "version": "0.4",
   "illustrative": false,
   "note": "Every value is either 'sourced' (with a citation) or 'pending' (with the dataset to pull it from). Nothing is filled in by guesswork. Slope is defined at a ~5 km baseline to match the Earth grid. Roughness (sub-km) is not comparable across worlds at these resolutions, so v0.2 uses relief_55km_m (elevation std dev over ~55 km) instead.",
   "targets": [
@@ -21,9 +21,13 @@
           "source": "Martinez et al. 2023, JGR Planets, 'Surface Energy Budget, Albedo and Thermal Inertia at Jezero Crater, Mars, as Observed From the Mars 2020 MEDA Instrument' (180 = sand dune, 605 = bedrock-dominated)"
         },
         "albedo": {
-          "value": null,
-          "status": "pending",
-          "source": "MGS TES Lambert albedo map, or Martinez et al. 2023 MEDA albedo"
+          "value": 0.176,
+          "box_range": [
+            0.16,
+            0.195
+          ],
+          "status": "sourced",
+          "source": "MGS TES Lambert albedo, USGS Astrogeology global mosaic (7410 m, 8 px/deg), mean over a ~55 km box. Earth side uses MODIS white-sky shortwave albedo; both are broadband surface reflectance."
         },
         "lst_day_c": {
           "value": -16.0,
@@ -80,9 +84,13 @@
           "source": "MGS TES / Mars Odyssey THEMIS thermal inertia maps"
         },
         "albedo": {
-          "value": null,
-          "status": "pending",
-          "source": "MGS TES Lambert albedo"
+          "value": 0.117,
+          "box_range": [
+            0.109,
+            0.128
+          ],
+          "status": "sourced",
+          "source": "MGS TES Lambert albedo, USGS Astrogeology global mosaic (7410 m, 8 px/deg), mean over a ~55 km box. Earth side uses MODIS white-sky shortwave albedo; both are broadband surface reflectance."
         },
         "lst_day_c": {
           "value": -46.0,
@@ -139,9 +147,13 @@
           "source": "TES / THEMIS thermal inertia"
         },
         "albedo": {
-          "value": null,
-          "status": "pending",
-          "source": "MGS TES Lambert albedo"
+          "value": 0.24,
+          "box_range": [
+            0.233,
+            0.254
+          ],
+          "status": "sourced",
+          "source": "MGS TES Lambert albedo, USGS Astrogeology global mosaic (7410 m, 8 px/deg), mean over a ~55 km box. Earth side uses MODIS white-sky shortwave albedo; both are broadband surface reflectance."
         },
         "lst_day_c": {
           "value": -35.7,
