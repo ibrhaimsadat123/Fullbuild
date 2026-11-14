@@ -224,7 +224,8 @@ function selectCell(lat, lon, fly = false) {
   if (fly) {
     state.earth.viewer.camera.flyTo({ destination: toCartesian('earth', lon, lat, 900_000), duration: 1.4 });
   }
-  if (!state.scores) {
+  // With the Earth grid in, a click shows measured values even before scores exist.
+  if (!state.scores && !state.grid) {
     renderMatch();
     return;
   }
@@ -237,7 +238,7 @@ function selectCell(lat, lon, fly = false) {
 }
 
 function renderMatch() {
-  if (state.cell && state.scores) return selectCell(state.cell.lat, state.cell.lon);
+  if (state.cell && (state.scores || state.grid)) return selectCell(state.cell.lat, state.cell.lon);
   state.radar?.destroy();
   state.radar = null;
   $('card-match').innerHTML = P.matchEmpty({ target: state.target, scoresError: state.scoresError, heat: state.heat });

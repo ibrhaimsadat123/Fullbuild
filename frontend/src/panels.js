@@ -12,6 +12,7 @@ const FEATURES = {
   elevation_m: { normal: 'Height', nerd: 'Elevation', unit: 'm' },
   slope_deg: { normal: 'Steepness', nerd: 'Slope, 5 km baseline', unit: '°' },
   roughness_m: { normal: 'Bumpiness', nerd: 'Roughness', unit: 'm' },
+  relief_55km_m: { normal: 'Hilliness across ~55 km', nerd: 'Relief, 55 km scale (elevation std dev)', unit: 'm' },
   lst_day_c: { normal: 'Ground temperature by day', nerd: 'Surface temperature, day', unit: '°C' },
   lst_night_c: { normal: 'Ground temperature at night', nerd: 'Surface temperature, night', unit: '°C' },
   lst_swing_c: { normal: 'Day-night temperature swing', nerd: 'Diurnal temperature swing', unit: '°C' },
@@ -106,7 +107,7 @@ export function matchEmpty({ target, scoresError, heat }) {
 export function matchCell({ cell, target, earthRow, grid, apiOn }) {
   const head = `<h3>${latLon(cell.lat, cell.lon)}</h3>
     <div><span class="score-big">${typeof cell.score === 'number' ? fmt(cell.score) : '—'}</span>${tierChip(cell.tier)}</div>
-    <p class="verdict">${esc(verdict(cell.dims))}</p>
+    <p class="verdict">${typeof cell.score === 'number' ? esc(verdict(cell.dims)) : 'Match score pending: the similarity engine has not published scores for this target yet.'}</p>
     <div class="radar-wrap"><canvas id="radar"></canvas></div>`;
 
   const dimsTable = `<table class="kv nerd-only">${Object.entries(cell.dims || {})
