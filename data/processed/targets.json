@@ -1,5 +1,5 @@
 {
-  "version": "0.2",
+  "version": "0.3",
   "illustrative": false,
   "note": "Every value is either 'sourced' (with a citation) or 'pending' (with the dataset to pull it from). Nothing is filled in by guesswork. Slope is defined at a ~5 km baseline to match the Earth grid. Roughness (sub-km) is not comparable across worlds at these resolutions, so v0.2 uses relief_55km_m (elevation std dev over ~55 km) instead.",
   "targets": [
@@ -26,14 +26,22 @@
           "source": "MGS TES Lambert albedo map, or Martinez et al. 2023 MEDA albedo"
         },
         "lst_day_c": {
-          "value": null,
-          "status": "pending",
-          "source": "Mars Climate Database (surface temperature, local noon, Jezero, annual mean)"
+          "value": -16.0,
+          "seasonal_range": [
+            -29.2,
+            -4.6
+          ],
+          "status": "sourced",
+          "source": "Mars Climate Database v6.2 (LMD/OU/IAA/ESA/CNES), climatology average solar scenario, surface temperature at local time 10.5 h, mean over the Mars year (Ls 0-345 in 15 deg steps). Local times chosen to match NASA Terra/MODIS overpass (~10:30 / 22:30)."
         },
         "lst_night_c": {
-          "value": null,
-          "status": "pending",
-          "source": "Mars Climate Database (surface temperature, pre-dawn, annual mean)"
+          "value": -71.0,
+          "seasonal_range": [
+            -77.1,
+            -67.2
+          ],
+          "status": "sourced",
+          "source": "Mars Climate Database v6.2 (LMD/OU/IAA/ESA/CNES), climatology average solar scenario, surface temperature at local time 22.5 h, mean over the Mars year (Ls 0-345 in 15 deg steps). Local times chosen to match NASA Terra/MODIS overpass (~10:30 / 22:30)."
         },
         "slope_deg": {
           "value": 1.29,
@@ -49,6 +57,11 @@
           "value": 276,
           "status": "sourced",
           "source": "Computed by TwinWorlds from MGS MOLA MEGDR 16 ppd: std dev of elevation within a 55 km box"
+        },
+        "lst_swing_c": {
+          "value": 55.1,
+          "status": "sourced",
+          "source": "Derived: lst_day_c minus lst_night_c (Mars Climate Database v6.2)"
         }
       }
     },
@@ -72,14 +85,22 @@
           "source": "MGS TES Lambert albedo"
         },
         "lst_day_c": {
-          "value": null,
-          "status": "pending",
-          "source": "Mars Climate Database"
+          "value": -46.0,
+          "seasonal_range": [
+            -99.6,
+            -7.4
+          ],
+          "status": "sourced",
+          "source": "Mars Climate Database v6.2 (LMD/OU/IAA/ESA/CNES), climatology average solar scenario, surface temperature at local time 10.5 h, mean over the Mars year (Ls 0-345 in 15 deg steps). Local times chosen to match NASA Terra/MODIS overpass (~10:30 / 22:30)."
         },
         "lst_night_c": {
-          "value": null,
-          "status": "pending",
-          "source": "Mars Climate Database"
+          "value": -82.1,
+          "seasonal_range": [
+            -111.8,
+            -62.4
+          ],
+          "status": "sourced",
+          "source": "Mars Climate Database v6.2 (LMD/OU/IAA/ESA/CNES), climatology average solar scenario, surface temperature at local time 22.5 h, mean over the Mars year (Ls 0-345 in 15 deg steps). Local times chosen to match NASA Terra/MODIS overpass (~10:30 / 22:30)."
         },
         "slope_deg": {
           "value": 0.24,
@@ -95,6 +116,11 @@
           "value": 32,
           "status": "sourced",
           "source": "Computed by TwinWorlds from MGS MOLA MEGDR 16 ppd: std dev of elevation within a 55 km box"
+        },
+        "lst_swing_c": {
+          "value": 36.1,
+          "status": "sourced",
+          "source": "Derived: lst_day_c minus lst_night_c (Mars Climate Database v6.2)"
         }
       }
     },
@@ -118,14 +144,22 @@
           "source": "MGS TES Lambert albedo"
         },
         "lst_day_c": {
-          "value": null,
-          "status": "pending",
-          "source": "Mars Climate Database"
+          "value": -35.7,
+          "seasonal_range": [
+            -76.0,
+            -7.6
+          ],
+          "status": "sourced",
+          "source": "Mars Climate Database v6.2 (LMD/OU/IAA/ESA/CNES), climatology average solar scenario, surface temperature at local time 10.5 h, mean over the Mars year (Ls 0-345 in 15 deg steps). Local times chosen to match NASA Terra/MODIS overpass (~10:30 / 22:30)."
         },
         "lst_night_c": {
-          "value": null,
-          "status": "pending",
-          "source": "Mars Climate Database"
+          "value": -92.8,
+          "seasonal_range": [
+            -106.7,
+            -81.0
+          ],
+          "status": "sourced",
+          "source": "Mars Climate Database v6.2 (LMD/OU/IAA/ESA/CNES), climatology average solar scenario, surface temperature at local time 22.5 h, mean over the Mars year (Ls 0-345 in 15 deg steps). Local times chosen to match NASA Terra/MODIS overpass (~10:30 / 22:30)."
         },
         "slope_deg": {
           "value": 0.44,
@@ -146,6 +180,11 @@
           "value": 100,
           "status": "sourced",
           "source": "Computed by TwinWorlds from MGS MOLA MEGDR 16 ppd: std dev of elevation within a 55 km box"
+        },
+        "lst_swing_c": {
+          "value": 57.1,
+          "status": "sourced",
+          "source": "Derived: lst_day_c minus lst_night_c (Mars Climate Database v6.2)"
         }
       }
     },
@@ -243,6 +282,11 @@
           "value": 41,
           "status": "sourced",
           "source": "Computed by TwinWorlds from LRO LOLA LDEM 16 ppd: std dev of elevation within a 55 km box"
+        },
+        "lst_swing_c": {
+          "value": 300,
+          "status": "sourced",
+          "source": "Derived from Horvath et al. 2022 (GRL): 127 C day minus -173 C night"
         }
       }
     }
