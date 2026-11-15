@@ -7,6 +7,15 @@ import { dimLabel } from './charts.js';
 export const esc = (s) =>
   String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 
+// Place names for Earth cells (earth_places.json, Natural Earth). Set once by main.js.
+let placeOf = () => '';
+export function setPlaceLookup(fn) { placeOf = fn || (() => ''); }
+export const placeName = (lat, lon) => placeOf(lat, lon) || '';
+const where = (lat, lon) => {
+  const p = placeOf(lat, lon);
+  return p ? `${esc(p)} <span class="muted">${latLon(lat, lon)}</span>` : latLon(lat, lon);
+};
+
 // Display names only. Values, units in the data and sources all come from the files.
 const FEATURES = {
   elevation_m: { normal: 'Height', nerd: 'Elevation', unit: 'm' },
@@ -96,17 +105,27 @@ export function matchEmpty({ target, scoresError, heat, scores }) {
       <p class="muted">The heatmap, tiers and fingerprint appear here as soon as Ibrahim commits <code>scores_${esc(target?.id || '<target>')}.json</code>.</p>`;
   }
   if (!heat) return `<h3>Earth matches</h3><p class="empty">Loading scores…</p>`;
-  const top = heat.ranked.slice(0, 5)
+  // Best cell in each of 5 different named places (falls back to raw cells without names).
+  const seen = new Set();
+  const picks = [];
+  for (const c of heat.ranked) {
+    const p = placeOf(c.lat, c.lon);
+    if (p && seen.has(p)) continue;
+    if (p) seen.add(p);
+    picks.push(c);
+    if (picks.length === 5) break;
+  }
+  const top = picks
     .map((c, i) => `<tr data-lat="${c.lat}" data-lon="${c.lon}" class="top-row" style="cursor:pointer">
-      <td>${i + 1}. ${latLon(c.lat, c.lon)}</td><td>${fmt(c.score)}${tierChip(c.tier)}</td></tr>`)
+      <td>${i + 1}. ${where(c.lat, c.lon)}</td><td>${fmt(c.score)}${tierChip(c.tier)}</td></tr>`)
     .join('');
   return `<h3>Earth matches</h3>
     <p class="muted">Click anywhere on Earth to see how well it matches ${esc(target?.name || 'the target')}.</p>
-    <h4>Top cells</h4><table class="kv">${top}</table>${scoresMeta(scores)}`;
+    <h4>Top places</h4><table class="kv">${top}</table>${scoresMeta(scores)}`;
 }
 
 export function matchCell({ cell, target, earthRow, grid, apiOn, scores }) {
-  const head = `<h3>${latLon(cell.lat, cell.lon)}</h3>
+  const head = `<h3>${where(cell.lat, cell.lon)}</h3>
     <div><span class="score-big">${typeof cell.score === 'number' ? fmt(cell.score) : '—'}</span>${tierChip(cell.tier)}</div>
     <p class="verdict">${typeof cell.score === 'number' ? esc(verdict(cell.dims)) : 'Match score pending: the similarity engine has not published scores for this target yet.'}</p>
     <div class="radar-wrap"><canvas id="radar"></canvas></div>`;

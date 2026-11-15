@@ -40,6 +40,7 @@ Rule: no Chinese mission data is used (NASA China funding restriction).
 | Dataset | Used for | Access |
 | --- | --- | --- |
 | USGS GMTED2010 (7.5 arc-second) | Earth elevation, slope (5.55 km spacing), 55 km relief, roughness (display only) north of ~56 S | Google Earth Engine `USGS/GMTED2010_FULL` |
+| Natural Earth 1:10m geography regions + 1:50m countries (public domain) | Place names for Earth cells (`earth_places.json`): smallest named region containing each cell centre, plus country | `naturalearthdata.com` (GeoJSON from `github.com/nvkelso/natural-earth-vector`) |
 | NOAA ETOPO1 (ice surface) | Antarctic terrain, 56 S to 85 S | Google Earth Engine `NOAA/NGDC/ETOPO1` |
 
 ## Tools

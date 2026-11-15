@@ -14,7 +14,7 @@ import {
   Cartesian3,
 } from 'cesium';
 import { createPlanetViewer, createEarthViewer, toCartesian, toLonLat, flyHome, flyToPoint } from './globes.js';
-import { load, dataIndex, indexGrid, normalizeScores } from './data.js';
+import { load, dataIndex, indexGrid, normalizeScores, cellKey } from './data.js';
 import { buildHeat, addHeatLayer, rampCss } from './heatmap.js';
 import { buildEarthModel, scoreLive, indexPlanetGrid } from './livescore.js';
 import { TwinDive } from './dive.js';
@@ -73,6 +73,16 @@ async function loadSide() {
   const [lenses, gaps, blind, sites, grid, mission] = await Promise.all(
     ['lenses.json', 'gaps.json', 'blind_test.json', 'sites.json', 'earth_grid.json', 'mission_twin.json'].map(load),
   );
+  // Place names (optional file): same cell order as earth_grid.json.
+  load('earth_places.json').then((pl) => {
+    if (!pl.ok || !grid.ok) return;
+    const f = grid.data.fields, iLa = f.indexOf('lat'), iLo = f.indexOf('lon');
+    const res = grid.data.resolution_deg || 0.5;
+    const m = new Map();
+    grid.data.cells.forEach((r, i) => m.set(cellKey(r[iLa], r[iLo], res), pl.data.names[pl.data.cells[i]]));
+    P.setPlaceLookup((lat, lon) => m.get(cellKey(lat, lon, res)) || '');
+    if (state.target) renderMatch();
+  });
   if (mission.ok && mission.data?.planet?.path?.length && mission.data?.earth?.path?.length) {
     state.mission = mission.data;
     $('mt-btn').hidden = false;
@@ -243,7 +253,7 @@ function selectCell(lat, lon, fly = false) {
   const heatCell = state.heat?.get(lat, lon) || null;
   const earthRow = state.grid?.get(lat, lon) || null;
   const cell = heatCell || { lat, lon, score: null, tier: null, dims: {} };
-  $('earth-site').textContent = `${lat.toFixed(2)}, ${lon.toFixed(2)}`;
+  $('earth-site').textContent = P.placeName(lat, lon) || `${lat.toFixed(2)}, ${lon.toFixed(2)}`;
   placeEarthMarker(lat, lon);
   if (fly) {
     flyToPoint(state.earth.viewer, 'earth', lon, lat, 900_000, 1.4);
