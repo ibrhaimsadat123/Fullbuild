@@ -13,6 +13,7 @@
       <div class="brand">
         <span class="logo" aria-hidden="true"></span>
         <span class="name">TwinWorlds</span>
+        <a class="api-link" href="/api.html" target="_blank" rel="noopener">API</a>
       </div>
 
       <div class="controls">
@@ -53,12 +54,15 @@
         <div class="legend" id="legend" hidden>
           <div class="legend-bar"></div>
           <div class="legend-ticks"><span>rest of Earth</span><span>top 10%</span><span>top 0.5%</span></div>
+          <div class="zone-key"><button id="zones-btn" class="mini" aria-pressed="true">◎ Match zones</button>
+            <span><i style="background:#ff5a36"></i>Exact 0.5%</span><span><i style="background:#ffb000"></i>Strong 2%</span><span><i style="background:#e8e35a"></i>Moderate 5%</span><span><i style="background:#5ac8c8"></i>Variable 10%</span></div>
         </div>
         <div class="source-tag" id="earth-source"></div>
       </section>
 
       <div class="dive-hud">
         <button id="dive-btn" class="primary">Dive</button>
+        <select id="dive-pair" aria-label="Earth partner for Twin Dive"></select>
         <button id="reset-btn">Reset</button>
         <button id="mt-btn" hidden title="Rehearse Perseverance's real drive in Jezero on a matched path on Earth">🚙 Mission Twin</button>
         <button id="mt-play" hidden aria-label="Play or pause">▶</button>
@@ -72,12 +76,15 @@
           <section class="card" id="card-target"></section>
           <section class="card" id="card-whatif"></section>
           <section class="card" id="card-mission" hidden></section>
+          <section class="card" id="card-now" hidden></section>
           <section class="card" id="card-match"></section>
           <section class="card" id="card-travel" hidden></section>
           <section class="card" id="card-time" hidden></section>
           <section class="card nerd-only" id="card-nerd" hidden></section>
           <section class="card" id="card-ask" hidden></section>
           <section class="card" id="card-gaps"></section>
+          <section class="card" id="card-minerals" hidden></section>
+          <section class="card" id="card-ground" hidden></section>
           <section class="card" id="card-blind"></section>
           <section class="card nerd-only" id="card-status"></section>
         </div>

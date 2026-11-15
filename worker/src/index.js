@@ -6,6 +6,8 @@
 //   POST /v1/analogs    ranked Earth cells for a target, optional lens / weights / needs
 //   POST /ask           Gemini "Ask the Planet": plain English -> lens weights (JSON only)
 //   POST /analyst       Gemini "Analog Analyst": explanation grounded in the numbers sent
+//   GET  /v1/now        live: which candidate Earth place is closest to the Mars target's ground
+//                       temperature at this very moment (Cron Trigger refreshes it hourly)
 //
 // The Gemini key is a Wrangler secret (GEMINI_API_KEY). It never reaches the browser.
 // Data comes from the deployed frontend's /data folder (DATA_BASE_URL), so the API
@@ -15,6 +17,17 @@ const MAX_BODY = 20_000;
 const ID_RE = /^[a-z0-9_]{1,64}$/;
 
 export default {
+  // Cron Trigger (wrangler.jsonc "triggers"): refresh the live answer for every Mars target each hour,
+  // so visitors get a cached result instead of waiting on Open-Meteo.
+  async scheduled(event, env, ctx) {
+    const live = await loadData(env, ctx, 'live_candidates.json');
+    for (const id of Object.keys(live.targets || {})) {
+      const body = await computeNow(env, ctx, id);
+      const key = new Request(`https://twinworlds-cache.internal/v1/now?target=${id}`);
+      ctx.waitUntil(caches.default.put(key, new Response(JSON.stringify(body), { headers: { 'content-type': 'application/json', 'cache-control': 'max-age=3600' } })));
+    }
+  },
+
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
     const cors = corsHeaders(request, env);
@@ -26,7 +39,7 @@ export default {
         case 'GET /':
           res = json({
             name: 'TwinWorlds API',
-            endpoints: ['GET /health', 'GET /v1/targets', 'POST /v1/analogs', 'POST /ask', 'POST /analyst', 'POST /whatif', 'POST /when'],
+            endpoints: ['GET /health', 'GET /v1/targets', 'GET /v1/now', 'POST /v1/analogs', 'POST /ask', 'POST /analyst', 'POST /whatif', 'POST /when'],
             docs: env.DOCS_URL || null,
           });
           break;
@@ -41,6 +54,9 @@ export default {
           break;
         case 'GET /v1/analogs':
           res = json(await analogs(env, ctx, Object.fromEntries(url.searchParams)));
+          break;
+        case 'GET /v1/now':
+          res = await nowRoute(env, ctx, url.searchParams.get('target') || 'jezero', request.url);
           break;
         case 'POST /ask':
           res = json(await ask(env, await readBody(request)));
@@ -448,4 +464,87 @@ async function whenRoute(env, b) {
   ].join(' ');
   const { text, model } = await gemini(env, { system, user: JSON.stringify(facts).slice(0, 14000), temperature: 0.3 });
   return { text: text.trim(), label: 'AI-generated from the simulated numbers', model, ai_generated: true };
+}
+
+
+// ---------- live: most Mars-like place right now ----------
+// Mars ground temperature now: Mars Climate Database v6.2 (mars_diurnal.json) at the target, today's
+// season (Ls, Allison & McEwen 2000) and the target's local mean solar time right now (Mars24 method).
+// Earth ground temperature now: Open-Meteo current soil temperature at 0 cm, for the target's top places.
+async function nowRoute(env, ctx, target, reqUrl) {
+  if (!ID_RE.test(target)) throw httpError(400, 'Bad target id');
+  const key = new Request(`https://twinworlds-cache.internal/v1/now?target=${target}`);
+  const hit = await caches.default.match(key);
+  if (hit) {
+    const body = await hit.json();
+    if (Date.now() - Date.parse(body.computed_at) < 60 * 60 * 1000) return json({ ...body, cached: true });
+  }
+  const body = await computeNow(env, ctx, target);
+  ctx.waitUntil(caches.default.put(key, new Response(JSON.stringify(body), { headers: { 'content-type': 'application/json', 'cache-control': 'max-age=3600' } })));
+  return json(body);
+}
+
+async function computeNow(env, ctx, target) {
+  const live = await loadData(env, ctx, 'live_candidates.json');
+  const t = live.targets?.[target];
+  if (!t) throw httpError(400, `Live data covers Mars targets only: ${Object.keys(live.targets || {}).join(', ')}`);
+  const D = await loadData(env, ctx, 'mars_diurnal.json');
+  const now = new Date();
+  const ls = marsLsNow(now);
+  const lmst = marsLmst(now, t.lon);
+  const marsT = marsTempAt(D, t.lat, t.lon, ls, lmst);
+  const lat = t.places.map((p) => p.lat.toFixed(3)).join(',');
+  const lon = t.places.map((p) => p.lon.toFixed(3)).join(',');
+  const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=soil_temperature_0cm,temperature_2m&timezone=GMT`);
+  if (!r.ok) throw httpError(502, `Open-Meteo returned ${r.status}`);
+  let om = await r.json();
+  if (!Array.isArray(om)) om = [om];
+  const places = t.places.map((p, i) => {
+    const cur = om[i]?.current || {};
+    const g = cur.soil_temperature_0cm;
+    return { ...p, ground_c: g ?? null, air_c: cur.temperature_2m ?? null, diff_c: typeof g === 'number' ? Math.round(Math.abs(g - marsT) * 10) / 10 : null,
+      local_solar_hour: Math.round((((now.getUTCHours() + now.getUTCMinutes() / 60 + p.lon / 15) % 24) + 24) % 24 * 10) / 10 };
+  }).sort((a, b) => (a.diff_c ?? 1e9) - (b.diff_c ?? 1e9));
+  return {
+    target: { id: target, name: t.name, lat: t.lat, lon: t.lon },
+    computed_at: now.toISOString(),
+    mars: { ls: Math.round(ls * 10) / 10, local_solar_time_h: Math.round(lmst * 10) / 10, ground_c: Math.round(marsT * 10) / 10 },
+    best: places[0],
+    places,
+    method: "Mars: Mars Climate Database v6.2 surface temperature at this season and the target's local mean solar time now. Earth: Open-Meteo current soil temperature at 0 cm at the target's 12 best-scoring places (by the TwinWorlds score). Closest = smallest absolute difference. Refreshed hourly by a Cloudflare Cron Trigger.",
+    sources: ['Mars Climate Database v6.2 (LMD/OU/IAA/ESA/CNES)', 'Open-Meteo forecast API (current conditions)', 'Mars24 time algorithm (Allison & McEwen 2000)'],
+  };
+}
+
+function marsLsNow(date) {
+  const rad = Math.PI / 180;
+  const jd = date.getTime() / 86400000 + 2440587.5;
+  const dt = jd + 69.184 / 86400 - 2451545.0;
+  const M = (19.3871 + 0.52402073 * dt) * rad;
+  const a = 270.3871 + 0.524038496 * dt;
+  const eoc = (10.691 + 3e-7 * dt) * Math.sin(M) + 0.623 * Math.sin(2 * M) + 0.05 * Math.sin(3 * M) + 0.005 * Math.sin(4 * M) + 0.0005 * Math.sin(5 * M);
+  return (((a + eoc) % 360) + 360) % 360;
+}
+
+/** Local mean solar time (h) at an east longitude on Mars, now (Allison & McEwen 2000; Mars24). */
+function marsLmst(date, lonEast) {
+  const jdTT = date.getTime() / 86400000 + 2440587.5 + 69.184 / 86400;
+  const msd = (jdTT - 2405522.0028779) / 1.0274912517;
+  const mtc = (((24 * msd) % 24) + 24) % 24;
+  return (((mtc + lonEast / 15) % 24) + 24) % 24;
+}
+
+function marsTempAt(d, lat, lon, ls, lt) {
+  const { lats, lons, seasons, times, T } = d;
+  const nLat = lats.length, nLon = lons.length;
+  const x = ((((lon - lons[0]) % 360) + 360) % 360) / (360 / nLon);
+  const i0 = Math.floor(x) % nLon, i1 = (i0 + 1) % nLon, fx = x - Math.floor(x);
+  const dLat = (lats[nLat - 1] - lats[0]) / (nLat - 1);
+  const y = Math.max(0, Math.min(nLat - 1 - 1e-9, (lat - lats[0]) / dLat));
+  const j0 = Math.floor(y), j1 = j0 + 1, fy = y - j0;
+  const at = (si, ti) => { const g = T[si][ti]; return (1 - fx) * (1 - fy) * g[i0 * nLat + j0] + fx * (1 - fy) * g[i1 * nLat + j0] + (1 - fx) * fy * g[i0 * nLat + j1] + fx * fy * g[i1 * nLat + j1]; };
+  const per = (v, arr, period) => { const step = period / arr.length; const u = ((((v - arr[0]) % period) + period) % period) / step; const a = Math.floor(u) % arr.length; return [a, (a + 1) % arr.length, u - Math.floor(u)]; };
+  const [s0, s1, fs] = per(ls, seasons, 360);
+  const [t0, t1, ft] = per(lt, times, 24);
+  return (1 - fs) * ((1 - ft) * at(s0, t0) + ft * at(s0, t1)) + fs * ((1 - ft) * at(s1, t0) + ft * at(s1, t1)) - 273.15;
 }

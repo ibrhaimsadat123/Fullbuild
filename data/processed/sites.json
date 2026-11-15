@@ -23,6 +23,10 @@
       "score": 0.344,
       "top_percent": 49.2
      },
+     "lunar_base": {
+      "score": 0.271,
+      "top_percent": 69.5
+     },
      "thermal": {
       "score": 0.13,
       "top_percent": 58.3
@@ -44,6 +48,10 @@
      "rover": {
       "score": 0.544,
       "top_percent": 9.5
+     },
+     "lunar_base": {
+      "score": 0.433,
+      "top_percent": 19.7
      },
      "thermal": {
       "score": 0.17,
@@ -67,6 +75,10 @@
       "score": 0.757,
       "top_percent": 2.0
      },
+     "lunar_base": {
+      "score": 0.703,
+      "top_percent": 2.2
+     },
      "thermal": {
       "score": 0.354,
       "top_percent": 19.6
@@ -89,6 +101,10 @@
       "score": 0.09,
       "top_percent": 19.1
      },
+     "lunar_base": {
+      "score": 0.063,
+      "top_percent": 21.5
+     },
      "thermal": {
       "score": 0.059,
       "top_percent": 44.0
@@ -110,6 +126,10 @@
      "rover": {
       "score": 0.459,
       "top_percent": 28.8
+     },
+     "lunar_base": {
+      "score": 0.399,
+      "top_percent": 45.5
      },
      "thermal": {
       "score": 0.516,
@@ -144,6 +164,10 @@
       "score": 0.279,
       "top_percent": 66.0
      },
+     "lunar_base": {
+      "score": 0.262,
+      "top_percent": 70.6
+     },
      "thermal": {
       "score": 0.09,
       "top_percent": 79.7
@@ -166,6 +190,10 @@
       "score": 0.447,
       "top_percent": 16.0
      },
+     "lunar_base": {
+      "score": 0.42,
+      "top_percent": 23.6
+     },
      "thermal": {
       "score": 0.146,
       "top_percent": 66.2
@@ -186,6 +214,10 @@
      },
      "rover": {
       "score": 0.522,
+      "top_percent": 7.2
+     },
+     "lunar_base": {
+      "score": 0.527,
       "top_percent": 7.2
      },
      "thermal": {
@@ -210,6 +242,10 @@
       "score": 0.065,
       "top_percent": 26.6
      },
+     "lunar_base": {
+      "score": 0.048,
+      "top_percent": 29.5
+     },
      "thermal": {
       "score": 0.038,
       "top_percent": 64.8
@@ -231,6 +267,10 @@
      "rover": {
       "score": 0.371,
       "top_percent": 44.9
+     },
+     "lunar_base": {
+      "score": 0.386,
+      "top_percent": 51.6
      },
      "thermal": {
       "score": 0.299,
@@ -265,6 +305,10 @@
       "score": 0.052,
       "top_percent": 95.3
      },
+     "lunar_base": {
+      "score": 0.045,
+      "top_percent": 94.8
+     },
      "thermal": {
       "score": 0.1,
       "top_percent": 67.8
@@ -286,6 +330,10 @@
      "rover": {
       "score": 0.143,
       "top_percent": 87.8
+     },
+     "lunar_base": {
+      "score": 0.107,
+      "top_percent": 93.0
      },
      "thermal": {
       "score": 0.237,
@@ -309,6 +357,10 @@
       "score": 0.189,
       "top_percent": 54.3
      },
+     "lunar_base": {
+      "score": 0.14,
+      "top_percent": 67.1
+     },
      "thermal": {
       "score": 0.355,
       "top_percent": 19.6
@@ -331,6 +383,10 @@
       "score": 0.85,
       "top_percent": 0.0
      },
+     "lunar_base": {
+      "score": 0.798,
+      "top_percent": 0.1
+     },
      "thermal": {
       "score": 0.476,
       "top_percent": 0.9
@@ -352,6 +408,10 @@
      "rover": {
       "score": 0.066,
       "top_percent": 94.7
+     },
+     "lunar_base": {
+      "score": 0.052,
+      "top_percent": 94.8
      },
      "thermal": {
       "score": 0.102,
@@ -386,6 +446,10 @@
       "score": 0.266,
       "top_percent": 68.2
      },
+     "lunar_base": {
+      "score": 0.22,
+      "top_percent": 75.3
+     },
      "thermal": {
       "score": 0.114,
       "top_percent": 64.0
@@ -407,6 +471,10 @@
      "rover": {
       "score": 0.531,
       "top_percent": 10.2
+     },
+     "lunar_base": {
+      "score": 0.429,
+      "top_percent": 20.5
      },
      "thermal": {
       "score": 0.17,
@@ -430,6 +498,10 @@
       "score": 0.828,
       "top_percent": 0.7
      },
+     "lunar_base": {
+      "score": 0.747,
+      "top_percent": 1.3
+     },
      "thermal": {
       "score": 0.333,
       "top_percent": 23.3
@@ -452,6 +524,10 @@
       "score": 0.132,
       "top_percent": 11.7
      },
+     "lunar_base": {
+      "score": 0.087,
+      "top_percent": 14.2
+     },
      "thermal": {
       "score": 0.075,
       "top_percent": 36.9
@@ -473,6 +549,10 @@
      "rover": {
       "score": 0.37,
       "top_percent": 45.1
+     },
+     "lunar_base": {
+      "score": 0.333,
+      "top_percent": 64.2
      },
      "thermal": {
       "score": 0.44,
@@ -507,6 +587,10 @@
       "score": 0.361,
       "top_percent": 39.5
      },
+     "lunar_base": {
+      "score": 0.347,
+      "top_percent": 56.4
+     },
      "thermal": {
       "score": 0.123,
       "top_percent": 60.8
@@ -528,6 +612,10 @@
      "rover": {
       "score": 0.152,
       "top_percent": 86.1
+     },
+     "lunar_base": {
+      "score": 0.163,
+      "top_percent": 85.1
      },
      "thermal": {
       "score": 0.076,
@@ -551,6 +639,10 @@
       "score": 0.09,
       "top_percent": 79.5
      },
+     "lunar_base": {
+      "score": 0.087,
+      "top_percent": 83.6
+     },
      "thermal": {
       "score": 0.097,
       "top_percent": 91.0
@@ -573,6 +665,10 @@
       "score": 0.04,
       "top_percent": 50.2
      },
+     "lunar_base": {
+      "score": 0.032,
+      "top_percent": 66.6
+     },
      "thermal": {
       "score": 0.035,
       "top_percent": 68.8
@@ -594,6 +690,10 @@
      "rover": {
       "score": 0.385,
       "top_percent": 43.1
+     },
+     "lunar_base": {
+      "score": 0.429,
+      "top_percent": 42.0
      },
      "thermal": {
       "score": 0.395,
@@ -628,6 +728,10 @@
       "score": 0.574,
       "top_percent": 7.0
      },
+     "lunar_base": {
+      "score": 0.517,
+      "top_percent": 7.9
+     },
      "thermal": {
       "score": 0.156,
       "top_percent": 50.1
@@ -649,6 +753,10 @@
      "rover": {
       "score": 0.379,
       "top_percent": 30.5
+     },
+     "lunar_base": {
+      "score": 0.355,
+      "top_percent": 44.1
      },
      "thermal": {
       "score": 0.124,
@@ -672,6 +780,10 @@
       "score": 0.12,
       "top_percent": 70.1
      },
+     "lunar_base": {
+      "score": 0.117,
+      "top_percent": 73.5
+     },
      "thermal": {
       "score": 0.105,
       "top_percent": 88.0
@@ -694,6 +806,10 @@
       "score": 0.038,
       "top_percent": 54.9
      },
+     "lunar_base": {
+      "score": 0.03,
+      "top_percent": 68.7
+     },
      "thermal": {
       "score": 0.032,
       "top_percent": 71.6
@@ -715,6 +831,10 @@
      "rover": {
       "score": 0.686,
       "top_percent": 8.7
+     },
+     "lunar_base": {
+      "score": 0.716,
+      "top_percent": 8.5
      },
      "thermal": {
       "score": 0.604,
@@ -749,6 +869,10 @@
       "score": 0.253,
       "top_percent": 70.1
      },
+     "lunar_base": {
+      "score": 0.217,
+      "top_percent": 75.5
+     },
      "thermal": {
       "score": 0.11,
       "top_percent": 65.1
@@ -770,6 +894,10 @@
      "rover": {
       "score": 0.53,
       "top_percent": 10.2
+     },
+     "lunar_base": {
+      "score": 0.436,
+      "top_percent": 19.3
      },
      "thermal": {
       "score": 0.17,
@@ -793,6 +921,10 @@
       "score": 0.819,
       "top_percent": 0.8
      },
+     "lunar_base": {
+      "score": 0.733,
+      "top_percent": 1.5
+     },
      "thermal": {
       "score": 0.303,
       "top_percent": 29.0
@@ -815,6 +947,10 @@
       "score": 0.147,
       "top_percent": 10.4
      },
+     "lunar_base": {
+      "score": 0.095,
+      "top_percent": 12.7
+     },
      "thermal": {
       "score": 0.08,
       "top_percent": 35.2
@@ -836,6 +972,10 @@
      "rover": {
       "score": 0.355,
       "top_percent": 46.8
+     },
+     "lunar_base": {
+      "score": 0.331,
+      "top_percent": 64.6
      },
      "thermal": {
       "score": 0.424,
@@ -870,6 +1010,10 @@
       "score": 0.365,
       "top_percent": 37.7
      },
+     "lunar_base": {
+      "score": 0.398,
+      "top_percent": 34.7
+     },
      "thermal": {
       "score": 0.367,
       "top_percent": 17.7
@@ -891,6 +1035,10 @@
      "rover": {
       "score": 0.616,
       "top_percent": 6.0
+     },
+     "lunar_base": {
+      "score": 0.65,
+      "top_percent": 2.0
      },
      "thermal": {
       "score": 0.616,
@@ -914,6 +1062,10 @@
       "score": 0.385,
       "top_percent": 22.9
      },
+     "lunar_base": {
+      "score": 0.431,
+      "top_percent": 19.7
+     },
      "thermal": {
       "score": 0.507,
       "top_percent": 3.4
@@ -936,6 +1088,10 @@
       "score": 0.083,
       "top_percent": 20.9
      },
+     "lunar_base": {
+      "score": 0.068,
+      "top_percent": 19.8
+     },
      "thermal": {
       "score": 0.166,
       "top_percent": 8.2
@@ -957,6 +1113,10 @@
      "rover": {
       "score": 0.433,
       "top_percent": 35.0
+     },
+     "lunar_base": {
+      "score": 0.462,
+      "top_percent": 37.3
      },
      "thermal": {
       "score": 0.407,
@@ -991,6 +1151,10 @@
       "score": 0.08,
       "top_percent": 90.0
      },
+     "lunar_base": {
+      "score": 0.068,
+      "top_percent": 89.7
+     },
      "thermal": {
       "score": 0.196,
       "top_percent": 33.7
@@ -1012,6 +1176,10 @@
      "rover": {
       "score": 0.181,
       "top_percent": 80.6
+     },
+     "lunar_base": {
+      "score": 0.136,
+      "top_percent": 88.8
      },
      "thermal": {
       "score": 0.357,
@@ -1035,6 +1203,10 @@
       "score": 0.195,
       "top_percent": 53.1
      },
+     "lunar_base": {
+      "score": 0.144,
+      "top_percent": 66.3
+     },
      "thermal": {
       "score": 0.359,
       "top_percent": 18.7
@@ -1055,6 +1227,10 @@
      },
      "rover": {
       "score": 0.775,
+      "top_percent": 0.1
+     },
+     "lunar_base": {
+      "score": 0.776,
       "top_percent": 0.1
      },
      "thermal": {
@@ -1078,6 +1254,10 @@
      "rover": {
       "score": 0.092,
       "top_percent": 90.6
+     },
+     "lunar_base": {
+      "score": 0.069,
+      "top_percent": 91.3
      },
      "thermal": {
       "score": 0.131,
@@ -1112,6 +1292,10 @@
       "score": 0.119,
       "top_percent": 85.5
      },
+     "lunar_base": {
+      "score": 0.108,
+      "top_percent": 85.5
+     },
      "thermal": {
       "score": 0.159,
       "top_percent": 48.9
@@ -1133,6 +1317,10 @@
      "rover": {
       "score": 0.364,
       "top_percent": 34.4
+     },
+     "lunar_base": {
+      "score": 0.317,
+      "top_percent": 54.8
      },
      "thermal": {
       "score": 0.399,
@@ -1156,6 +1344,10 @@
       "score": 0.722,
       "top_percent": 2.6
      },
+     "lunar_base": {
+      "score": 0.729,
+      "top_percent": 1.6
+     },
      "thermal": {
       "score": 0.76,
       "top_percent": 0.0
@@ -1178,6 +1370,10 @@
       "score": 0.246,
       "top_percent": 5.6
      },
+     "lunar_base": {
+      "score": 0.175,
+      "top_percent": 7.4
+     },
      "thermal": {
       "score": 0.229,
       "top_percent": 3.2
@@ -1199,6 +1395,10 @@
      "rover": {
       "score": 0.154,
       "top_percent": 84.2
+     },
+     "lunar_base": {
+      "score": 0.133,
+      "top_percent": 85.3
      },
      "thermal": {
       "score": 0.203,
@@ -1233,6 +1433,10 @@
       "score": 0.726,
       "top_percent": 0.3
      },
+     "lunar_base": {
+      "score": 0.63,
+      "top_percent": 0.4
+     },
      "thermal": {
       "score": 0.201,
       "top_percent": 32.3
@@ -1254,6 +1458,10 @@
      "rover": {
       "score": 0.734,
       "top_percent": 1.7
+     },
+     "lunar_base": {
+      "score": 0.668,
+      "top_percent": 1.3
      },
      "thermal": {
       "score": 0.287,
@@ -1277,6 +1485,10 @@
       "score": 0.387,
       "top_percent": 22.6
      },
+     "lunar_base": {
+      "score": 0.376,
+      "top_percent": 27.8
+     },
      "thermal": {
       "score": 0.364,
       "top_percent": 17.7
@@ -1299,6 +1511,10 @@
       "score": 0.05,
       "top_percent": 39.9
      },
+     "lunar_base": {
+      "score": 0.038,
+      "top_percent": 42.7
+     },
      "thermal": {
       "score": 0.044,
       "top_percent": 58.1
@@ -1320,6 +1536,10 @@
      "rover": {
       "score": 0.946,
       "top_percent": 0.1
+     },
+     "lunar_base": {
+      "score": 0.948,
+      "top_percent": 0.2
      },
      "thermal": {
       "score": 0.943,
@@ -1354,6 +1574,10 @@
       "score": 0.148,
       "top_percent": 82.5
      },
+     "lunar_base": {
+      "score": 0.123,
+      "top_percent": 84.1
+     },
      "thermal": {
       "score": 0.079,
       "top_percent": 85.1
@@ -1375,6 +1599,10 @@
      "rover": {
       "score": 0.386,
       "top_percent": 28.4
+     },
+     "lunar_base": {
+      "score": 0.313,
+      "top_percent": 55.7
      },
      "thermal": {
       "score": 0.171,
@@ -1398,6 +1626,10 @@
       "score": 0.812,
       "top_percent": 0.9
      },
+     "lunar_base": {
+      "score": 0.771,
+      "top_percent": 0.8
+     },
      "thermal": {
       "score": 0.518,
       "top_percent": 3.1
@@ -1420,6 +1652,10 @@
       "score": 0.16,
       "top_percent": 9.4
      },
+     "lunar_base": {
+      "score": 0.102,
+      "top_percent": 11.9
+     },
      "thermal": {
       "score": 0.083,
       "top_percent": 34.6
@@ -1441,6 +1677,10 @@
      "rover": {
       "score": 0.207,
       "top_percent": 78.3
+     },
+     "lunar_base": {
+      "score": 0.182,
+      "top_percent": 81.5
      },
      "thermal": {
       "score": 0.264,
@@ -1475,6 +1715,10 @@
       "score": 0.377,
       "top_percent": 34.8
      },
+     "lunar_base": {
+      "score": 0.301,
+      "top_percent": 65.2
+     },
      "thermal": {
       "score": 0.135,
       "top_percent": 56.8
@@ -1496,6 +1740,10 @@
      "rover": {
       "score": 0.545,
       "top_percent": 9.4
+     },
+     "lunar_base": {
+      "score": 0.443,
+      "top_percent": 18.0
      },
      "thermal": {
       "score": 0.166,
@@ -1519,6 +1767,10 @@
       "score": 0.727,
       "top_percent": 2.5
      },
+     "lunar_base": {
+      "score": 0.693,
+      "top_percent": 2.4
+     },
      "thermal": {
       "score": 0.385,
       "top_percent": 13.7
@@ -1541,6 +1793,10 @@
       "score": 0.077,
       "top_percent": 22.6
      },
+     "lunar_base": {
+      "score": 0.055,
+      "top_percent": 24.9
+     },
      "thermal": {
       "score": 0.052,
       "top_percent": 48.2
@@ -1562,6 +1818,10 @@
      "rover": {
       "score": 0.494,
       "top_percent": 16.8
+     },
+     "lunar_base": {
+      "score": 0.438,
+      "top_percent": 40.8
      },
      "thermal": {
       "score": 0.534,
@@ -1596,6 +1856,10 @@
       "score": 0.027,
       "top_percent": 99.5
      },
+     "lunar_base": {
+      "score": 0.023,
+      "top_percent": 99.6
+     },
      "thermal": {
       "score": 0.022,
       "top_percent": 99.6
@@ -1617,6 +1881,10 @@
      "rover": {
       "score": 0.049,
       "top_percent": 99.9
+     },
+     "lunar_base": {
+      "score": 0.039,
+      "top_percent": 100.0
      },
      "thermal": {
       "score": 0.037,
@@ -1640,6 +1908,10 @@
       "score": 0.163,
       "top_percent": 59.8
      },
+     "lunar_base": {
+      "score": 0.145,
+      "top_percent": 66.1
+     },
      "thermal": {
       "score": 0.143,
       "top_percent": 73.4
@@ -1662,6 +1934,10 @@
       "score": 0.249,
       "top_percent": 5.5
      },
+     "lunar_base": {
+      "score": 0.24,
+      "top_percent": 5.0
+     },
      "thermal": {
       "score": 0.071,
       "top_percent": 38.3
@@ -1682,6 +1958,10 @@
      },
      "rover": {
       "score": 0.029,
+      "top_percent": 99.8
+     },
+     "lunar_base": {
+      "score": 0.025,
       "top_percent": 99.8
      },
      "thermal": {

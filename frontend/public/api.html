@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TwinWorlds API</title>
+<style>
+  :root { --bg:#0e1220; --card:#161c30; --line:#2c3550; --ink:#e8ecf5; --soft:#a9b2c8; --mars:#e8784a; --earth:#5aaeff; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.55 Inter, system-ui, sans-serif; }
+  main { max-width: 880px; margin: 0 auto; padding: 32px 16px 64px; }
+  h1 { font-size: 32px; margin: 0 0 4px; } h2 { font-size: 20px; margin: 36px 0 8px; }
+  .soft { color: var(--soft); }
+  code, pre { font: 13px/1.5 ui-monospace, Consolas, monospace; }
+  pre { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 12px; overflow-x: auto; white-space: pre-wrap; word-break: break-word; }
+  .ep { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 16px; margin: 14px 0; }
+  .m { display: inline-block; font-weight: 700; font-size: 12px; padding: 2px 8px; border-radius: 6px; margin-right: 8px; }
+  .GET { background: #1f4d36; color: #8ff0b8; } .POST { background: #5a3420; color: #ffc29e; }
+  button { background: var(--mars); color: #1a0f08; border: 0; border-radius: 8px; padding: 6px 12px; font-weight: 600; cursor: pointer; }
+  .out { max-height: 280px; overflow: auto; }
+  a { color: var(--earth); }
+  table { border-collapse: collapse; width: 100%; } td, th { text-align: left; padding: 4px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+</style>
+</head>
+<body>
+<main>
+  <h1>TwinWorlds API</h1>
+  <p class="soft">Earth analogs for Mars and Moon sites, as a service. Same engine and data as the <a href="/">TwinWorlds app</a>. Runs on Cloudflare Workers; Gemini routes keep the key server-side. Base URL:</p>
+  <pre id="base"></pre>
+  <p class="soft">CORS is limited to the TwinWorlds sites; call it from a server or curl. Numbers are similarity scores (0 to 1) from NASA and partner data; Gemini text is labelled AI-generated.</p>
+
+  <div class="ep"><span class="m GET">GET</span><code>/health</code>
+    <p class="soft">Backend status and the Gemini model list. No secrets.</p>
+    <button data-try="GET /health">Try it</button><pre class="out" hidden></pre></div>
+
+  <div class="ep"><span class="m GET">GET</span><code>/v1/targets</code>
+    <p class="soft">Mars and Moon target sites with every measurement and its source.</p>
+    <button data-try="GET /v1/targets">Try it</button><pre class="out" hidden></pre></div>
+
+  <div class="ep"><span class="m POST">POST</span><code>/v1/analogs</code>
+    <p class="soft">Ranked Earth places for a target. Optional mission lens, custom weights, and hard filters (“needs”) on Earth values.</p>
+    <table>
+      <tr><th>field</th><th>meaning</th></tr>
+      <tr><td><code>target</code></td><td>id or name: jezero, acidalia, arcadia, shackleton, tranquillitatis_pit</td></tr>
+      <tr><td><code>lens</code></td><td>balanced, landing, rover, lunar_base, thermal, astrobiology</td></tr>
+      <tr><td><code>weights</code></td><td>object of dimension → weight, overrides the lens</td></tr>
+      <tr><td><code>needs</code></td><td>list like <code>"slope &lt; 10"</code>, <code>"elevation &lt; 2000"</code></td></tr>
+      <tr><td><code>limit</code></td><td>1 to 100 (default 10)</td></tr>
+    </table>
+    <pre>{"target": "jezero", "lens": "rover", "needs": ["slope &lt; 10"], "limit": 5}</pre>
+    <button data-try='POST /v1/analogs {"target":"jezero","lens":"rover","needs":["slope < 10"],"limit":5}'>Try it</button><pre class="out" hidden></pre></div>
+
+  <div class="ep"><span class="m POST">POST</span><code>/ask</code>
+    <p class="soft">Gemini “Ask the Planet”: plain English → lens weights (JSON only).</p>
+    <pre>{"question": "where could astronauts practise driving on flat cold ground?", "target": "shackleton"}</pre>
+    <button data-try='POST /ask {"question":"where could astronauts practise driving on flat cold ground?","target":"shackleton"}'>Try it</button><pre class="out" hidden></pre></div>
+
+  <div class="ep"><span class="m POST">POST</span><code>/analyst</code>, <code>/whatif</code>, <code>/when</code>
+    <p class="soft">Gemini explanations grounded in the numbers the app sends: why a place matches, how a changed measurement shifts the matches, and when a place is most Mars-like through the year. Used by the app; see <code>worker/src/index.js</code> for the body fields.</p></div>
+
+  <h2>Sources</h2>
+  <p class="soft">Earth: NASA MODIS (2023), USGS GMTED2010, NOAA ETOPO1, NASA EMIT. Mars: MGS MOLA and TES, MRO CRISM, Mars Climate Database (ESA/CNES/LMD). Moon: LRO LOLA and Diviner. Full list in <code>data/SOURCES.md</code> in the repo.</p>
+</main>
+<script>
+  const BASE = 'https://twinworlds-api.ibisadatgamer.workers.dev';
+  document.getElementById('base').textContent = BASE;
+  document.querySelectorAll('[data-try]').forEach((b) => b.addEventListener('click', async () => {
+    const spec = b.dataset.try; const sp = spec.indexOf(' ', 5);
+    const [method, path] = spec.slice(0, sp < 0 ? undefined : sp).split(' ');
+    const body = sp < 0 ? null : spec.slice(sp + 1);
+    const out = b.nextElementSibling; out.hidden = false; out.textContent = 'Calling…';
+    try {
+      const r = await fetch(BASE + path, { method, headers: body ? { 'content-type': 'application/json' } : {}, body });
+      out.textContent = r.status + '\n' + JSON.stringify(await r.json(), null, 2).slice(0, 6000);
+    } catch (e) { out.textContent = 'Request failed: ' + e.message + ' (the API only answers TwinWorlds sites)'; }
+  }));
+</script>
+</body>
+</html>

@@ -62,3 +62,53 @@ Google Earth Engine (processing), Google Colab, Python (NumPy, SciPy, rasterio),
 ## Known analog site coordinates (blind test only)
 
 Approximate public coordinates for Atacama (Yungay), Haughton Crater, McMurdo Dry Valleys, Icelandic highlands (Askja), Mauna Kea, Rio Tinto, Mojave, Mars Desert Research Station, Svalbard (AMASE), Qaidam Basin, Death Valley, Danakil Depression, Pilbara and Lanzarote. These are never used in scoring.
+
+## Mission Twin timing (added Sun 15 Nov)
+
+- **ERA5 hourly reanalysis, 2023** (Copernicus Climate Change Service / ECMWF), via the Open-Meteo Historical Weather API (`archive-api.open-meteo.com`), `soil_temperature_0_to_7cm` and `temperature_2m`, UTC, at each Earth twin site. Saved as `data/sources/mission/era5_<mission>_2023.json`. Licence: CC BY 4.0 (Open-Meteo), Copernicus licence for ERA5.
+- Mars side: Mars Climate Database v6.2 surface temperature (`mars_diurnal.json`), season from the sol (landing date + sol x 88,775.244 s, Ls by Allison & McEwen 2000), sun height from Mars' obliquity (25.19 deg).
+- Script: `pipeline/mission_timing.py` (run after `mission_twin.py`, which rewrites the itinerary). Writes `timing` and a dated `itinerary` into `mission_twin_<mission>.json`.
+- Limits: Earth is soil 0-7 cm, Mars is the ground surface; local solar time uses lon/15 with no equation of time; 2023 is one year, not a climatology.
+
+## Minerals (added Sun 15 Nov)
+
+`data/processed/minerals.json`. Oxide wt%, total iron as FeO (FeOT = 0.8998 x Fe2O3T where only Fe2O3 is given).
+
+- Rocknest soil, Gale crater (Curiosity APXS bulk) and Rocknest minerals (CheMin XRD): Achilles et al. (2017), reprinted in Cannon, K. M. et al. (2019), "Mars global simulant MGS-1: A Rocknest-based open standard for basaltic martian regolith simulants", Icarus 317, 470-478, Tables 1 and 2.
+- MGS-1 prototype (XRF): Cannon et al. (2019), Table 2.
+- BHVO-2 Hawaiian basalt: USGS Certificate of Analysis, Basalt, Hawaiian Volcanic Observatory, BHVO-2 (1998), recommended values.
+- JSC Mars-1 (Pu'u Nene, Mauna Kea): NASA MSFC presentation, Carpenter, Sibille et al. (nasa.gov/wp-content/uploads/2019/04/carpenterm_m2003.pdf). Fe2O3 assumed to be total iron.
+- Shergotty: Dreibus et al. (1982) whole-rock analysis, as compiled in Meyer, C. (2012) Martian Meteorite Compendium (NASA JSC), Shergotty chapter, Table 1a.
+
+## Lenses
+
+- `lunar_base` (Lunar Base Builder) added: slope 3, relief 2, day and night temperature 2, swing 1, albedo 1.5, NDVI 1. Sun angle and ice access are not in the Earth grid, so not weighted. `sites.json` regenerated.
+
+## Spectra (added Sun 15 Nov)
+
+`data/processed/spectra.json`, made by `pipeline/spectra.py` from raw files in `data/sources/spectra/`.
+
+- Mars: MRO CRISM type spectra library, Viviano-Beck, C. E. et al. (2014), JGR Planets 119, PDS data set MRO-M-CRISM-4-TYPESPEC-V1.0 (pds-geosciences.wustl.edu/mro/mro-m-crism-4-typespec-v1/). Column used: ratioed I/F, corrected.
+- Lab: RELAB spectral library (NASA/Keck Reflectance Experiment Laboratory, Brown University), PDS bundle urn:nasa:pds:relab, the specimen each CRISM label names as its lab analog: casc02 (San Carlos AZ olivine), capo05 (fayalite, Crystal Park CO), c1pp22 (diopside, Hawaii), capp47 (bronzite, locality unknown), c1ls04 (plagioclase, Apollo 17 lunar sample).
+- Method: continuum removed (upper convex hull, 0.75-2.6 um); Pearson r, masking 1.62-1.70 um and 1.95-2.08 um.
+- Left out: Fe/Ca carbonate and Fe-smectite (RELAB spectra resolved for CAGR01 and NCJB26 not clearly the named specimens; r 0.13 and 0.46).
+- Not used: NASA EMIT orbital spectra of Earth (Earthdata login required, 1-2 GB per scene). Roadmap.
+
+## EMIT (Earth from orbit) spectra (added Sun 15 Nov)
+
+- NASA EMIT L2A Estimated Surface Reflectance 60 m V001 (LP DAAC), via Google Earth Engine `NASA/EMIT/L2A/RFL`. Script: `pipeline/emit_colab.py` (+ `emit_colab_fix.py` for gypsum and alunite, using their 2.2 um bands because 1.75 um borders EMIT's blank water-vapour bands). Output: `data/sources/spectra/emit_spectra.json` (+ `_fix`).
+- Pixel choice: the 25 of up to 1,500 sampled pixels with the deepest diagnostic band (band depth only, never similarity to Mars).
+- CRISM type spectra for gypsum, kaolinite, alunite, hematite, Al-smectite saved as `data/sources/spectra/crism_*.json`.
+
+## Match zones, hero pairs, live job (added Sun 15 Nov)
+
+- Match zones: contours (marching squares) of the score rank field at top 0.5 / 2 / 5 / 10 % around the best places (`frontend/src/zones.js`). No hand-drawn radii.
+- Hero dive pairs (hand-picked process analogs, labelled as not score-based): Makgadikgadi Pan 20°48'S 25°20'E (Wikipedia); Cueva de los Verdes 29.16111N 13.43889W (Wikipedia); Haughton 75.4N 89.7W (Earth Impact Database, NASA ARES); Hingol (Wikipedia).
+- Live "right now" (`GET /v1/now`, hourly Cloudflare Cron Trigger): Mars ground temperature from the Mars Climate Database at the target's current season and local mean solar time (Mars24 / Allison & McEwen 2000); Earth current soil temperature 0 cm from the Open-Meteo forecast API at each target's 12 best places (`data/processed/live_candidates.json`, from `pipeline/live_candidates.py`).
+
+## Ground type: model thermal inertia (added Sun 15 Nov)
+
+- `data/processed/thermal_inertia.json`, from `pipeline/thermal_inertia.py` (tables cached in data/raw/ti_tables.npz).
+- Same 1-D heat-conduction model on all worlds (sun in, radiation out, equinox, no atmosphere, emissivity 0.95, rho*c 1.2e6 J m-3 K-1), inverted against each cell's existing albedo and 10:30 minus 22:30 ground temperature. Earth flux 1361 x 0.75; Mars 1361/1.524^2; Moon 1361.
+- Check: Jezero model 443 vs published 180-605 (Martinez et al. 2023, Mars 2020 MEDA). Earth values are apparent (air and moisture damp the swing) and read high.
+- Classes: Mellon, M. T. et al. (2000), High-Resolution Thermal Inertia Mapping from the MGS TES, Icarus 148, 437-455.

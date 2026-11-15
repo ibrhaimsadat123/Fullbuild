@@ -22,9 +22,10 @@ import { MissionTwin } from './mission.js';
 import { marsLs, seasonName, earthWeek, compareWeek } from './timesim.js';
 import { loadEarthMonthly, earthGridAt, marsTempsAt, timeline } from './timetravel.js';
 import * as N from './nerd.js';
-import { DIVE_PAIRS, DIVE_VIEW, WORLDS } from './config.js';
+import { drawZones, zoneProfile } from './zones.js';
+import { DIVE_PAIRS, HERO_PAIRS, DIVE_VIEW, WORLDS } from './config.js';
 import { radarChart, overlayChart, sourcesHtml } from './charts.js';
-import { apiEnabled, askPlanet, analyst, whatIf, whenBest } from './api.js';
+import { apiEnabled, askPlanet, analyst, whatIf, whenBest, liveNow } from './api.js';
 import * as P from './panels.js';
 
 const $ = (id) => document.getElementById(id);
@@ -53,7 +54,7 @@ const state = {
   nerdCharts: [],
 };
 
-const WANTED = ['targets.json', 'missions.json', 'earth_grid.json', 'earth_places.json', 'earth_monthly.json', 'mars_grid.json', 'moon_grid.json', 'mars_seasonal.json', 'mars_diurnal.json', 'lenses.json', 'sites.json', 'gaps.json', 'blind_test.json', 'mission_twin_perseverance.json', 'mission_twin_curiosity.json'];
+const WANTED = ['targets.json', 'missions.json', 'earth_grid.json', 'earth_places.json', 'earth_monthly.json', 'mars_grid.json', 'moon_grid.json', 'mars_seasonal.json', 'mars_diurnal.json', 'lenses.json', 'sites.json', 'gaps.json', 'blind_test.json', 'mission_twin_perseverance.json', 'mission_twin_curiosity.json', 'minerals.json', 'spectra.json', 'thermal_inertia.json'];
 
 // ---------- boot ----------
 async function boot() {
@@ -202,6 +203,9 @@ async function selectTarget(id) {
   $('target-select').value = id || '';
   $('planet-site').textContent = state.target ? state.target.name : '';
   $('card-target').innerHTML = P.targetCard(state.target, state.world);
+  renderDivePairs();
+  renderNow();
+  renderGround();
   addMissionInvite();
   state.whatIf = null; state.whatIfDiff = null; state.whatIfBefore = null;
   queueMicrotask(renderWhatIf);
@@ -267,15 +271,19 @@ async function drawHeat() {
   state.heat = buildHeat(state.scores, state.weights, state.lenses?.tier_thresholds || state.scores?.tiers);
   const credit = `TwinWorlds similarity scores, ${state.target.name}${state.weights ? ` (${state.lensLabel})` : ''}`;
   state.heatLayer = await addHeatLayer(state.earth.viewer, state.heat, credit);
+  if (state.showZones !== false && !state.travelPlaying) state.zones = drawZones(state.earth.viewer, state.heat);
   $('legend').hidden = false;
   renderBadges();
   renderMatch();
   resetTime();
   if (!_ttBusy && !state.travelPlaying) renderNerd();
+  renderGround();
 }
 
 function removeHeat() {
   if (state.heatLayer) state.earth.viewer.imageryLayers.remove(state.heatLayer, true);
+  state.zones?.remove();
+  state.zones = null;
   state.heatLayer = null;
   $('legend').hidden = true;
 }
@@ -299,6 +307,7 @@ function selectCell(lat, lon, fly = false) {
   placeEarthMarker(lat, lon);
   if (!state.time_lock) queueMicrotask(resetTime);
   queueMicrotask(renderNerd);
+  queueMicrotask(renderGround);
   if (fly) {
     flyToPoint(state.earth.viewer, 'earth', lon, lat, 900_000, 1.4);
   }
@@ -469,10 +478,22 @@ function placeLiveMarker(lat, lon) {
 }
 
 // ---------- Twin Dive ----------
+function renderDivePairs() {
+  const sel = $('dive-pair');
+  const pairs = (state.target && HERO_PAIRS[state.target.id]) || [];
+  sel.innerHTML = `<option value="">Land on: ${state.cell ? 'the place you clicked' : 'best score match'}</option>`
+    + pairs.map((p, i) => `<option value="${i}">Hero pair: ${P.esc(p.name)}</option>`).join('');
+  sel.hidden = !pairs.length;
+}
+
 function diveEarthSite() {
+  const pick = $('dive-pair').value;
+  const pairs = (state.target && HERO_PAIRS[state.target.id]) || [];
+  if (pick !== '' && pairs[+pick]) {
+    const p = pairs[+pick];
+    return { ...p, source: `${p.source}. Hand-picked for a shared process (${p.why}), not by score.` };
+  }
   if (state.cell) return { ...state.cell, name: $('earth-site').textContent };
-  const pair = state.target && DIVE_PAIRS[state.target.id];
-  if (pair) return pair.earth;
   const top = state.heat?.ranked?.[0];
   if (top) return { lat: top.lat, lon: top.lon, name: P.placeName(top.lat, top.lon) || 'best match' };
   return null;
@@ -542,7 +563,93 @@ async function loadNerd(site) {
   selectCell(site.lat, site.lon, true);
 }
 
+// ---------- Ground type: model thermal inertia, same model on every world ----------
+const _tiIdx = {};
+async function tiAt(world, lat, lon) {
+  const TI = state.ti.data;
+  if (!_tiIdx[world]) {
+    const g = await load(`${world}_grid.json`);
+    if (!g.ok) return null;
+    const f = g.data.fields, ia = f.indexOf('lat'), io = f.indexOf('lon'), res = g.data.resolution_deg || (world === 'earth' ? 0.5 : 1);
+    const m = new Map();
+    g.data.cells.forEach((r, i) => m.set(cellKey(r[ia], r[io], res), i));
+    _tiIdx[world] = { m, res };
+  }
+  const { m, res } = _tiIdx[world];
+  const i = m.get(cellKey(lat, lon, res));
+  return i == null ? null : TI.grids[world][i];
+}
+
+async function renderGround() {
+  const card = $('card-ground');
+  if (!state.target) { card.hidden = true; return; }
+  state.ti ||= await load('thermal_inertia.json');
+  if (!state.ti.ok) { card.hidden = true; return; }
+  const TI = state.ti.data;
+  const t = state.target;
+  const tt = TI.targets[t.id];
+  let tv = tt ? tt.ti : await tiAt(state.world, t.lat, t.lon);
+  const spot = state.cell || (state.heat?.ranked?.[0] && { lat: state.heat.ranked[0].lat, lon: state.heat.ranked[0].lon });
+  const ev = spot ? await tiAt('earth', spot.lat, spot.lon) : null;
+  const num = (v) => (typeof v === 'number' ? v : typeof v === 'string' ? +v.slice(1) : null);
+  const cls = (v) => { const n = num(v); return n == null ? '\u2014' : (TI.classes.find(([a, b]) => n >= a && n < b) || [])[2]; };
+  const pos = (v) => { const n = num(v); return n == null ? null : Math.max(0, Math.min(100, (Math.log(n) - Math.log(15)) / (Math.log(4000) - Math.log(15)) * 100)); };
+  const bands = TI.classes.map(([a, b, n]) => { const l = pos(Math.max(a, 15)), r = pos(Math.min(b, 4000)); return `<span class="ti-band" style="left:${l}%;width:${r - l}%">${P.esc(n)}</span>`; }).join('');
+  const mk = (v, c, label) => (pos(v) == null ? '' : `<span class="ti-mark" style="left:${pos(v)}%;background:${c}" title="${P.esc(label)}"></span>`);
+  const place = spot ? (P.placeName(spot.lat, spot.lon) || `${spot.lat.toFixed(2)}, ${spot.lon.toFixed(2)}`) : null;
+  const pub = tt?.published?.range ? `Published for ${P.esc(t.name)}: <b>${tt.published.range[0]} to ${tt.published.range[1]}</b> (${P.esc((tt.published.source || '').split(',')[0])}). Our model: <b>${tt.ti}</b>, ${tt.ti >= tt.published.range[0] && tt.ti <= tt.published.range[1] ? 'inside' : 'outside'} that range.` : '';
+  const world = state.world === 'moon' ? 'Moon' : 'Mars';
+  card.hidden = false;
+  card.innerHTML = `<h3>Ground type</h3>
+    <p class="normal-only">How fast the ground heats by day and cools at night says whether it is loose dust, sand or solid rock (dust swings wildly, rock holds its heat). We work it out the same way on both worlds.</p>
+    <div class="ti-scale">${bands}${mk(tv, '#e0703a', world)}${mk(ev, '#4aa3ff', 'Earth')}</div>
+    <table class="kv"><tr><td><span style="color:#e0703a">\u25cf</span> ${P.esc(t.name)}</td><td><b>${P.esc(cls(tv))}</b> <span class="muted">(${tv ?? 'n/a'})</span></td></tr>
+    ${place ? `<tr><td><span style="color:#4aa3ff">\u25cf</span> ${P.esc(place)}</td><td><b>${P.esc(cls(ev))}</b>* <span class="muted">(${ev ?? 'n/a'})</span></td></tr>` : ''}</table>
+    ${pub ? `<p class="muted">${pub}</p>` : ''}
+    <p class="muted">* Earth\u2019s air and moisture damp its temperature swing, so Earth values read high (\u201capparent\u201d). Compare Earth places with each other; compare ${world} with its published values.</p>
+    <p class="muted nerd-only">${P.esc(TI.method)} Units: ${P.esc(TI.units)}. Inputs: ${P.esc(Object.entries(TI.worlds).map(([k, v]) => `${k}: ${v}`).join('; '))}. ${P.esc(TI.classes_note)}</p>
+    <span class="src">Inputs: albedo and 10:30 / 22:30 ground temperatures already in TwinWorlds (MODIS on Earth; TES and Mars Climate Database on Mars; LRO LOLA and Diviner on the Moon). Model: pipeline/thermal_inertia.py.</span>`;
+}
+
+// ---------- Live: most Mars-like place right now ----------
+let _nowSeq = 0;
+async function renderNow() {
+  const card = $('card-now');
+  const seq = ++_nowSeq;
+  if (!state.target || state.world !== 'mars' || !apiEnabled()) { card.hidden = true; return; }
+  card.hidden = false;
+  card.innerHTML = '<h3>\ud83d\udd34 Right now</h3><p class="muted">Checking live ground temperatures\u2026</p>';
+  try {
+    const n = await liveNow(state.target.id);
+    if (seq !== _nowSeq) return;
+    const b = n.best;
+    const hh = (h) => `${String(Math.floor(h)).padStart(2, '0')}:${String(Math.round((h % 1) * 60) % 60).padStart(2, '0')}`;
+    card.innerHTML = `<h3>\ud83d\udd34 Right now</h3>
+      <p>It is <b>${hh(n.mars.local_solar_time_h)}</b> at ${P.esc(n.target.name)} and the ground is about <b>${Math.round(n.mars.ground_c)} \u00b0C</b>.
+      Of its best Earth matches, <b>${P.esc(b.name)}</b> is closest this hour: <b>${Math.round(b.ground_c)} \u00b0C</b> at ${hh(b.local_solar_hour)} local (${b.diff_c} \u00b0C apart).</p>
+      <button class="mini" id="now-go">Show it</button>
+      <table class="kv nerd-only">${n.places.slice(0, 6).map((p) => `<tr><td>${P.esc(p.name)}</td><td>${p.ground_c ?? '\u2014'} \u00b0C \u00b7 ${p.diff_c ?? '\u2014'} apart</td></tr>`).join('')}</table>
+      <span class="src">${P.esc(n.method)} Updated ${new Date(n.computed_at).toLocaleTimeString()}${n.cached ? ' (cached)' : ''}.</span>`;
+    $('now-go').addEventListener('click', () => selectCell(b.lat, b.lon, true));
+  } catch (e) {
+    if (seq !== _nowSeq) return;
+    card.innerHTML = `<h3>\ud83d\udd34 Right now</h3><p class="muted">Live data unavailable: ${P.esc(e.message)}</p>`;
+  }
+}
+
 // ---------- Nerd Mode panel ----------
+function zoneHtml() {
+  const site = state.zones?.sites?.[0] || state.heat?.ranked?.[0];
+  if (!site || !state.heat) return '';
+  const prof = zoneProfile(state.heat, site);
+  const dims = [...new Set(prof.flatMap((b) => Object.keys(b.mean)))];
+  const f = (x) => (typeof x === 'number' ? x.toFixed(2) : '\u2014');
+  return `<h4>Match zones around ${P.esc(P.placeName(site.lat, site.lon) || 'the best match')}</h4>
+    <p class="muted">Contours of the real score, not drawn radii. Mean per-dimension similarity of the cells in each band (within 6\u00b0), centre outward:</p>
+    <div class="nerd-table-wrap"><table class="kv nerd-table"><tr><th>Zone</th><th>Cells</th>${dims.map((d) => `<th>${P.esc(P.featureMeta(d).nerd || d)}</th>`).join('')}</tr>
+    ${prof.map((b) => `<tr><td>${b.name} (top ${b.top}%)</td><td>${b.n}</td>${dims.map((d) => `<td>${f(b.mean[d])}</td>`).join('')}</tr>`).join('')}</table></div>`;
+}
+
 let _nerdSeq = 0;
 async function renderNerd() {
   const card = $('card-nerd');
@@ -573,6 +680,7 @@ async function renderNerd() {
     ${row ? `<div class="nerd-table-wrap"><table class="kv nerd-table"><tr><th>Measurement</th><th>Target</th><th>Earth</th><th>Scale</th><th>\u03c3</th><th>z</th><th>s</th><th>w</th></tr>${table}</table></div>
       <p class="muted">Score from these rows: <b>${f(score, 3)}</b>${state.weights ? ` (lens: ${P.esc(state.lensLabel || 'custom')})` : ''}. Earth values are 2023 yearly means; \u03c3 and ranks come from all ${model.n.toLocaleString()} Earth land cells.</p>`
       : '<p class="empty">No land data at this spot (ocean or no terrain data).</p>'}
+    ${zoneHtml()}
     <h4>Where the target sits in Earth\u2019s range</h4>
     <p class="muted">Grey: all ${model.n.toLocaleString()} Earth land cells. <span style="color:#e0703a">\u25A0</span> ${isMars ? 'Mars' : 'Moon'} target \u00b7 <span style="color:#4aa3ff">\u25A0</span> ${P.esc(place || 'Earth place')}. Slope and relief on a log scale.</p>
     <div class="nerd-hists">${hists}</div>
@@ -1007,6 +1115,49 @@ async function explain(cell, earthRow) {
 function renderGaps() {
   if (!state.gaps) return;
   $('card-gaps').innerHTML = P.gapsCard(state.gaps.data, state.world, state.gaps.ok ? null : state.gaps.error);
+  renderMinerals();
+}
+
+async function renderMinerals() {
+  const card = $('card-minerals');
+  if (state.world !== 'mars') { card.hidden = true; return; }
+  state.minerals ||= await load('minerals.json');
+  if (!state.minerals.ok) { card.hidden = true; return; }
+  card.innerHTML = P.mineralsCard(state.minerals.data) + `<div id="spec-box"></div>`;
+  card.hidden = false;
+  state.spectra ||= await load('spectra.json');
+  if (state.spectra.ok) renderSpectrum(state.specPick || (state.spectra.data.spectra.some((x) => x.pair === 'orbit') ? 'emit_gypsum' : 'fe_olivine'));
+}
+
+/** Mars (CRISM, from orbit) vs Earth (EMIT from orbit, or RELAB lab) spectrum of one mineral, continuum removed. */
+function renderSpectrum(id) {
+  const S = state.spectra.data;
+  const sp = S.spectra.find((x) => x.id === id) || S.spectra.find((x) => x.pair === 'orbit') || S.spectra[0];
+  state.specPick = sp.id;
+  state.specChart?.destroy();
+  const pts = (arr) => sp.x.map((x, i) => [x, arr[i]]);
+  const e = sp.earth, m = sp.mars;
+  const orbit = e.kind === 'orbit';
+  const lunar = e.type === 'Returned Lunar Sample';
+  const earthWhat = orbit ? `NASA\u2019s EMIT, looking down from the ISS at ${e.where}` : lunar ? 'a Moon rock (Apollo 17) in the lab' : `an Earth sample${e.where ? ` from ${e.where}` : ''} in the lab`;
+  const opt = (x) => `<option value="${x.id}" ${x.id === sp.id ? 'selected' : ''}>${P.esc(x.mineral)} (r = ${x.shape_r.toFixed(2)})</option>`;
+  const orbitOpts = S.spectra.filter((x) => x.pair === 'orbit');
+  const labOpts = S.spectra.filter((x) => x.pair !== 'orbit');
+  const verdict = sp.shape_r >= 0.85 ? 'a strong match' : sp.shape_r >= 0.6 ? 'a partial match' : 'a weak match';
+  $('spec-box').innerHTML = `<h4>Spectra: Mars from orbit vs ${orbit ? 'Earth from orbit' : 'Earth in the lab'}</h4>
+    <label class="muted">Mineral <select id="spec-pick">${orbitOpts.length ? `<optgroup label="Earth from orbit (EMIT)">${orbitOpts.map(opt).join('')}</optgroup>` : ''}<optgroup label="Earth in the lab (RELAB)">${labOpts.map(opt).join('')}</optgroup></select></label>
+    <div class="time-chart"><canvas id="spec-chart"></canvas></div>
+    <p class="normal-only">Minerals absorb light at their own wavelengths, like a fingerprint. <span style="color:#e0703a">NASA\u2019s CRISM spectrum of ${P.esc(m.where)}</span> vs <span style="color:#4aa3ff">${P.esc(earthWhat)}</span>: shape match <b>r = ${sp.shape_r.toFixed(2)}</b>, ${verdict} (1 = identical).${sp.id === 'fe_ca_carbonate' ? ' The Mars carbonate contains iron and the lab calcite has none, so the 2.3 \u00b5m band lines up but the band shapes differ.' : ''}</p>
+    <p class="muted nerd-only">Compared over ${sp.window_um[0]}\u2013${sp.window_um[1]} \u00b5m (${P.esc(sp.window_why || '')}). ${P.esc(S.method)} ${P.esc(S.note)} ${orbit ? `EMIT scene ${P.esc(e.scene)} (${P.esc(e.date)}), ${P.esc(e.pixels)}, centred ${e.lat.toFixed(3)}\u00b0, ${e.lon.toFixed(3)}\u00b0.` : `Lab specimen ${P.esc(e.sample || '')} ${P.esc(e.name || '')}${e.description ? `: ${P.esc(e.description.replace(/&lt;/g, '<'))}` : ''}${e.where ? `, ${P.esc(e.where)}` : ''}.`} Mars: ${P.esc(m.product || '')} at ${m.lat.toFixed(2)}\u00b0, ${m.lon.toFixed(2)}\u00b0. Gaps: masked bands.</p>
+    <span class="src">Mars: ${P.esc(m.source)}</span><span class="src">Earth: ${P.esc(e.source)}</span>`;
+  state.specChart = overlayChart($('spec-chart'), {
+    x: { label: 'Wavelength', unit: '\u00b5m' }, y: { label: 'Reflectance, continuum removed', unit: '' },
+    series: [
+      { world: 'mars', label: `Mars, CRISM: ${m.where}`, points: pts(sp.mars_cr) },
+      { world: 'earth', label: orbit ? `Earth, EMIT: ${e.where}` : `Lab: ${e.sample || 'sample'}`, points: pts(sp.earth_cr) },
+    ],
+  });
+  $('spec-pick').addEventListener('change', (ev) => renderSpectrum(ev.target.value));
 }
 
 function renderSources() {
@@ -1037,6 +1188,12 @@ function wireUi() {
     state.weights = lens ? lens.weights : null;
     state.lensLabel = lens ? lens.name || lens.id : '';
     await drawHeat();
+  });
+  $('zones-btn').addEventListener('click', () => {
+    state.showZones = state.showZones === false;
+    $('zones-btn').setAttribute('aria-pressed', String(state.showZones));
+    state.zones?.remove();
+    state.zones = state.showZones && state.heat ? drawZones(state.earth.viewer, state.heat) : null;
   });
   $('mode-toggle').addEventListener('click', () => {
     const nerd = document.body.classList.toggle('mode-nerd');

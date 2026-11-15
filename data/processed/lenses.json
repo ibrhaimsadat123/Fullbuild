@@ -1,81 +1,96 @@
 {
-  "version": "0.1",
-  "how_to_use": "Each lens reweights the s_<dim> columns of scores_<target>.json. Overall = weighted GEOMETRIC mean: exp( sum(w*ln(max(s,0.01))) / sum(w) ). No tier_thresholds: map tiers come from each scores file.",
-  "lenses": [
-    {
-      "id": "balanced",
-      "name": "Balanced",
-      "description": "Every measured dimension counts equally.",
-      "icon": "globe",
-      "weights": {
-        "slope_deg": 1,
-        "relief_55km_m": 1,
-        "lst_day_c": 1,
-        "lst_night_c": 1,
-        "lst_swing_c": 1,
-        "albedo": 1,
-        "ndvi": 1
-      }
-    },
-    {
-      "id": "landing",
-      "name": "Landing site rehearsal",
-      "description": "Terrain first: flat, smooth ground like the target, for testing landing hazard detection and plume-surface interaction.",
-      "icon": "rocket",
-      "weights": {
-        "slope_deg": 4,
-        "relief_55km_m": 3,
-        "albedo": 1,
-        "ndvi": 1,
-        "lst_day_c": 0.5,
-        "lst_night_c": 0.5,
-        "lst_swing_c": 0.5
-      }
-    },
-    {
-      "id": "rover",
-      "name": "Rover testing",
-      "description": "Terrain and surface together: slope, relief and ground brightness like the target, plus a harsh climate.",
-      "icon": "rover",
-      "weights": {
-        "slope_deg": 2,
-        "relief_55km_m": 2,
-        "albedo": 1.5,
-        "ndvi": 1,
-        "lst_day_c": 1,
-        "lst_night_c": 1,
-        "lst_swing_c": 1
-      }
-    },
-    {
-      "id": "thermal",
-      "name": "Base and hardware (thermal)",
-      "description": "Temperature first: cold days, cold nights and big day-night swings, for testing habitats, batteries and seals.",
-      "icon": "thermometer",
-      "weights": {
-        "lst_day_c": 3,
-        "lst_night_c": 3,
-        "lst_swing_c": 3,
-        "slope_deg": 0.5,
-        "relief_55km_m": 0.5,
-        "albedo": 0.5,
-        "ndvi": 0.5
-      }
-    },
-    {
-      "id": "astrobiology",
-      "name": "Astrobiology",
-      "description": "Barren and extreme: as little life as possible, for testing life-detection instruments without false positives.",
-      "icon": "microscope",
-      "weights": {
-        "ndvi": 4,
-        "lst_swing_c": 1.5,
-        "lst_day_c": 1,
-        "lst_night_c": 1,
-        "albedo": 1,
-        "slope_deg": 0.5,
-        "relief_55km_m": 0.5
-      }
-    }
-  ]
+ "version": "0.1",
+ "how_to_use": "Each lens reweights the s_<dim> columns of scores_<target>.json. Overall = weighted GEOMETRIC mean: exp( sum(w*ln(max(s,0.01))) / sum(w) ). No tier_thresholds: map tiers come from each scores file.",
+ "lenses": [
+  {
+   "id": "balanced",
+   "name": "Balanced",
+   "description": "Every measured dimension counts equally.",
+   "icon": "globe",
+   "weights": {
+    "slope_deg": 1,
+    "relief_55km_m": 1,
+    "lst_day_c": 1,
+    "lst_night_c": 1,
+    "lst_swing_c": 1,
+    "albedo": 1,
+    "ndvi": 1
+   }
+  },
+  {
+   "id": "landing",
+   "name": "Landing site rehearsal",
+   "description": "Terrain first: flat, smooth ground like the target, for testing landing hazard detection and plume-surface interaction.",
+   "icon": "rocket",
+   "weights": {
+    "slope_deg": 4,
+    "relief_55km_m": 3,
+    "albedo": 1,
+    "ndvi": 1,
+    "lst_day_c": 0.5,
+    "lst_night_c": 0.5,
+    "lst_swing_c": 0.5
+   }
+  },
+  {
+   "id": "rover",
+   "name": "Rover testing",
+   "description": "Terrain and surface together: slope, relief and ground brightness like the target, plus a harsh climate.",
+   "icon": "rover",
+   "weights": {
+    "slope_deg": 2,
+    "relief_55km_m": 2,
+    "albedo": 1.5,
+    "ndvi": 1,
+    "lst_day_c": 1,
+    "lst_night_c": 1,
+    "lst_swing_c": 1
+   }
+  },
+  {
+   "id": "lunar_base",
+   "name": "Lunar Base Builder",
+   "icon": "home",
+   "description": "Flat, stable, bright and bitterly cold ground, for rehearsing base construction near the lunar south pole. Sun angle and ice access are not in the Earth grid yet, so they are not weighed.",
+   "weights": {
+    "slope_deg": 3,
+    "relief_55km_m": 2,
+    "lst_day_c": 2,
+    "lst_night_c": 2,
+    "lst_swing_c": 1,
+    "albedo": 1.5,
+    "ndvi": 1
+   }
+  },
+  {
+   "id": "thermal",
+   "name": "Base and hardware (thermal)",
+   "description": "Temperature first: cold days, cold nights and big day-night swings, for testing habitats, batteries and seals.",
+   "icon": "thermometer",
+   "weights": {
+    "lst_day_c": 3,
+    "lst_night_c": 3,
+    "lst_swing_c": 3,
+    "slope_deg": 0.5,
+    "relief_55km_m": 0.5,
+    "albedo": 0.5,
+    "ndvi": 0.5
+   }
+  },
+  {
+   "id": "astrobiology",
+   "name": "Astrobiology",
+   "description": "Barren and extreme: as little life as possible, for testing life-detection instruments without false positives.",
+   "icon": "microscope",
+   "weights": {
+    "ndvi": 4,
+    "lst_swing_c": 1.5,
+    "lst_day_c": 1,
+    "lst_night_c": 1,
+    "albedo": 1,
+    "slope_deg": 0.5,
+    "relief_55km_m": 0.5
+   }
+  }
+ ]
 }

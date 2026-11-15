@@ -270,7 +270,7 @@ export function missionCard(m, i) {
   const gaps = (seg.gaps || []).length ? `<h4>Earth can't do this here</h4><p>${seg.gaps.map(esc).join(' · ')}</p>` : '';
   const itin = (m.itinerary || []).length
     ? `<h4>Rehearsal itinerary</h4><ol class="itin">${m.itinerary
-        .map((it) => `<li class="${it.segment === seg.id ? 'now' : ''}">${it.day != null ? `Day ${esc(it.day)}, ` : ''}${esc(it.time || '')}${it.time ? ': ' : ''}${esc(it.text || '')}</li>`)
+        .map((it) => `<li class="${it.segment === seg.id ? 'now' : ''}">${it.day != null ? `Day ${esc(it.day)}${it.date ? ` (${esc(new Date(it.date + 'T12:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }))})` : ''}, ` : ''}${esc(it.time || '')}${it.time ? ': ' : ''}${esc(it.text || '')}</li>`)
         .join('')}</ol>`
     : '';
   const mean = segs.filter((x) => typeof x.match === 'number').reduce((a, x, _, arr) => a + x.match / arr.length, 0);
@@ -285,11 +285,51 @@ export function missionCard(m, i) {
   return `<h3>Mission Twin <span class="chip">${esc(m.mission || '')}</span></h3>
     ${m.illustrative ? '<p class="ai-label">Illustrative data</p>' : ''}
     ${intro}${strip}
-    <p><b>Segment ${i + 1} of ${segs.length}</b>${seg.label ? ` · ${esc(seg.label)}` : ''}${seg.length_m ? ` <span class="muted">(${fmt(seg.length_m)} m)</span>` : ''}${seg.sols ? ` <span class="muted">· Perseverance drove it on sol${String(seg.sols).includes('-') ? 's' : ''} ${esc(seg.sols)}</span>` : ''}</p>
+    <p><b>Segment ${i + 1} of ${segs.length}</b>${seg.label ? ` · ${esc(seg.label)}` : ''}${seg.length_m ? ` <span class="muted">(${fmt(seg.length_m)} m)</span>` : ''}${seg.sols ? ` <span class="muted">· ${esc(m.planet?.rover || 'The rover')} drove it on sol${String(seg.sols).includes('-') ? 's' : ''} ${esc(seg.sols)}</span>` : ''}</p>
     ${quality}${fp}${gaps}${itin}
     ${m.timing_note ? `<p class="muted">${esc(m.timing_note)}</p>` : ''}
     ${(m.candidates || []).length ? `<h4 class="nerd-only">Other Earth regions tried</h4><table class="kv nerd-only">${m.candidates.map((c) => `<tr><td>${esc(c.site)}</td><td>mean match ${fmt(c.mean_match)}</td></tr>`).join('')}</table>` : ''}
     ${m.method ? `<span class="src nerd-only">Method: ${esc(m.method)}</span>` : ''}
     <span class="src nerd-only">Route: ${esc(m.planet?.source || 'source missing')}</span>
     <span class="src nerd-only">Earth path: ${esc(m.earth?.source || 'source missing')}</span>`;
+}
+
+/** Minerals card: Mars soil and rock chemistry vs the Earth materials used to stand in for it. */
+export function mineralsCard(M) {
+  const mats = M.materials || [];
+  const ref = mats[0];
+  const others = mats.slice(1).sort((a, b) => a.mean_abs_diff_vs_rocknest_wt - b.mean_abs_diff_vs_rocknest_wt);
+  const ox = M.compare_oxides || [];
+  const colors = { rocknest: '#e0703a', shergotty: '#b8562c', bhvo2: '#4aa3ff', jsc_mars1: '#7cc0ff', mgs1: '#9fb4d0' };
+  const max = Math.max(...ox.map((o) => Math.max(...mats.map((m) => m.oxides[o] || 0))));
+  const phases = M.minerals?.rocknest?.phases || [];
+  const cards = phases.slice(0, 4).concat(phases.filter((p) => /Amorphous/.test(p[0])))
+    .filter((p, i, a) => a.indexOf(p) === i)
+    .map(([n, v]) => `<div class="min-card"><b>${esc(fmt(v))}%</b><span>${esc(n)}</span></div>`).join('');
+  const meter = others.map((m) => {
+    const close = Math.max(0, 1 - m.mean_abs_diff_vs_rocknest_wt / 6);
+    return `<div class="min-row"><span class="min-name">${m.world === 'mars' ? '\ud83d\udd34' : '\ud83c\udf0d'} ${esc(m.name)}</span>
+      <span class="min-bar"><span style="width:${(close * 100).toFixed(0)}%;background:${colors[m.id] || '#888'}"></span></span>
+      <span class="muted">${esc(fmt(m.mean_abs_diff_vs_rocknest_wt))} wt%</span></div>`;
+  }).join('');
+  const bars = ox.map((o) => `<tr><td>${esc(o.replace(/(\d)/g, (d) => '\u2080\u2081\u2082\u2083\u2084\u2085\u2086\u2087\u2088\u2089'[d]))}</td><td class="ox-bars">${mats.map((m) => {
+    const v = m.oxides[o];
+    return v == null ? '' : `<span class="ox" title="${esc(m.name)}: ${fmt(v)} wt%" style="width:${(v / max * 100).toFixed(1)}%;background:${colors[m.id] || '#888'}"></span>`;
+  }).join('')}</td></tr>`).join('');
+  const legend = mats.map((m) => `<span><span style="color:${colors[m.id] || '#888'}">\u25a0</span> ${esc(m.name)} <span class="muted">(${esc(m.kind)})</span></span>`).join(' \u00b7 ');
+  const srcs = mats.map((m) => `<span class="src">${esc(m.name)}: ${esc(m.source)}</span>`).join('');
+  return `<h3>Minerals: what Mars is made of</h3>
+    <p class="normal-only">Curiosity scooped and X-rayed the soil at <b>Rocknest</b>. It is volcanic sand: the same minerals as lava rock on Earth, plus about a third glassy dust.</p>
+    <div class="min-cards">${cards}</div>
+    <h4>Closest Earth stand-ins <span class="muted">(chemistry vs ${esc(ref?.name || 'Mars soil')})</span></h4>
+    ${meter}
+    <p class="muted normal-only">The closest match is a real piece of Mars (a meteorite). On Earth, plain Hawaiian lava is about as close as the simulants built to copy Mars soil.</p>
+    <div class="nerd-only">
+      <h4>Oxides, wt% (total iron as FeO)</h4>
+      <table class="kv ox-table">${bars}</table>
+      <p class="muted">${legend}</p>
+      <p class="muted">${esc(M.similarity || '')} ${esc(M.about || '')}</p>
+      <span class="src">Rocknest minerals: ${esc(M.minerals?.rocknest?.source || '')}</span>
+    </div>
+    ${srcs}`;
 }

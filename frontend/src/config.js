@@ -57,6 +57,19 @@ export const DIVE_PAIRS = {
   },
 };
 
+// Hero pairs: hand-picked process analogs (PROJECT.md 8.2), offered next to the best score match.
+// They are chosen for a shared process, not for the score, and the app says so.
+export const HERO_PAIRS = {
+  acidalia: [{ name: 'Hingol mud volcanoes, Pakistan', lat: 25.44528, lon: 65.86556, why: 'mud volcanoes, a live process analog for the Acidalia mounds',
+    source: 'Wikipedia, "Hingol mud volcanoes" (coordinates of the volcano group)' }],
+  jezero: [{ name: 'Makgadikgadi Pan, Botswana', lat: -20.8, lon: 25.333, why: 'a dried-up ancient lake, like Jezero\u2019s lake and delta',
+    source: 'Wikipedia, "Makgadikgadi Pan" (20\u00b048\u2032S 25\u00b020\u2032E)' }],
+  tranquillitatis_pit: [{ name: 'Cueva de los Verdes lava tube, Lanzarote', lat: 29.16111, lon: -13.43889, why: 'a lava tube, like the cave below the Tranquillitatis pit',
+    source: 'Wikipedia, "Cueva de los Verdes" (29\u00b009\u203240\u2033N 13\u00b026\u203220\u2033W)' }],
+  shackleton: [{ name: 'Haughton crater, Devon Island, Canada', lat: 75.4, lon: -89.7, why: 'a high-Arctic impact crater with a low sun, like the lunar south pole',
+    source: 'Earth Impact Database (NASA ARES): Haughton 75.4N 89.7W' }],
+};
+
 // Dive end pose, relative to the site on each world.
 export const DIVE_VIEW = { range: 30_000, pitchDeg: -32, headingDeg: 20, durationS: 5 };
 

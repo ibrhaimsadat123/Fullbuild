@@ -106,7 +106,7 @@ export function buildHeat(scores, weights = null, thresholds = null) {
   const lensTiers = weights && !thresholds?.fixed ? { exact: q(0.5), strong: q(2), moderate: q(5), variable: q(10) } : thresholds;
   cells.forEach((c, idx) => {
     const score = scored[idx];
-    const entry = { ...c, score, tier: weights ? tierFor(score, lensTiers) : c.tier };
+    const entry = { ...c, score, tier: weights ? tierFor(score, lensTiers) : c.tier, top: typeof score === 'number' ? (1 - pctOf(score)) * 100 : null };
     lookup.set(cellKey(c.lat, c.lon, res), entry);
     if (typeof score !== 'number') return;
     ranked.push(entry);

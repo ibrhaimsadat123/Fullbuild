@@ -1589,87 +1589,129 @@
  "itinerary": [
   {
    "day": 1,
-   "time": "10:30",
+   "date": "2023-09-01",
+   "time": "10:00-14:00",
    "segment": 1,
-   "text": "Segment 1 onward (steep climb), as Curiosity drove from sol 1435"
+   "text": "Segment 1 (steep climb), as Curiosity drove on sol 1435: ground 29 \u00b0C vs 7 \u00b0C on Mars, sun 54\u00b0 vs 73\u00b0 high",
+   "d_temp_c": 22.0,
+   "d_sun_deg": 18.5
   },
   {
    "day": 2,
-   "time": "10:30",
+   "date": "2023-09-02",
+   "time": "10:00-14:00",
    "segment": 2,
-   "text": "Segment 2 onward (steady climb), as Curiosity drove from sol 1452"
+   "text": "Segment 2 (steady climb), as Curiosity drove on sol 1452: ground 28 \u00b0C vs 7 \u00b0C on Mars, sun 55\u00b0 vs 71\u00b0 high",
+   "d_temp_c": 21.6,
+   "d_sun_deg": 16.0
   },
   {
    "day": 3,
-   "time": "10:30",
+   "date": "2023-09-03",
+   "time": "10:00-14:00",
    "segment": 3,
-   "text": "Segment 3 onward (steep climb), as Curiosity drove from sol 1478"
+   "text": "Segment 3 (steep climb), as Curiosity drove on sol 1478: ground 27 \u00b0C vs 7 \u00b0C on Mars, sun 55\u00b0 vs 67\u00b0 high",
+   "d_temp_c": 19.8,
+   "d_sun_deg": 12.3
   },
   {
    "day": 4,
-   "time": "10:30",
+   "date": "2023-09-04",
+   "time": "09:00-13:00",
    "segment": 4,
-   "text": "Segment 4 onward (steady climb), as Curiosity drove from sol 1503"
+   "text": "Segment 4 (steady climb), as Curiosity drove on sol 1503: ground 24 \u00b0C vs 7 \u00b0C on Mars, sun 52\u00b0 vs 65\u00b0 high",
+   "d_temp_c": 16.4,
+   "d_sun_deg": 14.5
   },
   {
    "day": 5,
-   "time": "10:30",
+   "date": "2023-09-05",
+   "time": "09:00-13:00",
    "segment": 5,
-   "text": "Segment 5 onward (steep climb), as Curiosity drove from sol 1514"
+   "text": "Segment 5 (steep climb), as Curiosity drove on sol 1514: ground 26 \u00b0C vs 7 \u00b0C on Mars, sun 52\u00b0 vs 64\u00b0 high",
+   "d_temp_c": 19.0,
+   "d_sun_deg": 13.9
   },
   {
    "day": 6,
-   "time": "10:30",
+   "date": "2023-09-06",
+   "time": "09:00-13:00",
    "segment": 6,
-   "text": "Segment 6 onward (steep climb), as Curiosity drove from sol 1578"
+   "text": "Segment 6 (steep climb), as Curiosity drove on sol 1578: ground 25 \u00b0C vs 4 \u00b0C on Mars, sun 53\u00b0 vs 66\u00b0 high",
+   "d_temp_c": 21.2,
+   "d_sun_deg": 15.1
   },
   {
    "day": 7,
-   "time": "10:30",
+   "date": "2023-09-07",
+   "time": "09:00-13:00",
    "segment": 7,
-   "text": "Segment 7 onward (steady climb), as Curiosity drove from sol 1601"
+   "text": "Segment 7 (steady climb), as Curiosity drove on sol 1601: ground 26 \u00b0C vs 2 \u00b0C on Mars, sun 53\u00b0 vs 69\u00b0 high",
+   "d_temp_c": 24.0,
+   "d_sun_deg": 16.8
   },
   {
    "day": 8,
-   "time": "10:30",
+   "date": "2023-09-08",
+   "time": "09:00-13:00",
    "segment": 8,
-   "text": "Segment 8 onward (steady climb), as Curiosity drove from sol 1635"
+   "text": "Segment 8 (steady climb), as Curiosity drove on sol 1635: ground 26 \u00b0C vs 0 \u00b0C on Mars, sun 53\u00b0 vs 73\u00b0 high",
+   "d_temp_c": 26.3,
+   "d_sun_deg": 19.7
   },
   {
    "day": 9,
-   "time": "10:30",
+   "date": "2023-09-09",
+   "time": "09:00-13:00",
    "segment": 9,
-   "text": "Segment 9 onward (steep climb), as Curiosity drove from sol 1671"
+   "text": "Segment 9 (steep climb), as Curiosity drove on sol 1671: ground 27 \u00b0C vs -2 \u00b0C on Mars, sun 54\u00b0 vs 75\u00b0 high",
+   "d_temp_c": 29.8,
+   "d_sun_deg": 21.5
   },
   {
    "day": 10,
-   "time": "10:30",
+   "date": "2023-09-10",
+   "time": "09:00-13:00",
    "segment": 10,
-   "text": "Segment 10 onward (steep climb), as Curiosity drove from sol 1686"
+   "text": "Segment 10 (steep climb), as Curiosity drove on sol 1686: ground 28 \u00b0C vs -3 \u00b0C on Mars, sun 54\u00b0 vs 73\u00b0 high",
+   "d_temp_c": 30.9,
+   "d_sun_deg": 20.3
   },
   {
    "day": 11,
-   "time": "10:30",
+   "date": "2023-09-11",
+   "time": "09:00-13:00",
    "segment": 11,
-   "text": "Segment 11 onward (steep climb), as Curiosity drove from sol 1719"
+   "text": "Segment 11 (steep climb), as Curiosity drove on sol 1719: ground 26 \u00b0C vs -6 \u00b0C on Mars, sun 54\u00b0 vs 70\u00b0 high",
+   "d_temp_c": 32.6,
+   "d_sun_deg": 17.3
   },
   {
    "day": 12,
-   "time": "10:30",
+   "date": "2023-09-12",
+   "time": "09:00-13:00",
    "segment": 12,
-   "text": "Segment 12 onward (steep climb), as Curiosity drove from sol 1741"
+   "text": "Segment 12 (steep climb), as Curiosity drove on sol 1741: ground 25 \u00b0C vs -8 \u00b0C on Mars, sun 55\u00b0 vs 67\u00b0 high",
+   "d_temp_c": 33.2,
+   "d_sun_deg": 15.1
   },
   {
    "day": 13,
-   "time": "10:30",
+   "date": "2023-09-13",
+   "time": "08:00-12:00",
    "segment": 13,
-   "text": "Segment 13 onward (steep climb), as Curiosity drove from sol 1789"
+   "text": "Segment 13 (steep climb), as Curiosity drove on sol 1789: ground 19 \u00b0C vs -13 \u00b0C on Mars, sun 47\u00b0 vs 61\u00b0 high",
+   "d_temp_c": 31.8,
+   "d_sun_deg": 18.5
   },
   {
    "day": 14,
-   "time": "10:30",
+   "date": "2023-09-14",
+   "time": "08:00-12:00",
    "segment": 14,
-   "text": "Segment 14 onward (steep climb), as Curiosity drove from sol 1822"
+   "text": "Segment 14 (steep climb), as Curiosity drove on sol 1822: ground 22 \u00b0C vs -15 \u00b0C on Mars, sun 47\u00b0 vs 58\u00b0 high",
+   "d_temp_c": 37.8,
+   "d_sun_deg": 16.4
   }
  ],
  "candidates": [
@@ -1715,5 +1757,489 @@
   }
  ],
  "method": "250 m segments; fingerprint = mean slope (50 m baseline) and climb; Earth paths = the real route shape at every 400 m offset and 15 deg rotation in 16 x 16 km candidate regions; DTW window 2; match = exp(-cost/2), cost = (dslope/0.5 deg)^2 + (dclimb/max(3 m, 25% of the Mars climb))^2; shape tried rotated and mirrored. Sub-metre roughness is not compared (1 m HiRISE on Mars vs ~30 m terrain on Earth).",
- "timing_note": "A Mars day (sol) is about 24 h 39 min and Mars seasons are about twice as long. We match ground conditions, not clocks: one rehearsal day per sol of driving, at 10:30 local time (the hour our temperatures are compared at)."
+ "timing_note": "Best rehearsal window: 01 Sep to 14 Sep (2023 weather), one day per segment. On average the ground is within 26 \u00b0C and the sun within 17\u00b0 of what Curiosity saw. A sol is 24 h 39 min and Mars seasons last about twice as long, so we match conditions, not clocks. Earth temperature is ERA5 soil 0-7 cm, Mars is the ground surface. Weak thermal match: Atacama Desert (Yungay), Chile is never as cold as Curiosity's route at midday, so rehearse the terrain here and the temperature in a thermal chamber.",
+ "timing": {
+  "window": {
+   "start": "2023-09-01",
+   "end": "2023-09-14",
+   "mean_d_temp_c": 26.2,
+   "mean_d_sun_deg": 16.9
+  },
+  "per_segment": [
+   {
+    "segment": 1,
+    "sol": 1435,
+    "earth_date_of_sol": "2016-08-19",
+    "mars_ls": 206.9,
+    "mars_temp_c": [
+     -1.4,
+     11.8,
+     9.3,
+     6.8
+    ],
+    "mars_sun_deg": [
+     73.8,
+     83.6,
+     73.8,
+     59.6
+    ],
+    "best_earth_date": "2023-10-06",
+    "earth_start_hour": 10,
+    "earth_temp_c": [
+     25.4,
+     30.7,
+     35,
+     38.1
+    ],
+    "earth_sun_deg": [
+     60.0,
+     69.6,
+     71.4,
+     63.7
+    ],
+    "cost": 31.23
+   },
+   {
+    "segment": 2,
+    "sol": 1452,
+    "earth_date_of_sol": "2016-09-06",
+    "mars_ls": 217.6,
+    "mars_temp_c": [
+     -1.2,
+     11.9,
+     9.4,
+     6.9
+    ],
+    "mars_sun_deg": [
+     72.0,
+     79.6,
+     72.0,
+     58.7
+    ],
+    "best_earth_date": "2023-09-03",
+    "earth_start_hour": 10,
+    "earth_temp_c": [
+     20.8,
+     25.5,
+     29.2,
+     31.5
+    ],
+    "earth_sun_deg": [
+     50.5,
+     57.4,
+     58.5,
+     53.3
+    ],
+    "cost": 28.35
+   },
+   {
+    "segment": 3,
+    "sol": 1478,
+    "earth_date_of_sol": "2016-10-02",
+    "mars_ls": 234.3,
+    "mars_temp_c": [
+     -1.0,
+     12.1,
+     9.6,
+     7.1
+    ],
+    "mars_sun_deg": [
+     68.7,
+     74.5,
+     68.7,
+     57.0
+    ],
+    "best_earth_date": "2023-09-03",
+    "earth_start_hour": 10,
+    "earth_temp_c": [
+     20.8,
+     25.5,
+     29.2,
+     31.5
+    ],
+    "earth_sun_deg": [
+     50.5,
+     57.4,
+     58.5,
+     53.3
+    ],
+    "cost": 23.78
+   },
+   {
+    "segment": 4,
+    "sol": 1503,
+    "earth_date_of_sol": "2016-10-28",
+    "mars_ls": 250.5,
+    "mars_temp_c": [
+     -0.7,
+     12.3,
+     9.7,
+     7.2
+    ],
+    "mars_sun_deg": [
+     66.1,
+     71.0,
+     66.1,
+     55.4
+    ],
+    "best_earth_date": "2023-09-03",
+    "earth_start_hour": 10,
+    "earth_temp_c": [
+     20.8,
+     25.5,
+     29.2,
+     31.5
+    ],
+    "earth_sun_deg": [
+     50.5,
+     57.4,
+     58.5,
+     53.3
+    ],
+    "cost": 21.03
+   },
+   {
+    "segment": 5,
+    "sol": 1514,
+    "earth_date_of_sol": "2016-11-08",
+    "mars_ls": 257.7,
+    "mars_temp_c": [
+     -0.6,
+     12.3,
+     9.8,
+     7.3
+    ],
+    "mars_sun_deg": [
+     65.4,
+     70.1,
+     65.4,
+     55.0
+    ],
+    "best_earth_date": "2023-09-03",
+    "earth_start_hour": 10,
+    "earth_temp_c": [
+     20.8,
+     25.5,
+     29.2,
+     31.5
+    ],
+    "earth_sun_deg": [
+     50.5,
+     57.4,
+     58.5,
+     53.3
+    ],
+    "cost": 20.33
+   },
+   {
+    "segment": 6,
+    "sol": 1578,
+    "earth_date_of_sol": "2017-01-13",
+    "mars_ls": 298.5,
+    "mars_temp_c": [
+     -3.9,
+     9.0,
+     6.6,
+     4.1
+    ],
+    "mars_sun_deg": [
+     67.4,
+     72.7,
+     67.4,
+     56.2
+    ],
+    "best_earth_date": "2023-09-03",
+    "earth_start_hour": 10,
+    "earth_temp_c": [
+     20.8,
+     25.5,
+     29.2,
+     31.5
+    ],
+    "earth_sun_deg": [
+     50.5,
+     57.4,
+     58.5,
+     53.3
+    ],
+    "cost": 27.54
+   },
+   {
+    "segment": 7,
+    "sol": 1601,
+    "earth_date_of_sol": "2017-02-06",
+    "mars_ls": 312.5,
+    "mars_temp_c": [
+     -5.5,
+     7.3,
+     4.9,
+     2.5
+    ],
+    "mars_sun_deg": [
+     70.0,
+     76.4,
+     70.0,
+     57.7
+    ],
+    "best_earth_date": "2023-09-03",
+    "earth_start_hour": 10,
+    "earth_temp_c": [
+     20.8,
+     25.5,
+     29.2,
+     31.5
+    ],
+    "earth_sun_deg": [
+     50.5,
+     57.4,
+     58.5,
+     53.3
+    ],
+    "cost": 33.48
+   },
+   {
+    "segment": 8,
+    "sol": 1635,
+    "earth_date_of_sol": "2017-03-13",
+    "mars_ls": 332.1,
+    "mars_temp_c": [
+     -7.9,
+     4.9,
+     2.6,
+     0.3
+    ],
+    "mars_sun_deg": [
+     73.7,
+     83.2,
+     73.7,
+     59.6
+    ],
+    "best_earth_date": "2023-09-03",
+    "earth_start_hour": 10,
+    "earth_temp_c": [
+     20.8,
+     25.5,
+     29.2,
+     31.5
+    ],
+    "earth_sun_deg": [
+     50.5,
+     57.4,
+     58.5,
+     53.3
+    ],
+    "cost": 44.05
+   },
+   {
+    "segment": 9,
+    "sol": 1671,
+    "earth_date_of_sol": "2017-04-19",
+    "mars_ls": 351.7,
+    "mars_temp_c": [
+     -10.2,
+     2.5,
+     0.3,
+     -1.9
+    ],
+    "mars_sun_deg": [
+     75.0,
+     88.8,
+     75.0,
+     60.1
+    ],
+    "best_earth_date": "2023-09-03",
+    "earth_start_hour": 10,
+    "earth_temp_c": [
+     20.8,
+     25.5,
+     29.2,
+     31.5
+    ],
+    "earth_sun_deg": [
+     50.5,
+     57.4,
+     58.5,
+     53.3
+    ],
+    "cost": 53.53
+   },
+   {
+    "segment": 10,
+    "sol": 1686,
+    "earth_date_of_sol": "2017-05-04",
+    "mars_ls": 359.5,
+    "mars_temp_c": [
+     -11.1,
+     1.5,
+     -0.7,
+     -2.8
+    ],
+    "mars_sun_deg": [
+     74.4,
+     85.5,
+     74.4,
+     59.7
+    ],
+    "best_earth_date": "2023-09-03",
+    "earth_start_hour": 10,
+    "earth_temp_c": [
+     20.8,
+     25.5,
+     29.2,
+     31.5
+    ],
+    "earth_sun_deg": [
+     50.5,
+     57.4,
+     58.5,
+     53.3
+    ],
+    "cost": 53.19
+   },
+   {
+    "segment": 11,
+    "sol": 1719,
+    "earth_date_of_sol": "2017-06-07",
+    "mars_ls": 16.1,
+    "mars_temp_c": [
+     -14.1,
+     -1.7,
+     -3.8,
+     -5.8
+    ],
+    "mars_sun_deg": [
+     71.1,
+     78.5,
+     71.1,
+     57.9
+    ],
+    "best_earth_date": "2023-09-03",
+    "earth_start_hour": 9,
+    "earth_temp_c": [
+     16,
+     20.8,
+     25.5,
+     29.2
+    ],
+    "earth_sun_deg": [
+     40.1,
+     50.5,
+     57.4,
+     58.5
+    ],
+    "cost": 54.41
+   },
+   {
+    "segment": 12,
+    "sol": 1741,
+    "earth_date_of_sol": "2017-06-30",
+    "mars_ls": 26.7,
+    "mars_temp_c": [
+     -16.1,
+     -3.8,
+     -5.8,
+     -7.8
+    ],
+    "mars_sun_deg": [
+     68.3,
+     74.3,
+     68.3,
+     56.3
+    ],
+    "best_earth_date": "2023-09-03",
+    "earth_start_hour": 9,
+    "earth_temp_c": [
+     16,
+     20.8,
+     25.5,
+     29.2
+    ],
+    "earth_sun_deg": [
+     40.1,
+     50.5,
+     57.4,
+     58.5
+    ],
+    "cost": 54.72
+   },
+   {
+    "segment": 13,
+    "sol": 1789,
+    "earth_date_of_sol": "2017-08-18",
+    "mars_ls": 48.9,
+    "mars_temp_c": [
+     -20.2,
+     -8.2,
+     -10.1,
+     -11.9
+    ],
+    "mars_sun_deg": [
+     62.3,
+     66.6,
+     62.3,
+     52.3
+    ],
+    "best_earth_date": "2023-06-14",
+    "earth_start_hour": 9,
+    "earth_temp_c": [
+     7.3,
+     11.9,
+     16.8,
+     21.3
+    ],
+    "earth_sun_deg": [
+     28.7,
+     36.7,
+     41.6,
+     42.3
+    ],
+    "cost": 55.29
+   },
+   {
+    "segment": 14,
+    "sol": 1822,
+    "earth_date_of_sol": "2017-09-21",
+    "mars_ls": 63.8,
+    "mars_temp_c": [
+     -22.9,
+     -11.1,
+     -12.9,
+     -14.7
+    ],
+    "mars_sun_deg": [
+     59.1,
+     62.8,
+     59.1,
+     50.0
+    ],
+    "best_earth_date": "2023-06-14",
+    "earth_start_hour": 9,
+    "earth_temp_c": [
+     7.3,
+     11.9,
+     16.8,
+     21.3
+    ],
+    "earth_sun_deg": [
+     28.7,
+     36.7,
+     41.6,
+     42.3
+    ],
+    "cost": 55.9
+   }
+  ],
+  "mars_hours": [
+   11,
+   12,
+   13,
+   14
+  ],
+  "method": "For each segment: Mars ground temperature (Mars Climate Database v6.2, season of the sol it was driven, local solar hours 11 to 14) and sun height (from Ls and Mars' 25.19 deg obliquity). Earth: ERA5 hourly soil temperature 0-7 cm for 2023 at the twin site, sun height from date and local solar time. Each Earth day's best 4-hour window minimises mean (dT/5 C)^2 + (dSun/5 deg)^2; the itinerary is the run of consecutive days (one per segment) with the lowest total.",
+  "sources": [
+   "Mars Climate Database v6.2 (LMD/OU/IAA/ESA/CNES)",
+   "ERA5 reanalysis (Copernicus/ECMWF) via Open-Meteo Historical Weather API",
+   "Mars Ls: Allison & McEwen (2000), Planet. Space Sci. 48, 215"
+  ]
+ }
 }

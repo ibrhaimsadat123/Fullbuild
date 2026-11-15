@@ -46,3 +46,12 @@ export function whatIf(payload) {
 export function whenBest(payload) {
   return post('/when', payload);
 }
+
+/** Live: the candidate Earth place closest to the Mars target's ground temperature right now. */
+export async function liveNow(target) {
+  if (!API_BASE) throw new Error('Backend not connected');
+  const r = await fetch(`${API_BASE}/v1/now?target=${encodeURIComponent(target)}`);
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(j.error || `Backend error ${r.status}`);
+  return j;
+}

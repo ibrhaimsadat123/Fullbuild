@@ -1,0 +1,171 @@
+{
+ "version": "0.1",
+ "about": "Rock and soil chemistry: Mars (rover and meteorite) vs Earth materials used to stand in for it. Oxide wt%, total iron as FeO (FeOT). Satellites do not give per-pixel element chemistry of Earth, so this panel uses lab and rover samples only, tagged by kind.",
+ "compare_oxides": [
+  "SiO2",
+  "Al2O3",
+  "FeOT",
+  "MgO",
+  "CaO",
+  "Na2O",
+  "TiO2",
+  "K2O",
+  "P2O5"
+ ],
+ "similarity": "Mean absolute difference over the 9 compared oxides, in wt%, vs Rocknest. Lower is closer.",
+ "materials": [
+  {
+   "id": "rocknest",
+   "name": "Rocknest soil, Gale crater",
+   "world": "mars",
+   "kind": "rover measurement",
+   "oxides": {
+    "SiO2": 43.0,
+    "TiO2": 1.2,
+    "Al2O3": 9.4,
+    "FeOT": 19.2,
+    "MnO": 0.4,
+    "MgO": 8.7,
+    "CaO": 7.3,
+    "Na2O": 2.7,
+    "K2O": 0.5,
+    "P2O5": 1.0,
+    "SO3": 5.5,
+    "Cl": 0.7
+   },
+   "source": "Curiosity APXS bulk, Achilles et al. (2017) Table 6, as reprinted in Cannon et al. (2019) Icarus 317, 470, Table 2",
+   "note": "The reference basaltic soil of Mars: wind mixes sand and dust planet-wide, so Rocknest stands for basaltic soil generally (Cannon et al. 2019)."
+  },
+  {
+   "id": "shergotty",
+   "name": "Shergotty meteorite (Martian basalt)",
+   "world": "mars",
+   "kind": "lab sample",
+   "oxides": {
+    "SiO2": 51.36,
+    "TiO2": 0.87,
+    "Al2O3": 7.06,
+    "FeOT": 19.41,
+    "MnO": 0.52,
+    "MgO": 9.28,
+    "CaO": 10.0,
+    "Na2O": 1.29,
+    "K2O": 0.164,
+    "P2O5": 0.8
+   },
+   "source": "Dreibus et al. (1982), as compiled in Meyer, C. (2012) Martian Meteorite Compendium, NASA JSC, Shergotty, Table 1a (whole rock; FeO is total iron; the table's 'P2O3' row read as P2O5)",
+   "note": "A piece of Mars that fell at Sherghati, India, on 25 August 1865. It is a basalt, like most of the Martian crust.",
+   "mean_abs_diff_vs_rocknest_wt": 1.83
+  },
+  {
+   "id": "bhvo2",
+   "name": "Hawaiian basalt (USGS BHVO-2)",
+   "world": "earth",
+   "kind": "lab sample",
+   "lat": 19.41,
+   "lon": -155.28,
+   "oxides": {
+    "SiO2": 49.9,
+    "TiO2": 2.73,
+    "Al2O3": 13.5,
+    "FeOT": 11.07,
+    "MgO": 7.23,
+    "CaO": 11.4,
+    "Na2O": 2.22,
+    "K2O": 0.52,
+    "P2O5": 0.27
+   },
+   "source": "USGS Certificate of Analysis, Basalt, Hawaiian Volcanic Observatory, BHVO-2 (1998), recommended values; FeOT = 0.8998 x Fe2O3T 12.3",
+   "note": "Kilauea lava from 1919. A standard Earth basalt.",
+   "mean_abs_diff_vs_rocknest_wt": 3.05
+  },
+  {
+   "id": "jsc_mars1",
+   "name": "JSC Mars-1 simulant (Mauna Kea tephra)",
+   "world": "earth",
+   "kind": "lab sample",
+   "lat": 19.8,
+   "lon": -155.47,
+   "oxides": {
+    "SiO2": 43.5,
+    "TiO2": 3.8,
+    "Al2O3": 23.3,
+    "FeOT": 14.04,
+    "MnO": 0.3,
+    "MgO": 3.4,
+    "CaO": 6.2,
+    "Na2O": 2.4,
+    "K2O": 0.6,
+    "P2O5": 0.9
+   },
+   "source": "NASA MSFC presentation (Carpenter, Sibille et al.), JSC Mars-1 chemistry table; FeOT = 0.8998 x Fe2O3 15.6 (assumed total iron)",
+   "note": "Weathered volcanic ash from the Pu'u Nene cinder cone, Mauna Kea, Hawaii. NASA's classic Mars soil stand-in.",
+   "mean_abs_diff_vs_rocknest_wt": 3.23
+  },
+  {
+   "id": "mgs1",
+   "name": "MGS-1 simulant (mixed from Earth minerals)",
+   "world": "earth",
+   "kind": "lab sample",
+   "oxides": {
+    "SiO2": 50.8,
+    "TiO2": 0.3,
+    "Al2O3": 8.9,
+    "FeOT": 13.3,
+    "MnO": 0.1,
+    "MgO": 16.7,
+    "CaO": 3.7,
+    "Na2O": 3.4,
+    "K2O": 0.3,
+    "P2O5": 0.4,
+    "SO3": 2.1
+   },
+   "source": "Cannon et al. (2019) Icarus 317, 470, Table 2, MGS-1 prototype (XRF)",
+   "note": "Built to copy Rocknest: Earth plagioclase, pyroxene, olivine, basaltic glass and salts mixed to a recipe.",
+   "mean_abs_diff_vs_rocknest_wt": 3.13
+  }
+ ],
+ "minerals": {
+  "rocknest": {
+   "source": "CheMin XRD, Achilles et al. (2017) Table 1, as reprinted in Cannon et al. (2019) Table 1",
+   "phases": [
+    [
+     "Plagioclase feldspar",
+     26.3
+    ],
+    [
+     "Pyroxene",
+     19.7
+    ],
+    [
+     "Olivine",
+     13.3
+    ],
+    [
+     "Magnetite",
+     1.8
+    ],
+    [
+     "Hematite",
+     1.0
+    ],
+    [
+     "Anhydrite",
+     0.9
+    ],
+    [
+     "Ilmenite",
+     0.9
+    ],
+    [
+     "Quartz",
+     0.8
+    ],
+    [
+     "Amorphous (glass, nanophase)",
+     35.0
+    ]
+   ]
+  }
+ }
+}
