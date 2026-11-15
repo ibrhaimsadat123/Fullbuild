@@ -16,6 +16,7 @@ import {
 import { createPlanetViewer, createEarthViewer, toCartesian, toLonLat, flyHome, flyToPoint } from './globes.js';
 import { load, dataIndex, indexGrid, normalizeScores } from './data.js';
 import { buildHeat, addHeatLayer, rampCss } from './heatmap.js';
+import { buildEarthModel, scoreLive, indexPlanetGrid } from './livescore.js';
 import { TwinDive } from './dive.js';
 import { MissionTwin } from './mission.js';
 import { DIVE_PAIRS, DIVE_VIEW, WORLDS } from './config.js';
@@ -89,6 +90,7 @@ async function loadSide() {
     drawSites();
   }
   if (grid.ok) {
+    state.gridRaw = grid.data;
     state.grid = indexGrid(grid.data);
     renderSources();
     renderBadges();
@@ -182,6 +184,19 @@ async function loadScores() {
   state.scoresError = null;
   renderMatch();
   if (!state.target) return;
+  if (state.target.live) {
+    if (!state.gridRaw) { toast('Earth grid still loading, try again in a moment.'); return; }
+    state.earthModel ||= buildEarthModel(state.gridRaw);
+    const vals = Object.fromEntries(Object.entries(state.target.features)
+      .filter(([, f]) => f?.status === 'sourced' && typeof f.value === 'number').map(([k, f]) => [k, f.value]));
+    const res = scoreLive(state.earthModel, vals, { id: 'live', world: state.world, name: state.target.name });
+    if (res.error) { state.scoresError = res.error; renderMatch(); renderBadges(); toast(res.error, 5000); return; }
+    state.scores = res;
+    await drawHeat();
+    const best = state.heat?.ranked?.[0];
+    if (best && !state.dive?.active) flyToPoint(state.earth.viewer, 'earth', best.lon, best.lat, null, 2);
+    return;
+  }
   const r = await load(`scores_${state.target.id}.json`);
   if (!r.ok) {
     state.scoresError = r.error;
@@ -320,8 +335,68 @@ function wirePlanetClicks() {
   h.setInputAction((e) => {
     const picked = v.scene.pick(e.position);
     const id = picked?.id?.id;
-    if (typeof id === 'string' && id.startsWith('target:')) selectTarget(id.slice(7));
+    if (typeof id === 'string' && id.startsWith('target:') && id !== 'target:live') return selectTarget(id.slice(7));
+    // Anywhere else: score that exact spot against all of Earth, live.
+    let p = v.scene.pickPositionSupported ? v.scene.pickPosition(e.position) : undefined;
+    if (!defined(p)) p = v.camera.pickEllipsoid(e.position, WORLDS[state.world].ellipsoid);
+    if (!defined(p)) return;
+    const ll = toLonLat(state.world, p);
+    if (ll) selectLiveSpot(ll.lat, ll.lon);
   }, ScreenSpaceEventType.LEFT_CLICK);
+}
+
+// ---------- Click anywhere on Mars / the Moon ----------
+const LIVE_SOURCES = { ndvi: 'No vegetation (target value by definition)' };
+async function selectLiveSpot(lat, lon) {
+  const file = `${state.world}_grid.json`;
+  state.planetGrids ||= {};
+  if (!state.planetGrids[state.world]) {
+    const r = await load(file);
+    if (!r.ok) return toast(`Click-anywhere needs ${file} in data/processed.`, 5000);
+    state.planetGrids[state.world] = indexPlanetGrid(r.data);
+  }
+  const g = state.planetGrids[state.world];
+  const cell = g.get(lat, lon);
+  if (!cell) return toast('No data for that spot.');
+  const features = {};
+  for (const [k, v] of Object.entries(cell)) {
+    if (k === 'lat' || k === 'lon') continue;
+    features[k] = typeof v === 'number'
+      ? { value: v, status: 'sourced', source: g.sources[k] || file }
+      : { value: null, status: 'pending', source: g.sources[k] || 'not available for this spot' };
+  }
+  features.ndvi = { value: 0, status: 'sourced', source: LIVE_SOURCES.ndvi };
+  for (const k of ['lst_day_c', 'lst_night_c', 'lst_swing_c']) {
+    if (!features[k]) features[k] = { value: null, status: 'pending', source: 'Planet-wide temperature maps not added yet' };
+  }
+  const label = `${Math.abs(lat).toFixed(1)}°${lat >= 0 ? 'N' : 'S'}, ${Math.abs(lon).toFixed(1)}°${lon >= 0 ? 'E' : 'W'}`;
+  state.target = {
+    id: 'live', live: true, world: state.world, lat: cell.lat, lon: cell.lon,
+    name: `${state.world === 'moon' ? 'Moon' : 'Mars'} spot ${label}`,
+    why: `Any spot you click is scored live against all of Earth (${g.res}° cell).`,
+    features,
+  };
+  $('target-select').value = '';
+  $('planet-site').textContent = state.target.name;
+  $('card-target').innerHTML = P.targetCard(state.target, state.world);
+  placeLiveMarker(cell.lat, cell.lon);
+  highlightTarget();
+  state.cell = null;
+  clearEarthMarker();
+  $('earth-site').textContent = '';
+  await loadScores();
+  renderGaps();
+}
+
+function placeLiveMarker(lat, lon) {
+  const ents = state.planet.viewer.entities;
+  const old = ents.getById('target:live');
+  if (old) ents.remove(old);
+  ents.add({
+    id: 'target:live',
+    position: toCartesian(state.world, lon, lat, 0),
+    point: { pixelSize: 15, color: Color.fromCssColorString('#ffb000'), outlineColor: Color.WHITE, outlineWidth: 2, disableDepthTestDistance: Number.POSITIVE_INFINITY },
+  });
 }
 
 // ---------- Twin Dive ----------
