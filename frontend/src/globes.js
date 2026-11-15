@@ -45,6 +45,11 @@ const BASE_OPTIONS = {
  * load fewer tiles and skip anti-aliasing. Smooth on integrated GPUs; looks the same.
  */
 function tune(viewer, sse = 2.5) {
+  // Sharpness: Cesium's default renders at "browser recommended" resolution, which ignores
+  // Windows display scaling (125-150% on most laptops), so globes and labels look blurry.
+  // Render at the real screen resolution instead, capped at 2x so it stays smooth.
+  viewer.useBrowserRecommendedResolution = false;
+  viewer.resolutionScale = Math.min(1, 2 / (window.devicePixelRatio || 1));
   viewer.targetFrameRate = 30;
   viewer.scene.globe.maximumScreenSpaceError = sse;
   viewer.scene.globe.tileCacheSize = 200;
