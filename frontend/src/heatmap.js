@@ -3,6 +3,7 @@
 // texture and the 0.05 deg regional tiles work the same way over their own extent.
 import { ImageryLayer, Rectangle, SingleTileImageryProvider, Credit } from 'cesium';
 import { inferResolution, cellKey } from './data.js';
+import { FAMILY_W } from './livescore.js';
 
 // Score ramp: fully transparent for the bottom ~85% of Earth so the satellite imagery
 // stays clean; colour only where a place is a real candidate (input is percentile^6:
@@ -39,12 +40,14 @@ export function rampCss() {
  * per-dimension scores, each floored at 0.01, so one badly failed dimension (e.g. bright
  * ice vs dark Mars rock) pulls the whole score down. Only dims present in the cell count.
  */
-export function rescore(cell, weights) {
+export function rescore(cell, weights, skip = null) {
   if (!weights) return cell.score;
   let sum = 0;
   let wsum = 0;
-  for (const [dim, w] of Object.entries(weights)) {
+  for (const [dim, lensW] of Object.entries(weights)) {
     const v = cell.dims?.[dim];
+    // Same rule as the engine: temperature family shares one vote; beyond-Earth dims do not vote.
+    const w = skip?.has(dim) ? 0 : lensW * (FAMILY_W[dim] ?? 1);
     if (typeof v === 'number' && w > 0) {
       sum += Math.log(Math.max(v, 0.01)) * w;
       wsum += w;
@@ -89,7 +92,8 @@ export function buildHeat(scores, weights = null, thresholds = null) {
   const ranked = [];
   // Scores are honest absolute values (no place on Earth is truly Mars-like), so the
   // colours show RANK instead: the top 0.5% of Earth for this target glows red.
-  const scored = cells.map((c) => (weights ? rescore(c, weights) : c.score));
+  const skip = new Set(Object.keys(scores.earth_gaps || {}));
+  const scored = cells.map((c) => (weights ? rescore(c, weights, skip) : c.score));
   const sortedVals = scored.filter((v) => typeof v === 'number').sort((a, b) => a - b);
   const n = sortedVals.length;
   const pctOf = (v) => {

@@ -200,8 +200,9 @@ async function analogs(env, ctx, q) {
   }
 
   const results = [];
+  const beyond = new Set(Object.keys(scores.earth_gaps || {}));
   for (const c of scores.cells || []) {
-    const score = weights ? weightedMean(c.dims, weights) : c.score;
+    const score = weights ? weightedMean(c.dims, weights, beyond) : c.score;
     if (typeof score !== 'number') continue;
     if (parsed.length) {
       const row = grid.get(c.lat, c.lon);
@@ -223,7 +224,7 @@ async function analogs(env, ctx, q) {
     earth_gaps: scores.earth_gaps || null,
     count: Math.min(limit, results.length),
     results: results.slice(0, limit),
-    method: 'Per-dimension Gaussian similarity, combined as a weighted geometric mean (pipeline/score.py).',
+    method: 'Per-dimension Gaussian similarity, combined as a weighted geometric mean; temperature family shares one vote; beyond-Earth dimensions do not vote (pipeline/score.py).',
   };
 }
 
@@ -245,12 +246,14 @@ function compare(v, op, x) {
   if (typeof v !== 'number') return false;
   return op === '<' ? v < x : op === '<=' ? v <= x : op === '>' ? v > x : v >= x;
 }
-function weightedMean(dims, weights) {
+const FAMILY_W = { lst_day_c: 1 / 3, lst_night_c: 1 / 3, lst_swing_c: 1 / 3 };
+function weightedMean(dims, weights, skip = new Set()) {
   // Weighted GEOMETRIC mean, each dimension floored at 0.01: same rule as pipeline/score.py
   // and the app (frontend/src/heatmap.js), so one badly failed dimension pulls the score down.
   let s = 0;
   let w = 0;
-  for (const [k, wt] of Object.entries(weights)) {
+  for (const [k, lensW] of Object.entries(weights)) {
+    const wt = skip.has(k) ? 0 : lensW * (FAMILY_W[k] ?? 1);
     if (typeof dims?.[k] === 'number' && wt > 0) {
       s += Math.log(Math.max(dims[k], 0.01)) * wt;
       w += wt;
@@ -289,11 +292,20 @@ async function gemini(env, { system, user, schema, temperature = 0.2 }) {
   const base = env.GEMINI_BASE_URL || 'https://generativelanguage.googleapis.com';
   let lastStatus = 0;
   for (const model of models) {
-    const r = await fetch(`${base}/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-goog-api-key': env.GEMINI_API_KEY },
-      body: JSON.stringify(body),
-    });
+    // A model that hangs is treated like a busy one: move on after 12 s.
+    let r;
+    try {
+      r = await fetch(`${base}/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': env.GEMINI_API_KEY },
+        body: JSON.stringify(body),
+        signal: AbortSignal.timeout(12_000),
+      });
+    } catch (e) {
+      lastStatus = 504;
+      console.error('Gemini timeout/network', model, String(e));
+      continue;
+    }
     const j = await r.json().catch(() => ({}));
     if (!r.ok) {
       lastStatus = r.status;

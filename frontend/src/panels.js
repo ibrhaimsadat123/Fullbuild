@@ -81,8 +81,9 @@ const LEVELS = [
 const level = (v) => LEVELS.find(([t]) => v >= t)[1];
 
 /** Plain-English verdict from the per-dimension scores, e.g. "Excellent terrain analog, poor temperature analog". */
-export function verdict(dims) {
-  const entries = Object.entries(dims || {}).filter(([, v]) => typeof v === 'number');
+export function verdict(dims, skip = new Set()) {
+  // Dimensions beyond anything on Earth are never called a match.
+  const entries = Object.entries(dims || {}).filter(([k, v]) => typeof v === 'number' && !skip.has(k));
   if (!entries.length) return 'No per-dimension scores for this cell.';
   entries.sort((a, b) => b[1] - a[1]);
   const [bestK, bestV] = entries[0];
@@ -95,7 +96,9 @@ const cap = (s) => s[0].toUpperCase() + s.slice(1);
 export function tierChip(tier) {
   if (!tier) return '';
   const c = TIER_COLORS[String(tier).toLowerCase()] || '#888';
-  return `<span class="tier" style="background:${c}">${esc(tier)}</span>`;
+  // Tiers are relative ranks, not "how Mars-like": show them as what they are.
+  const label = { exact: 'Top 0.5%', strong: 'Top 2%', moderate: 'Top 5%', variable: 'Top 10%' }[String(tier).toLowerCase()] || tier;
+  return `<span class="tier" style="background:${c}" title="Among the best ${esc(label.replace('Top ', ''))} of Earth's land for this target">${esc(label)}</span>`;
 }
 
 export function matchEmpty({ target, scoresError, heat, scores }) {
@@ -125,9 +128,16 @@ export function matchEmpty({ target, scoresError, heat, scores }) {
 }
 
 export function matchCell({ cell, target, earthRow, grid, apiOn, scores }) {
+  const beyond = new Set(Object.keys(scores?.earth_gaps || {}));
+  if (!earthRow && grid) {
+    // Ocean (or a cell with no land data): say so plainly, no score, no actions.
+    return `<h3>${latLon(cell.lat, cell.lon)}</h3>
+      <p class="empty">No land data here. TwinWorlds compares land only: this is ocean, a large lake, or the Greenland ice sheet (no terrain data in GMTED2010).</p>
+      <p class="muted">Click on land, or pick one of the top places above.</p>`;
+  }
   const head = `<h3>${where(cell.lat, cell.lon)}</h3>
     <div><span class="score-big">${typeof cell.score === 'number' ? fmt(cell.score) : '—'}</span>${tierChip(cell.tier)}</div>
-    <p class="verdict">${typeof cell.score === 'number' ? esc(verdict(cell.dims)) : 'Match score pending: the similarity engine has not published scores for this target yet.'}</p>
+    <p class="verdict">${typeof cell.score === 'number' ? esc(verdict(cell.dims, beyond)) : 'Match score pending: the similarity engine has not published scores for this target yet.'}</p>
     <div class="radar-wrap"><canvas id="radar"></canvas></div>`;
 
   const dimsTable = `<table class="kv nerd-only">${Object.entries(cell.dims || {})
@@ -169,7 +179,8 @@ export function matchCell({ cell, target, earthRow, grid, apiOn, scores }) {
 function scoresMeta(scores) {
   if (!scores) return '';
   const name = (k) => esc(featureMeta(k).normal);
-  const used = (scores.dims_used || []).map(name).join(', ');
+  const beyond = new Set(Object.keys(scores.earth_gaps || {}));
+  const used = (scores.dims_voting || (scores.dims_used || []).filter((k) => !beyond.has(k))).map(name).join(', ');
   const missing = (scores.dims_missing || []).map(name).join(', ');
   const gaps = Object.entries(scores.earth_gaps || {})
     .map(([k, g]) => {
@@ -178,7 +189,7 @@ function scoresMeta(scores) {
     })
     .join('');
   return `${used ? `<h4>Scored on</h4><p>${used}</p>` : ''}${missing ? `<p class="muted">Not scored yet: ${missing}</p>` : ''}${
-    gaps ? `<h4>Beyond anything on Earth</h4><table class="kv">${gaps}</table><p class="muted">Nowhere on Earth reaches these values, so each place is scored by how far toward the extreme it gets. The gap stays visible.</p>` : ''
+    gaps ? `<h4>Beyond anything on Earth</h4><table class="kv">${gaps}</table><p class="muted">Nowhere on Earth reaches these values, so they cannot tell Earth places apart and do not count toward the score. The gap stays visible: these are what Earth testing has to fake.</p>` : ''
   }`;
 }
 

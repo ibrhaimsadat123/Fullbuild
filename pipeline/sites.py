@@ -40,8 +40,12 @@ def slug(name):
     return re.sub(r"[^a-z0-9]+", "_", name.lower()).strip("_")[:40]
 
 
-def lens_score(S, weights, dims):
-    w = np.array([weights.get(d, 1.0) for d in dims])[:, None]
+FAMILY_W = {"lst_day_c": 1 / 3, "lst_night_c": 1 / 3, "lst_swing_c": 1 / 3}  # same rule as score.py
+
+
+def lens_score(S, weights, dims, beyond=()):
+    # Temperature family shares one vote; dimensions beyond anything on Earth do not vote.
+    w = np.array([0.0 if d in beyond else weights.get(d, 1.0) * FAMILY_W.get(d, 1.0) for d in dims])[:, None]
     return np.exp((np.log(np.maximum(S, 0.01)) * w).sum(axis=0) / w.sum())
 
 
@@ -53,7 +57,8 @@ def main():
         arr = np.array(d["cells"], dtype="float64")
         dims = d["dims_used"]
         S = arr[:, 3:3 + len(dims)].T
-        per_lens = {k: lens_score(S, v["weights"], dims) for k, v in lenses.items()}
+        beyond = set(d.get("earth_gaps", {}))
+        per_lens = {k: lens_score(S, v["weights"], dims, beyond) for k, v in lenses.items()}
         for s in out_sites:
             dist = np.abs(arr[:, 0] - s["lat"]) + np.abs(((arr[:, 1] - s["lon"] + 180) % 360) - 180) * np.cos(np.radians(s["lat"]))
             i = dist.argmin()

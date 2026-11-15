@@ -7,7 +7,8 @@
 //   2. s_i = exp(-(x_earth - x_target)^2 / (2 sigma_i^2)),
 //      sigma_i = (p95 - p5) / 4 of Earth's values; slope and relief in log space.
 //   3. Target beyond anything on Earth -> percentile rank toward that extreme, gap reported.
-//   4. Overall = weighted geometric mean, each s_i floored at 0.01.
+//   4. Overall = weighted geometric mean, each s_i floored at 0.01. Day/night/swing temperature
+//      share one vote; a dimension beyond anything on Earth does not vote (gap still reported).
 //   5. Tiers are relative: top 0.5 / 2 / 5 / 10 % of Earth's land cells.
 
 const DIMS = {
@@ -20,6 +21,7 @@ const DIMS = {
   ndvi: false,
 };
 export const MIN_DIMS = 3;
+export const FAMILY_W = { lst_day_c: 1 / 3, lst_night_c: 1 / 3, lst_swing_c: 1 / 3 };
 const TIER_PCT = [['exact', 0.5], ['strong', 2], ['moderate', 5], ['variable', 10]];
 
 const tx = (x, log) => (log ? Math.log1p(Math.max(x, 0)) : x);
@@ -87,17 +89,18 @@ export function scoreLive(model, values, meta = {}, weights = null) {
       for (let k = 0; k < model.n; k++) { const e = d.t[k] - tt; s[k] = Math.exp(-(e * e) / twoS2); }
     }
     sims.push([dim, s]);
-    w.push(weights?.[dim] ?? 1);
+    w.push(clamped !== v ? 0 : (weights?.[dim] ?? 1) * (FAMILY_W[dim] ?? 1));
     used.push(dim);
   }
-  if (used.length < MIN_DIMS) {
-    return { error: `Only ${used.length} shared measurement(s) here (${used.join(', ') || 'none'}); need ${MIN_DIMS}.` };
+  const voting = used.filter((_, j) => w[j] > 0);
+  if (voting.length < MIN_DIMS) {
+    return { error: `Only ${voting.length} comparable measurement(s) here (${voting.join(', ') || 'none'}); need ${MIN_DIMS}.` };
   }
   const wsum = w.reduce((a, b) => a + b, 0);
   const score = new Float64Array(model.n);
   for (let k = 0; k < model.n; k++) {
     let acc = 0;
-    for (let j = 0; j < sims.length; j++) acc += Math.log(Math.max(sims[j][1][k], 0.01)) * w[j];
+    for (let j = 0; j < sims.length; j++) if (w[j] > 0) acc += Math.log(Math.max(sims[j][1][k], 0.01)) * w[j];
     score[k] = Math.exp(acc / wsum);
   }
   const sorted = Float64Array.from(score).sort();
@@ -113,7 +116,7 @@ export function scoreLive(model, values, meta = {}, weights = null) {
   }
   return {
     target: meta.id || 'live', world: meta.world, name: meta.name,
-    dims_used: used, dims_missing: missing, earth_gaps: gaps, tiers,
+    dims_used: used, dims_voting: voting, dims_missing: missing, earth_gaps: gaps, tiers,
     resolution_deg: model.resolution_deg, cells, live: true,
     method: 'Computed live in the browser with the same formula as pipeline/score.py',
   };

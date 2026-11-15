@@ -266,7 +266,8 @@ function selectCell(lat, lon, fly = false) {
   state.radar?.destroy();
   $('card-match').innerHTML = P.matchCell({ cell, target: state.target, earthRow, grid: state.grid, apiOn: apiEnabled(), scores: state.scores });
   if (Object.keys(cell.dims || {}).length) state.radar = radarChart($('radar'), cell.dims, (k) => P.featureMeta(k).normal);
-  $('dive-here').onclick = () => startDive({ lat, lon, name: `${lat.toFixed(2)}, ${lon.toFixed(2)}` });
+  const dh = $('dive-here');
+  if (dh) dh.onclick = () => startDive({ lat, lon, name: P.placeName(lat, lon) || `${lat.toFixed(2)}, ${lon.toFixed(2)}` });
   const ex = $('explain-btn');
   if (ex) ex.onclick = () => explain(cell, earthRow);
 }
@@ -415,7 +416,7 @@ function diveEarthSite() {
   const pair = state.target && DIVE_PAIRS[state.target.id];
   if (pair) return pair.earth;
   const top = state.heat?.ranked?.[0];
-  if (top) return { lat: top.lat, lon: top.lon, name: 'best-scoring cell' };
+  if (top) return { lat: top.lat, lon: top.lon, name: P.placeName(top.lat, top.lon) || 'best match' };
   return null;
 }
 
@@ -556,6 +557,13 @@ async function ask(question) {
     const r = await askPlanet({ question, target: state.target?.id, dims, lenses: state.lenses?.lenses });
     state.weights = r.weights;
     state.lensLabel = r.label || 'Ask the Planet';
+    // Show the Ask lens in the dropdown too, so the screen never disagrees with itself.
+    const sel = $('lens-select');
+    let opt = sel.querySelector('option[value="__ask"]');
+    if (!opt) { opt = new Option('', '__ask'); sel.add(opt); }
+    opt.textContent = `Ask: ${state.lensLabel}`;
+    state.askLens = { name: state.lensLabel, weights: r.weights };
+    sel.value = '__ask';
     await drawHeat();
     card.innerHTML = `<h3>Ask the Planet</h3><p>${P.esc(r.explanation || '')}</p>
       <table class="kv nerd-only">${Object.entries(r.weights).map(([k, w]) => `<tr><td>${P.esc(k)}</td><td>${w.toFixed(2)}</td></tr>`).join('')}</table>
@@ -603,7 +611,7 @@ function wireUi() {
   );
   $('target-select').addEventListener('change', (e) => selectTarget(e.target.value));
   $('lens-select').addEventListener('change', async (e) => {
-    const lens = state.lenses?.lenses?.find((l) => l.id === e.target.value);
+    const lens = e.target.value === '__ask' ? state.askLens : state.lenses?.lenses?.find((l) => l.id === e.target.value);
     state.weights = lens ? lens.weights : null;
     state.lensLabel = lens ? lens.name || lens.id : '';
     await drawHeat();

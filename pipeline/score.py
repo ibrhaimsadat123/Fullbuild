@@ -11,6 +11,10 @@ For every Earth cell and every Moon/Mars target:
      scored by percentile rank toward the extreme (the coldest place on Earth scores 1,
      the median 0.5), and the true gap to the target is reported.
   4. Overall score = weighted GEOMETRIC mean of s_i (weights from the Mission Lens).
+     Day, night and swing temperature are one family and share one vote (1/3 each).
+     A dimension where the target is beyond anything on Earth does NOT vote: its percentile
+     ranking would be the same for every target, so it would pull every Mars spot to the
+     same corner of Earth. Its similarity is still stored and the gap is reported.
      A geometric mean means one badly failed dimension (e.g. bright ice vs dark Mars rock)
      pulls the whole score down, instead of being averaged away by the others.
 
@@ -32,7 +36,9 @@ DIMS = {
     "albedo":        False,
     "ndvi":          False,
 }
-MIN_DIMS = 3   # don't score a target on fewer than 3 shared dimensions (too easy to match)
+MIN_DIMS = 3   # don't score a target on fewer than 3 voting dimensions (too easy to match)
+# Correlated dimensions share one vote: day, night and swing temperature are one family.
+FAMILY_W = {"lst_day_c": 1 / 3, "lst_night_c": 1 / 3, "lst_swing_c": 1 / 3}
 # Map tiers are RELATIVE: the top X% of Earth's land cells for this target.
 # The raw score (0-1) still says how close Earth gets in absolute terms.
 TIER_PCT = [("exact", 0.5), ("strong", 2.0), ("moderate", 5.0), ("variable", 10.0)]
@@ -100,11 +106,13 @@ def score_target(grid, target, weights=None):
             p5, p95 = np.percentile(e, [5, 95])
             sigma = max((p95 - p5) / 4, 1e-6)
             sims.append(np.exp(-((e - t) ** 2) / (2 * sigma ** 2)))
-        w.append((weights or {}).get(dim, 1.0))
+        beyond = clamped != tv
+        w.append(0.0 if beyond else (weights or {}).get(dim, 1.0) * FAMILY_W.get(dim, 1.0))
         used.append(dim)
 
-    if len(used) < MIN_DIMS:
-        raise ValueError(f"{target['id']}: only {len(used)} sourced dimension(s) {used}; need {MIN_DIMS}")
+    voting = [d for d, wi in zip(used, w) if wi > 0]
+    if len(voting) < MIN_DIMS:
+        raise ValueError(f"{target['id']}: only {len(voting)} voting dimension(s) {voting}; need {MIN_DIMS}")
     S = np.vstack(sims)                       # (dims, cells)
     W = np.array(w)[:, None]
     score = np.exp((np.log(np.maximum(S, 0.01)) * W).sum(axis=0) / W.sum())
@@ -126,8 +134,10 @@ def export(target, cells, used, missing, gaps, S, score):
         "tiers": th, "tiers_note": "relative: exact = top 0.5% of Earth land cells, strong = top 2%, moderate = top 5%, variable = top 10%",
         "fields": ["lat", "lon", "score"] + [f"s_{d}" for d in used],
         "cells": rows, "top50": top,
+        "dims_voting": [d for d in used if d not in gaps],
         "method": "Gaussian similarity per dimension, sigma = 1/4 of Earth 5-95th percentile range; "
-                  "slope and relief in log space; weighted geometric mean across dimensions (equal weights unless a lens is applied)",
+                  "slope and relief in log space; weighted geometric mean across dimensions. Day/night/swing temperature "
+                  "share one vote; dimensions beyond anything on Earth (earth_gaps) are reported but do not vote",
     }
     path = os.path.join(DATA, f"scores_{target['id']}.json")
     json.dump(out, open(path, "w"), separators=(",", ":"))
