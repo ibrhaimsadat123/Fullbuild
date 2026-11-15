@@ -1,0 +1,68 @@
+{
+  "version": "0.1",
+  "note": "Permanent differences no place on Earth can reproduce, and the test hardware teams use to compensate. Values are well-established approximate figures. Per-target temperature gaps are computed by the engine and stored in each scores_<target>.json under 'earth_gaps'.",
+  "gaps": [
+    {
+      "id": "gravity",
+      "label": "Gravity",
+      "earth": "1 g",
+      "mars": "0.38 g",
+      "moon": "0.17 g",
+      "why_it_matters": "Changes how astronauts walk, how rovers grip, and how dust settles.",
+      "how_to_fake_it": [
+        "Gravity offloading rigs that carry part of a person's or rover's weight (e.g. NASA's ARGOS at Johnson Space Center)",
+        "Parabolic flights: ~20 to 30 seconds of Moon or Mars gravity per arc",
+        "Lighter test rovers built to the same ground pressure as the real one"
+      ]
+    },
+    {
+      "id": "atmosphere",
+      "label": "Air",
+      "earth": "~101,000 Pa, nitrogen and oxygen",
+      "mars": "~600 Pa (under 1% of Earth), mostly carbon dioxide",
+      "moon": "Effectively vacuum",
+      "why_it_matters": "Thin or no air changes heat loss, dust behaviour, sound, drone flight and suit design.",
+      "how_to_fake_it": [
+        "Thermal vacuum chambers for Moon hardware",
+        "Mars simulation chambers filled with low-pressure CO2",
+        "Earth's highest plateaus (Tibet, Atacama) for partial low-pressure and high-UV testing"
+      ]
+    },
+    {
+      "id": "radiation",
+      "label": "Radiation",
+      "earth": "~2.4 mSv per year at the surface (shielded by air and magnetic field)",
+      "mars": "~0.67 mSv per day at the surface (Curiosity RAD), roughly 100x Earth",
+      "moon": "Higher than Mars surface: no atmosphere and no magnetic field",
+      "why_it_matters": "Sets mission length, habitat shielding and electronics design.",
+      "how_to_fake_it": [
+        "Particle accelerator beams (e.g. NASA Space Radiation Laboratory at Brookhaven)",
+        "Testing habitat shielding concepts in caves, lava tubes and under regolith-like soils"
+      ]
+    },
+    {
+      "id": "magnetic_field",
+      "label": "Magnetic field",
+      "earth": "Global field, ~25 to 65 microtesla",
+      "mars": "No global field; patches of ancient magnetised crust",
+      "moon": "No global field; weak local anomalies",
+      "why_it_matters": "Affects compasses, navigation and magnetometer science.",
+      "how_to_fake_it": [
+        "Helmholtz coil cages that cancel Earth's field around an instrument",
+        "Basalts with strong remnant magnetism (e.g. Iceland) for magnetometer calibration"
+      ]
+    },
+    {
+      "id": "temperature_extremes",
+      "label": "Temperature extremes",
+      "earth": "Land surface roughly -64 C to +48 C (2023 yearly means, MODIS)",
+      "mars": "Nights colder than anywhere on Earth; day-night swings ~55 C at Jezero",
+      "moon": "+127 C day to -173 C night at the equator",
+      "why_it_matters": "Batteries, seals, lubricants and materials fail at extremes.",
+      "how_to_fake_it": [
+        "Thermal vacuum and cryogenic chambers",
+        "Antarctic and Tibetan field seasons for the coldest natural conditions"
+      ]
+    }
+  ]
+}
