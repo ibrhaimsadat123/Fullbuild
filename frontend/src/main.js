@@ -85,7 +85,8 @@ async function loadSide() {
   });
   if (mission.ok && mission.data?.planet?.path?.length && mission.data?.earth?.path?.length) {
     state.mission = mission.data;
-    $('mt-btn').hidden = false;
+    updateMissionButton();
+    addMissionInvite();
   }
   if (lenses.ok) {
     state.lenses = lenses.data;
@@ -122,6 +123,7 @@ async function setWorld(world) {
   state.dive = new TwinDive(state.planet, state.earth);
   wirePlanetClicks();
   wireReadout();
+  updateMissionButton();
   wireFarSideCulling(state.planet.viewer);
   // Earth's viewer lives for the whole session: wire its listeners only once.
   if (!state.earthWired) {
@@ -167,6 +169,7 @@ async function selectTarget(id) {
   $('target-select').value = id || '';
   $('planet-site').textContent = state.target ? state.target.name : '';
   $('card-target').innerHTML = P.targetCard(state.target, state.world);
+  addMissionInvite();
   highlightTarget();
   if (state.target && !state.dive?.active) {
     flyToPoint(state.planet.viewer, state.world, state.target.lon, state.target.lat, null, 1.6);
@@ -390,6 +393,7 @@ async function selectLiveSpot(lat, lon) {
   $('target-select').value = '';
   $('planet-site').textContent = state.target.name;
   $('card-target').innerHTML = P.targetCard(state.target, state.world);
+  addMissionInvite();
   placeLiveMarker(cell.lat, cell.lon);
   highlightTarget();
   state.cell = null;
@@ -523,6 +527,22 @@ function pathExtentM(world, path) {
   return max;
 }
 
+// Mission Twin only makes sense on its own world; invite from its target's card.
+function updateMissionButton() {
+  const m = state.mission;
+  $('mt-btn').hidden = !m || (m.planet.world || 'mars') !== state.world;
+}
+function addMissionInvite() {
+  const m = state.mission;
+  const card = $('card-target');
+  if (!m || !state.target || state.target.id !== m.planet.target || card.querySelector('.mt-invite')) return;
+  const div = document.createElement('div');
+  div.className = 'mt-invite';
+  div.innerHTML = `<b>Mission Twin:</b> rehearse ${P.esc(m.planet.rover || 'the rover')}'s real ${m.distance_km ? `${m.distance_km} km ` : ''}drive here on a matched path on Earth (${P.esc(m.earth.site || '')}).<br><button class="mt-start">▶ Rehearse the drive</button>`;
+  div.querySelector('.mt-start').onclick = () => startMission();
+  card.appendChild(div);
+}
+
 async function startMission() {
   const m = state.mission;
   if (!m) return;
@@ -542,7 +562,9 @@ async function startMission() {
   const extent = Math.max(pathExtentM(state.world, m.planet.path), pathExtentM('earth', m.earth.path));
   const range = Math.min(60_000, Math.max(800, extent * 1.8));
   $('earth-site').textContent = m.earth.site || 'matched path';
+  card.scrollIntoView({ behavior: 'smooth', block: 'start' });
   await state.dive.start(s.planet, s.earth, { ...DIVE_VIEW, range });
+  state.mt?.play();
 }
 
 // ---------- Ask the Planet + Analyst ----------
@@ -628,6 +650,13 @@ function wireUi() {
   });
   $('dive-btn').addEventListener('click', () => startDive());
   $('mt-btn').addEventListener('click', () => startMission());
+  $('card-mission').addEventListener('click', (e) => {
+    const b = e.target.closest?.('.seg[data-seg]');
+    if (!b || !state.mt) return;
+    const n = state.mt.segments.length;
+    state.mt.pause();
+    state.mt.seek((+b.dataset.seg + 0.02) / n);
+  });
   $('mt-play').addEventListener('click', () => (state.mt?.playing ? state.mt.pause() : state.mt?.play()));
   $('mt-seek').addEventListener('input', (e) => {
     state.mt?.pause();

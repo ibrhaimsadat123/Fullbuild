@@ -1,6 +1,7 @@
 {
  "mission": "Perseverance, Jezero crater floor to the delta front (sols 388-420)",
  "playback_seconds": 28,
+ "distance_km": 4.1,
  "planet": {
   "world": "mars",
   "target": "jezero",
@@ -662,6 +663,10 @@
     77.401377,
     18.449577
    ]
+  ],
+  "ends": [
+   "Start, sol 388",
+   "Delta front, sol 419"
   ],
   "source": "NASA/JPL-Caltech Mars 2020 traverse (mars.nasa.gov MMGIS M20_traverse.json), sols 388-420; elevations from rover localization"
  },
@@ -1325,6 +1330,10 @@
     97.228525,
     38.320656
    ]
+  ],
+  "ends": [
+   "Start",
+   "Climb (delta-front twin)"
   ],
   "source": "Route shape matched on Cesium World Terrain (50 m grid), rotated 315 deg; Dynamic Time Warping on segment slope and climb"
  },

@@ -176,9 +176,10 @@ def main():
     out = {
         "mission": "Perseverance, Jezero crater floor to the delta front (sols 388-420)",
         "playback_seconds": 28,
-        "planet": {"world": "mars", "target": "jezero", "rover": "Perseverance", "path": planet_path,
+        "distance_km": round(float(route["s"][-1]) / 1000, 1),
+        "planet": {"world": "mars", "target": "jezero", "rover": "Perseverance", "path": planet_path, "ends": [f"Start, sol {SOL0}", "Delta front, sol 419"],
                    "source": "NASA/JPL-Caltech Mars 2020 traverse (mars.nasa.gov MMGIS M20_traverse.json), sols 388-420; elevations from rover localization"},
-        "earth": {"site": g["name"], "rover": "Earth twin", "path": earth_path,
+        "earth": {"site": g["name"], "rover": "Earth twin", "path": earth_path, "ends": ["Start", "Climb (delta-front twin)"],
                   "source": f"Route shape matched on Cesium World Terrain (50 m grid), rotated {th} deg; Dynamic Time Warping on segment slope and climb"},
         "segments": segs,
         "itinerary": itinerary,

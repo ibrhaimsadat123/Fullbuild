@@ -273,8 +273,18 @@ export function missionCard(m, i) {
         .map((it) => `<li class="${it.segment === seg.id ? 'now' : ''}">${it.day != null ? `Day ${esc(it.day)}, ` : ''}${esc(it.time || '')}${it.time ? ': ' : ''}${esc(it.text || '')}</li>`)
         .join('')}</ol>`
     : '';
+  const mean = segs.filter((x) => typeof x.match === 'number').reduce((a, x, _, arr) => a + x.match / arr.length, 0);
+  const strip = `<div class="seg-strip" role="list" aria-label="Segments by match quality">${segs
+    .map((x, k) => {
+      const c = typeof x.match !== 'number' ? '#555' : x.match >= 0.7 ? '#6fd18b' : x.match >= 0.5 ? '#ffcc4d' : '#ff6b5a';
+      return `<button class="seg ${k === i ? 'now' : ''}" data-seg="${k}" style="background:${c}" title="Segment ${k + 1}: ${esc(x.label || '')}, match ${typeof x.match === 'number' ? fmt(x.match) : 'none'}"></button>`;
+    })
+    .join('')}</div>
+    <p class="muted strip-legend"><span style="color:#6fd18b">■</span> good · <span style="color:#ffcc4d">■</span> fair · <span style="color:#ff6b5a">■</span> weak · <span style="color:#888">■</span> no Earth match. Click a block to jump there.</p>`;
+  const intro = `<p class="mt-intro">Rehearse a real Mars drive on Earth. <b>${esc(m.planet?.rover || 'The rover')}</b> drove this route${m.distance_km ? ` (${fmt(m.distance_km)} km)` : ''}; we searched ${(m.candidates || []).length || 'several'} Earth regions for a path with the same sequence of slopes and climbs. Best twin: <b>${esc(m.earth?.site || 'Earth')}</b>, average segment match ${fmt(mean)}. <span style="color:#e0703a">●</span> ${esc(m.planet?.rover || 'Rover')} · <span style="color:#4aa3ff">●</span> Earth twin: each segment plays at the same moment on both worlds.</p>`;
   return `<h3>Mission Twin <span class="chip">${esc(m.mission || '')}</span></h3>
     ${m.illustrative ? '<p class="ai-label">Illustrative data</p>' : ''}
+    ${intro}${strip}
     <p><b>Segment ${i + 1} of ${segs.length}</b>${seg.label ? ` · ${esc(seg.label)}` : ''}${seg.length_m ? ` <span class="muted">(${fmt(seg.length_m)} m)</span>` : ''}${seg.sols ? ` <span class="muted">· Perseverance drove it on sol${String(seg.sols).includes('-') ? 's' : ''} ${esc(seg.sols)}</span>` : ''}</p>
     ${quality}${fp}${gaps}${itin}
     ${m.timing_note ? `<p class="muted">${esc(m.timing_note)}</p>` : ''}

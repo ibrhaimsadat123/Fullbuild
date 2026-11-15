@@ -171,3 +171,12 @@ body.world-moon #pane-planet .pane-label > span:first-child { color: var(--moon)
 }
 /* Let one-line sources shrink inside table cells instead of widening the table. */
 .kv td:has(> .src) { max-width: 0; width: 62%; }
+
+/* Mission Twin */
+.mt-intro { font-size: 13px; line-height: 1.45; }
+.seg-strip { display: flex; gap: 3px; margin: 8px 0 4px; }
+.seg-strip .seg { flex: 1; height: 14px; min-width: 0; padding: 0; border: 0; border-radius: 3px; cursor: pointer; opacity: 0.55; }
+.seg-strip .seg.now { opacity: 1; outline: 2px solid #fff; outline-offset: 1px; }
+.strip-legend { font-size: 11px; margin-top: 2px; }
+.mt-invite { margin-top: 10px; padding: 10px; border: 1px solid rgba(224,112,58,0.5); border-radius: 8px; background: rgba(224,112,58,0.08); font-size: 13px; }
+.mt-invite button { margin-top: 6px; }

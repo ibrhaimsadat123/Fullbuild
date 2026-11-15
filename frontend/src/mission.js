@@ -3,7 +3,7 @@
 // marker along each in lockstep: segment i on the planet plays at the same time as
 // its matched segment i on Earth (the pipeline's DTW pairing), so both rovers
 // always sit on matching ground even when segment lengths differ.
-import { CallbackProperty, Color, ClassificationType, LabelStyle, VerticalOrigin, Cartesian2 } from 'cesium';
+import { CallbackProperty, Color, ClassificationType, LabelStyle, VerticalOrigin, Cartesian2, HeightReference } from 'cesium';
 import { toCartesian } from './globes.js';
 
 const lerp = (a, b, u) => a + (b - a) * u;
@@ -60,7 +60,9 @@ export class MissionTwin {
           const [lon, lat] = this.positionAt(side);
           return toCartesian(world, lon, lat, 0);
         }, false),
-        point: { pixelSize: 13, color: Color.WHITE, outlineColor: Color.fromCssColorString(color), outlineWidth: 4, disableDepthTestDistance: Number.POSITIVE_INFINITY },
+        // Pinned to the real ground (terrain on Earth, 3D tiles on Mars/Moon). At height 0 the
+        // marker floated km above/below the surface and slid off its path when the camera turned.
+        point: { pixelSize: 13, color: Color.WHITE, outlineColor: Color.fromCssColorString(color), outlineWidth: 4, heightReference: HeightReference.CLAMP_TO_GROUND, disableDepthTestDistance: Number.POSITIVE_INFINITY },
         label: {
           text: label,
           font: '600 12px Inter, system-ui, sans-serif',
@@ -69,9 +71,23 @@ export class MissionTwin {
           outlineColor: Color.BLACK,
           verticalOrigin: VerticalOrigin.BOTTOM,
           pixelOffset: new Cartesian2(0, -12),
+          heightReference: HeightReference.CLAMP_TO_GROUND,
           disableDepthTestDistance: Number.POSITIVE_INFINITY,
         },
       })]);
+      // Start / end markers so each route reads as a journey, not a line.
+      const ends = this.data[side].ends || ['Start', 'End'];
+      [[path[0], ends[0]], [path[path.length - 1], ends[1]]].forEach(([[lon, lat], text]) => {
+        this.entities.push([g, g.viewer.entities.add({
+          position: toCartesian(world, lon, lat, 0),
+          point: { pixelSize: 7, color: Color.fromCssColorString(color), heightReference: HeightReference.CLAMP_TO_GROUND, disableDepthTestDistance: Number.POSITIVE_INFINITY },
+          label: {
+            text, font: '500 11px Inter, system-ui, sans-serif', style: LabelStyle.FILL_AND_OUTLINE, outlineWidth: 3,
+            outlineColor: Color.BLACK, fillColor: Color.fromCssColorString('#dfe6f2'), verticalOrigin: VerticalOrigin.TOP,
+            pixelOffset: new Cartesian2(0, 8), heightReference: HeightReference.CLAMP_TO_GROUND, disableDepthTestDistance: Number.POSITIVE_INFINITY,
+          },
+        })]);
+      });
     };
     add('planet', '#e0703a', this.data.planet.rover || 'Rover');
     add('earth', '#4aa3ff', this.data.earth.rover || 'Earth twin');
