@@ -102,7 +102,10 @@ export default defineConfig({
   plugins: [twinworldsStatic()],
   server: {
     // Dev only: NASA PDS does not send CORS headers, so the browser reaches it through Vite.
-    proxy: { '/pds': { target: 'https://pds-geosciences.wustl.edu', changeOrigin: true, rewrite: (p) => p.replace(/^\/pds/, '') } },
+    proxy: {
+      '/pds': { target: 'https://pds-geosciences.wustl.edu', changeOrigin: true, rewrite: (p) => p.replace(/^\/pds/, '') },
+      '/marsnasa': { target: 'https://mars.nasa.gov', changeOrigin: true, rewrite: (p) => p.replace(/^\/marsnasa/, '') },
+    },
   },
   build: {
     chunkSizeWarningLimit: 6000,

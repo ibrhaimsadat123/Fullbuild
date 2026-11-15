@@ -21,6 +21,8 @@ const FEATURES = {
   elevation_m: { normal: 'Height', nerd: 'Elevation', unit: 'm' },
   slope_deg: { normal: 'Steepness', nerd: 'Slope, 5 km baseline', unit: '°' },
   roughness_m: { normal: 'Bumpiness', nerd: 'Roughness', unit: 'm' },
+  climb_m: { normal: 'Climb over the segment', nerd: 'Elevation change, segment end minus start', unit: 'm' },
+  seg_slope_deg: { normal: 'Steepness', nerd: 'Slope, 50 m baseline', unit: '°' },
   relief_55km_m: { normal: 'Hilliness across ~55 km', nerd: 'Relief, 55 km scale (elevation std dev)', unit: 'm' },
   lst_day_c: { normal: 'Ground temperature by day', nerd: 'Surface temperature, day', unit: '°C' },
   lst_night_c: { normal: 'Ground temperature at night', nerd: 'Surface temperature, night', unit: '°C' },
@@ -255,7 +257,7 @@ export function missionCard(m, i) {
        <p class="muted">Match quality ${fmt(q)}${q < 0.5 ? ' · weak match, shown on purpose' : ''}</p>`;
   const keys = [...new Set([...Object.keys(seg.planet || {}), ...Object.keys(seg.earth || {})])];
   const fp = keys.length
-    ? `<h4>Segment fingerprint</h4><table class="kv"><tr><td></td><td class="muted">${esc(m.planet?.world || 'planet')} · Earth</td></tr>${keys
+    ? `<h4>Segment fingerprint</h4><table class="kv"><tr><td></td><td class="muted">${esc(cap(m.planet?.world || 'planet'))} · Earth</td></tr>${keys
         .map((k) => {
           const meta = featureMeta(k);
           const pv = seg.planet?.[k];
@@ -273,9 +275,11 @@ export function missionCard(m, i) {
     : '';
   return `<h3>Mission Twin <span class="chip">${esc(m.mission || '')}</span></h3>
     ${m.illustrative ? '<p class="ai-label">Illustrative data</p>' : ''}
-    <p><b>Segment ${i + 1} of ${segs.length}</b>${seg.label ? ` · ${esc(seg.label)}` : ''}${seg.length_m ? ` <span class="muted">(${fmt(seg.length_m)} m)</span>` : ''}</p>
+    <p><b>Segment ${i + 1} of ${segs.length}</b>${seg.label ? ` · ${esc(seg.label)}` : ''}${seg.length_m ? ` <span class="muted">(${fmt(seg.length_m)} m)</span>` : ''}${seg.sols ? ` <span class="muted">· Perseverance drove it on sol${String(seg.sols).includes('-') ? 's' : ''} ${esc(seg.sols)}</span>` : ''}</p>
     ${quality}${fp}${gaps}${itin}
     ${m.timing_note ? `<p class="muted">${esc(m.timing_note)}</p>` : ''}
+    ${(m.candidates || []).length ? `<h4 class="nerd-only">Other Earth regions tried</h4><table class="kv nerd-only">${m.candidates.map((c) => `<tr><td>${esc(c.site)}</td><td>mean match ${fmt(c.mean_match)}</td></tr>`).join('')}</table>` : ''}
+    ${m.method ? `<span class="src nerd-only">Method: ${esc(m.method)}</span>` : ''}
     <span class="src nerd-only">Route: ${esc(m.planet?.source || 'source missing')}</span>
     <span class="src nerd-only">Earth path: ${esc(m.earth?.source || 'source missing')}</span>`;
 }
