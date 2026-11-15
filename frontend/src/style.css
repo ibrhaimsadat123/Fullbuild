@@ -192,3 +192,6 @@ body.world-moon #pane-planet .pane-label > span:first-child { color: var(--moon)
 .wi-diff li.in, .in { color: #6fd18b; }
 .wi-diff li.out, .out { color: #ff6b5a; text-decoration: line-through; }
 .out { text-decoration: none; }
+
+/* Time factor */
+.time-chart { position: relative; height: 220px; margin: 8px 0; }

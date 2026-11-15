@@ -43,6 +43,18 @@ Rule: no Chinese mission data is used (NASA China funding restriction).
 | Natural Earth 1:10m geography regions + 1:50m countries (public domain) | Place names for Earth cells (`earth_places.json`): smallest named region containing each cell centre, plus country | `naturalearthdata.com` (GeoJSON from `github.com/nvkelso/natural-earth-vector`) |
 | NOAA ETOPO1 (ice surface) | Antarctic terrain, 56 S to 85 S | Google Earth Engine `NOAA/NGDC/ETOPO1` |
 
+## Missions, rover routes and time (added Sun 15 Nov)
+
+| Dataset | Used for | Access |
+| --- | --- | --- |
+| NASA/JPL-Caltech Mars 2020 traverse (`M20_traverse.json`) | Perseverance's real route, sols 388-420 (Mission Twin), with rover-localization elevations | `mars.nasa.gov/mmgis-maps/M20/Layers/json/M20_traverse.json` (copy in `data/sources/mission/`) |
+| NASA/JPL-Caltech MSL waypoints (`MSL_waypoints.json`) | Curiosity's real route, 14-18 km of total drive, climbing Mount Sharp (Mission Twin) | `mars.nasa.gov/mmgis-maps/MSL/Layers/json/MSL_waypoints.json` (copy in `data/sources/mission/`) |
+| Cesium World Terrain (Cesium ion) | Earth terrain grids (16 x 16 km, 50 m) where Mission Twin searches for the matching path | Sampled in the browser with CesiumJS `sampleTerrainMostDetailed`; grids in `data/raw/mission/` (not in git) |
+| NASA landing site coordinates (Viking 1-2, Pathfinder, Spirit, Opportunity, Phoenix, Curiosity, InSight, Perseverance, Apollo 11-17) | Missions dropdown (`missions.json`) | As listed in Wikipedia, "List of landings on extraterrestrial bodies" |
+| Mars Climate Database v6.2 (**ESA**, **CNES**, LMD), 32 maps | Mars surface temperature at 8 local times x 4 seasons (time factor, `mars_diurnal.json`) | `www-mars.lmd.jussieu.fr/mcd_python/` (raw: `data/sources/mcd/mcd_tsurf_diurnal.json`) |
+| Mars season (Ls) for a date | Which Mars season it is today | Allison & McEwen (2000), Planetary and Space Science 48, 215-235 |
+| Open-Meteo forecast API | Next 7 days of hourly ground temperature (soil temperature at 0 cm) at the Earth twin | `api.open-meteo.com/v1/forecast`, fetched live in the browser |
+
 ## Tools
 
 Google Earth Engine (processing), Google Colab, Python (NumPy, SciPy, rasterio), CesiumJS, Vite, Cloudflare, Gemini API. AI assistants (Claude, GitHub Copilot) helped write code; AI-assisted code is marked in comments.

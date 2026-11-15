@@ -19,6 +19,7 @@ import { buildHeat, addHeatLayer, rampCss } from './heatmap.js';
 import { buildEarthModel, scoreLive, indexPlanetGrid } from './livescore.js';
 import { TwinDive } from './dive.js';
 import { MissionTwin } from './mission.js';
+import { marsLs, seasonName, earthWeek, compareWeek } from './timesim.js';
 import { DIVE_PAIRS, DIVE_VIEW, WORLDS } from './config.js';
 import { radarChart, overlayChart, sourcesHtml } from './charts.js';
 import { apiEnabled, askPlanet, analyst, whatIf } from './api.js';
@@ -87,7 +88,7 @@ async function loadSide() {
     const m = new Map();
     grid.data.cells.forEach((r, i) => m.set(cellKey(r[iLa], r[iLo], res), pl.data.names[pl.data.cells[i]]));
     P.setPlaceLookup((lat, lon) => m.get(cellKey(lat, lon, res)) || '');
-    if (state.target) renderMatch();
+    if (state.target) { renderMatch(); resetTime(); }
   });
   updateMissionButton();
   addMissionInvite();
@@ -260,13 +261,14 @@ async function loadScores() {
 
 async function drawHeat() {
   removeHeat();
-  if (!state.scores) return;
+  if (!state.scores) { resetTime(); return; }
   state.heat = buildHeat(state.scores, state.weights, state.lenses?.tier_thresholds || state.scores?.tiers);
   const credit = `TwinWorlds similarity scores, ${state.target.name}${state.weights ? ` (${state.lensLabel})` : ''}`;
   state.heatLayer = await addHeatLayer(state.earth.viewer, state.heat, credit);
   $('legend').hidden = false;
   renderBadges();
   renderMatch();
+  resetTime();
 }
 
 function removeHeat() {
@@ -292,6 +294,7 @@ function selectCell(lat, lon, fly = false) {
   const cell = heatCell || { lat, lon, score: null, tier: null, dims: {} };
   $('earth-site').textContent = P.placeName(lat, lon) || `${lat.toFixed(2)}, ${lon.toFixed(2)}`;
   placeEarthMarker(lat, lon);
+  if (!state.time_lock) queueMicrotask(resetTime);
   if (fly) {
     flyToPoint(state.earth.viewer, 'earth', lon, lat, 900_000, 1.4);
   }
@@ -626,6 +629,54 @@ async function startMission() {
   toast('Placing both routes on the real ground…', 2500);
   await mt.draw();
   if (state.mt === mt) mt.play();
+}
+
+// ---------- Time factor: a week on Mars vs a week at its Earth twin ----------
+function timeEarthSpot() {
+  if (state.cell) return { lat: state.cell.lat, lon: state.cell.lon, name: P.placeName(state.cell.lat, state.cell.lon) || 'selected spot' };
+  const b = state.heat?.ranked?.[0];
+  return b ? { lat: b.lat, lon: b.lon, name: P.placeName(b.lat, b.lon) || 'best match' } : null;
+}
+function resetTime() {
+  const card = $('card-time');
+  const e = timeEarthSpot();
+  if (state.world !== 'mars' || !state.target || !e) { card.hidden = true; return; }
+  card.hidden = false;
+  state.timeChart?.destroy(); state.timeChart = null;
+  const ls = marsLs();
+  card.innerHTML = `<h3>A week on Mars vs Earth</h3>
+    <p class="muted">Compare the next 7 days at <b>${P.esc(e.name)}</b> with a week at <b>${P.esc(state.target.name)}</b>, hour by hour at the same local time. Mars today: Ls ${ls.toFixed(0)}° (${seasonName(ls, state.target.lat)}).</p>
+    <button id="time-run">▶ Simulate a week</button><div id="time-out"></div>`;
+  $('time-run').onclick = runTime;
+}
+async function runTime() {
+  const out = $('time-out');
+  const e = timeEarthSpot();
+  out.innerHTML = '<p class="empty">Loading Mars hours and Earth’s forecast…</p>';
+  try {
+    const d = await load('mars_diurnal.json');
+    if (!d.ok) throw new Error('mars_diurnal.json is not published yet');
+    const week = await earthWeek(e.lat, e.lon);
+    const c = compareWeek(d.data, { lat: state.target.lat, lon: state.target.lon }, week);
+    const fmtT = (r) => `${new Date(r.t).toLocaleDateString('en-GB', { weekday: 'short' })} ${r.t.slice(11, 16)}`;
+    const nightGap = c.coldestEarth.earth - c.coldestMars.mars;
+    out.innerHTML = `<div class="time-chart"><canvas id="time-canvas"></canvas></div>
+      <p><b>Best rehearsal hour this week:</b> ${fmtT(c.best)} local, ground ${c.best.earth.toFixed(0)} °C on Earth vs ${c.best.mars.toFixed(0)} °C on Mars at the same local time (gap ${c.best.gap.toFixed(0)} °C).</p>
+      <p><b>Closest hour each day:</b> ${c.perDay.map((r) => `${fmtT(r)} (gap ${r.gap.toFixed(0)} °C)`).join(' · ')}</p>
+      <p class="muted">Earth’s coldest hour this week is ${c.coldestEarth.earth.toFixed(0)} °C; Mars here drops to ${c.coldestMars.mars.toFixed(0)} °C each night, ${nightGap.toFixed(0)} °C colder. That gap is what cold chambers have to fake. A sol is 24 h 39 min, so we compare by local time, not clock time.</p>
+      <span class="src nerd-only">Mars: ${P.esc(d.data.source || 'Mars Climate Database v6.2')} Maps every 3 hours of local time, interpolated in between (smooths the morning warm-up by a few degrees). Season advances ~0.52° Ls per Earth day.</span>
+      <span class="src nerd-only">Earth: Open-Meteo hourly forecast, soil temperature at 0 cm (ground surface), ${P.esc(week.tz)} local time.</span>`;
+    state.timeChart?.destroy();
+    state.timeChart = overlayChart($('time-canvas'), {
+      x: { label: 'Hours from now', unit: 'h' }, y: { label: 'Ground temperature', unit: '°C' },
+      series: [
+        { world: 'earth', label: `Earth: ${e.name}`, points: c.rows.map((r, k) => [k, r.earth]) },
+        { world: 'mars', label: `Mars: ${state.target.name}`, points: c.rows.map((r, k) => [k, +r.mars.toFixed(1)]) },
+      ],
+    });
+  } catch (err) {
+    out.innerHTML = `<p class="empty">${P.esc(err.message)}</p>`;
+  }
 }
 
 // ---------- What if... (change the target, watch Earth's matches move) ----------
