@@ -1,0 +1,31 @@
+{
+  "version": "0.1",
+  "how_to_use": "Each lens reweights the per-dimension similarity scores (the s_<dim> columns in scores_<target>.json). Overall score = weighted geometric mean: exp( sum(w * ln(max(s, 0.01))) / sum(w) ). Missing dimensions are skipped.",
+  "lenses": {
+    "balanced": {
+      "label": "Balanced", "icon": "globe",
+      "description": "Every measured dimension counts equally.",
+      "weights": {"slope_deg": 1, "relief_55km_m": 1, "lst_day_c": 1, "lst_night_c": 1, "lst_swing_c": 1, "albedo": 1, "ndvi": 1}
+    },
+    "landing": {
+      "label": "Landing site rehearsal", "icon": "rocket",
+      "description": "Terrain first: flat, smooth ground like the target, for testing landing hazard detection and plume-surface interaction.",
+      "weights": {"slope_deg": 4, "relief_55km_m": 3, "albedo": 1, "ndvi": 1, "lst_day_c": 0.5, "lst_night_c": 0.5, "lst_swing_c": 0.5}
+    },
+    "rover": {
+      "label": "Rover testing", "icon": "rover",
+      "description": "Terrain and surface together: slope, relief and ground brightness like the target, plus a harsh climate.",
+      "weights": {"slope_deg": 2, "relief_55km_m": 2, "albedo": 1.5, "ndvi": 1, "lst_day_c": 1, "lst_night_c": 1, "lst_swing_c": 1}
+    },
+    "thermal": {
+      "label": "Base and hardware (thermal)", "icon": "thermometer",
+      "description": "Temperature first: cold days, cold nights and big day-night swings, for testing habitats, batteries and seals.",
+      "weights": {"lst_day_c": 3, "lst_night_c": 3, "lst_swing_c": 3, "slope_deg": 0.5, "relief_55km_m": 0.5, "albedo": 0.5, "ndvi": 0.5}
+    },
+    "astrobiology": {
+      "label": "Astrobiology", "icon": "microscope",
+      "description": "Barren and extreme: as little life as possible, for testing life-detection instruments without false positives.",
+      "weights": {"ndvi": 4, "lst_swing_c": 1.5, "lst_day_c": 1, "lst_night_c": 1, "albedo": 1, "slope_deg": 0.5, "relief_55km_m": 0.5}
+    }
+  }
+}

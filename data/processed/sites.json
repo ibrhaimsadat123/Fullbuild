@@ -1,0 +1,1685 @@
+{
+ "note": "Nearest 0.5 deg cell to each site; top_percent = % of Earth land cells scoring higher (lower is better).",
+ "sites": [
+  {
+   "name": "Hingol mud volcanoes, Balochistan",
+   "lat": 25.4,
+   "lon": 65.47,
+   "country": "Pakistan",
+   "tag": "emerging",
+   "why": "Active mud volcanoes, a process analog for the mounds of Acidalia Planitia",
+   "scores": {
+    "acidalia": {
+     "balanced": {
+      "score": 0.22,
+      "top_percent": 58.7
+     },
+     "landing": {
+      "score": 0.28,
+      "top_percent": 71.9
+     },
+     "rover": {
+      "score": 0.252,
+      "top_percent": 66.5
+     },
+     "thermal": {
+      "score": 0.104,
+      "top_percent": 88.9
+     },
+     "astrobiology": {
+      "score": 0.343,
+      "top_percent": 31.7
+     }
+    },
+    "arcadia": {
+     "balanced": {
+      "score": 0.267,
+      "top_percent": 51.6
+     },
+     "landing": {
+      "score": 0.438,
+      "top_percent": 39.0
+     },
+     "rover": {
+      "score": 0.335,
+      "top_percent": 39.9
+     },
+     "thermal": {
+      "score": 0.11,
+      "top_percent": 89.5
+     },
+     "astrobiology": {
+      "score": 0.369,
+      "top_percent": 30.2
+     }
+    },
+    "jezero": {
+     "balanced": {
+      "score": 0.392,
+      "top_percent": 13.2
+     },
+     "landing": {
+      "score": 0.676,
+      "top_percent": 3.2
+     },
+     "rover": {
+      "score": 0.487,
+      "top_percent": 8.6
+     },
+     "thermal": {
+      "score": 0.187,
+      "top_percent": 85.6
+     },
+     "astrobiology": {
+      "score": 0.468,
+      "top_percent": 7.9
+     }
+    },
+    "shackleton": {
+     "balanced": {
+      "score": 0.063,
+      "top_percent": 38.0
+     },
+     "landing": {
+      "score": 0.048,
+      "top_percent": 21.4
+     },
+     "rover": {
+      "score": 0.056,
+      "top_percent": 25.1
+     },
+     "thermal": {
+      "score": 0.023,
+      "top_percent": 58.2
+     },
+     "astrobiology": {
+      "score": 0.238,
+      "top_percent": 30.7
+     }
+    },
+    "tranquillitatis_pit": {
+     "balanced": {
+      "score": 0.383,
+      "top_percent": 30.4
+     },
+     "landing": {
+      "score": 0.336,
+      "top_percent": 70.0
+     },
+     "rover": {
+      "score": 0.368,
+      "top_percent": 56.4
+     },
+     "thermal": {
+      "score": 0.346,
+      "top_percent": 58.2
+     },
+     "astrobiology": {
+      "score": 0.527,
+      "top_percent": 17.1
+     }
+    }
+   }
+  },
+  {
+   "name": "Khewra Salt Mine, Punjab",
+   "lat": 32.65,
+   "lon": 73.01,
+   "country": "Pakistan",
+   "tag": "emerging",
+   "why": "Ancient salt deposits and an underground environment, like Mars chloride deposits",
+   "scores": {
+    "acidalia": {
+     "balanced": {
+      "score": 0.195,
+      "top_percent": 67.7
+     },
+     "landing": {
+      "score": 0.314,
+      "top_percent": 68.9
+     },
+     "rover": {
+      "score": 0.252,
+      "top_percent": 66.5
+     },
+     "thermal": {
+      "score": 0.135,
+      "top_percent": 78.7
+     },
+     "astrobiology": {
+      "score": 0.116,
+      "top_percent": 52.4
+     }
+    },
+    "arcadia": {
+     "balanced": {
+      "score": 0.256,
+      "top_percent": 56.2
+     },
+     "landing": {
+      "score": 0.482,
+      "top_percent": 27.6
+     },
+     "rover": {
+      "score": 0.35,
+      "top_percent": 35.3
+     },
+     "thermal": {
+      "score": 0.172,
+      "top_percent": 72.7
+     },
+     "astrobiology": {
+      "score": 0.132,
+      "top_percent": 52.1
+     }
+    },
+    "jezero": {
+     "balanced": {
+      "score": 0.35,
+      "top_percent": 22.5
+     },
+     "landing": {
+      "score": 0.563,
+      "top_percent": 7.6
+     },
+     "rover": {
+      "score": 0.449,
+      "top_percent": 14.0
+     },
+     "thermal": {
+      "score": 0.296,
+      "top_percent": 59.9
+     },
+     "astrobiology": {
+      "score": 0.165,
+      "top_percent": 50.3
+     }
+    },
+    "shackleton": {
+     "balanced": {
+      "score": 0.033,
+      "top_percent": 52.0
+     },
+     "landing": {
+      "score": 0.039,
+      "top_percent": 26.2
+     },
+     "rover": {
+      "score": 0.039,
+      "top_percent": 46.0
+     },
+     "thermal": {
+      "score": 0.017,
+      "top_percent": 67.8
+     },
+     "astrobiology": {
+      "score": 0.033,
+      "top_percent": 51.6
+     }
+    },
+    "tranquillitatis_pit": {
+     "balanced": {
+      "score": 0.322,
+      "top_percent": 44.6
+     },
+     "landing": {
+      "score": 0.382,
+      "top_percent": 66.2
+     },
+     "rover": {
+      "score": 0.359,
+      "top_percent": 58.6
+     },
+     "thermal": {
+      "score": 0.428,
+      "top_percent": 31.4
+     },
+     "astrobiology": {
+      "score": 0.153,
+      "top_percent": 50.5
+     }
+    }
+   }
+  },
+  {
+   "name": "Karakoram (Baltoro region)",
+   "lat": 35.7,
+   "lon": 76.5,
+   "country": "Pakistan",
+   "tag": "emerging",
+   "why": "High-altitude ice, thin air, strong UV and extreme cold",
+   "scores": {
+    "acidalia": {
+     "balanced": {
+      "score": 0.185,
+      "top_percent": 71.7
+     },
+     "landing": {
+      "score": 0.055,
+      "top_percent": 94.5
+     },
+     "rover": {
+      "score": 0.118,
+      "top_percent": 91.2
+     },
+     "thermal": {
+      "score": 0.331,
+      "top_percent": 25.3
+     },
+     "astrobiology": {
+      "score": 0.42,
+      "top_percent": 14.8
+     }
+    },
+    "arcadia": {
+     "balanced": {
+      "score": 0.316,
+      "top_percent": 31.6
+     },
+     "landing": {
+      "score": 0.11,
+      "top_percent": 93.9
+     },
+     "rover": {
+      "score": 0.227,
+      "top_percent": 75.0
+     },
+     "thermal": {
+      "score": 0.469,
+      "top_percent": 7.4
+     },
+     "astrobiology": {
+      "score": 0.564,
+      "top_percent": 0.8
+     }
+    },
+    "jezero": {
+     "balanced": {
+      "score": 0.38,
+      "top_percent": 15.6
+     },
+     "landing": {
+      "score": 0.142,
+      "top_percent": 70.8
+     },
+     "rover": {
+      "score": 0.28,
+      "top_percent": 45.2
+     },
+     "thermal": {
+      "score": 0.605,
+      "top_percent": 1.1
+     },
+     "astrobiology": {
+      "score": 0.616,
+      "top_percent": 1.9
+     }
+    },
+    "shackleton": {
+     "balanced": {
+      "score": 0.567,
+      "top_percent": 0.7
+     },
+     "landing": {
+      "score": 0.838,
+      "top_percent": 0.2
+     },
+     "rover": {
+      "score": 0.67,
+      "top_percent": 0.5
+     },
+     "thermal": {
+      "score": 0.239,
+      "top_percent": 23.6
+     },
+     "astrobiology": {
+      "score": 0.69,
+      "top_percent": 1.1
+     }
+    },
+    "tranquillitatis_pit": {
+     "balanced": {
+      "score": 0.227,
+      "top_percent": 78.8
+     },
+     "landing": {
+      "score": 0.059,
+      "top_percent": 93.8
+     },
+     "rover": {
+      "score": 0.135,
+      "top_percent": 91.0
+     },
+     "thermal": {
+      "score": 0.432,
+      "top_percent": 30.2
+     },
+     "astrobiology": {
+      "score": 0.521,
+      "top_percent": 17.9
+     }
+    }
+   }
+  },
+  {
+   "name": "Chagai Hills / Koh-i-Sultan, Balochistan",
+   "lat": 29.13,
+   "lon": 62.82,
+   "country": "Pakistan",
+   "tag": "emerging",
+   "why": "Arid volcanic terrain in a hyper-dry desert",
+   "scores": {
+    "acidalia": {
+     "balanced": {
+      "score": 0.262,
+      "top_percent": 45.3
+     },
+     "landing": {
+      "score": 0.254,
+      "top_percent": 73.9
+     },
+     "rover": {
+      "score": 0.265,
+      "top_percent": 62.7
+     },
+     "thermal": {
+      "score": 0.167,
+      "top_percent": 67.0
+     },
+     "astrobiology": {
+      "score": 0.429,
+      "top_percent": 12.6
+     }
+    },
+    "arcadia": {
+     "balanced": {
+      "score": 0.349,
+      "top_percent": 19.7
+     },
+     "landing": {
+      "score": 0.467,
+      "top_percent": 31.1
+     },
+     "rover": {
+      "score": 0.402,
+      "top_percent": 19.2
+     },
+     "thermal": {
+      "score": 0.183,
+      "top_percent": 69.6
+     },
+     "astrobiology": {
+      "score": 0.481,
+      "top_percent": 4.1
+     }
+    },
+    "jezero": {
+     "balanced": {
+      "score": 0.507,
+      "top_percent": 4.3
+     },
+     "landing": {
+      "score": 0.784,
+      "top_percent": 0.9
+     },
+     "rover": {
+      "score": 0.602,
+      "top_percent": 2.7
+     },
+     "thermal": {
+      "score": 0.282,
+      "top_percent": 62.9
+     },
+     "astrobiology": {
+      "score": 0.593,
+      "top_percent": 2.5
+     }
+    },
+    "shackleton": {
+     "balanced": {
+      "score": 0.08,
+      "top_percent": 32.5
+     },
+     "landing": {
+      "score": 0.065,
+      "top_percent": 15.9
+     },
+     "rover": {
+      "score": 0.075,
+      "top_percent": 18.1
+     },
+     "thermal": {
+      "score": 0.025,
+      "top_percent": 55.4
+     },
+     "astrobiology": {
+      "score": 0.281,
+      "top_percent": 28.2
+     }
+    },
+    "tranquillitatis_pit": {
+     "balanced": {
+      "score": 0.49,
+      "top_percent": 16.1
+     },
+     "landing": {
+      "score": 0.318,
+      "top_percent": 71.3
+     },
+     "rover": {
+      "score": 0.413,
+      "top_percent": 41.7
+     },
+     "thermal": {
+      "score": 0.582,
+      "top_percent": 7.0
+     },
+     "astrobiology": {
+      "score": 0.694,
+      "top_percent": 5.0
+     }
+    }
+   }
+  },
+  {
+   "name": "Cholistan Desert, Punjab",
+   "lat": 28.5,
+   "lon": 71.5,
+   "country": "Pakistan",
+   "tag": "emerging",
+   "why": "Dunes, dust and wind-driven processes",
+   "scores": {
+    "acidalia": {
+     "balanced": {
+      "score": 0.242,
+      "top_percent": 52.3
+     },
+     "landing": {
+      "score": 0.397,
+      "top_percent": 59.0
+     },
+     "rover": {
+      "score": 0.295,
+      "top_percent": 53.4
+     },
+     "thermal": {
+      "score": 0.13,
+      "top_percent": 80.6
+     },
+     "astrobiology": {
+      "score": 0.259,
+      "top_percent": 42.8
+     }
+    },
+    "arcadia": {
+     "balanced": {
+      "score": 0.176,
+      "top_percent": 82.8
+     },
+     "landing": {
+      "score": 0.198,
+      "top_percent": 81.9
+     },
+     "rover": {
+      "score": 0.183,
+      "top_percent": 85.8
+     },
+     "thermal": {
+      "score": 0.118,
+      "top_percent": 87.4
+     },
+     "astrobiology": {
+      "score": 0.232,
+      "top_percent": 45.5
+     }
+    },
+    "jezero": {
+     "balanced": {
+      "score": 0.143,
+      "top_percent": 86.6
+     },
+     "landing": {
+      "score": 0.074,
+      "top_percent": 89.7
+     },
+     "rover": {
+      "score": 0.114,
+      "top_percent": 86.9
+     },
+     "thermal": {
+      "score": 0.159,
+      "top_percent": 91.4
+     },
+     "astrobiology": {
+      "score": 0.234,
+      "top_percent": 44.8
+     }
+    },
+    "shackleton": {
+     "balanced": {
+      "score": 0.023,
+      "top_percent": 66.6
+     },
+     "landing": {
+      "score": 0.015,
+      "top_percent": 74.9
+     },
+     "rover": {
+      "score": 0.018,
+      "top_percent": 74.6
+     },
+     "thermal": {
+      "score": 0.015,
+      "top_percent": 78.3
+     },
+     "astrobiology": {
+      "score": 0.097,
+      "top_percent": 44.4
+     }
+    },
+    "tranquillitatis_pit": {
+     "balanced": {
+      "score": 0.397,
+      "top_percent": 28.5
+     },
+     "landing": {
+      "score": 0.418,
+      "top_percent": 62.4
+     },
+     "rover": {
+      "score": 0.394,
+      "top_percent": 48.7
+     },
+     "thermal": {
+      "score": 0.43,
+      "top_percent": 30.7
+     },
+     "astrobiology": {
+      "score": 0.377,
+      "top_percent": 37.7
+     }
+    }
+   }
+  },
+  {
+   "name": "Thar Desert (Tharparkar), Sindh",
+   "lat": 24.7,
+   "lon": 70.2,
+   "country": "Pakistan",
+   "tag": "emerging",
+   "why": "Dunes and dust",
+   "scores": {
+    "acidalia": {
+     "balanced": {
+      "score": 0.296,
+      "top_percent": 32.2
+     },
+     "landing": {
+      "score": 0.583,
+      "top_percent": 10.4
+     },
+     "rover": {
+      "score": 0.396,
+      "top_percent": 15.1
+     },
+     "thermal": {
+      "score": 0.151,
+      "top_percent": 72.9
+     },
+     "astrobiology": {
+      "score": 0.25,
+      "top_percent": 43.3
+     }
+    },
+    "arcadia": {
+     "balanced": {
+      "score": 0.254,
+      "top_percent": 56.9
+     },
+     "landing": {
+      "score": 0.409,
+      "top_percent": 46.7
+     },
+     "rover": {
+      "score": 0.314,
+      "top_percent": 46.4
+     },
+     "thermal": {
+      "score": 0.144,
+      "top_percent": 80.4
+     },
+     "astrobiology": {
+      "score": 0.238,
+      "top_percent": 45.2
+     }
+    },
+    "jezero": {
+     "balanced": {
+      "score": 0.195,
+      "top_percent": 68.3
+     },
+     "landing": {
+      "score": 0.139,
+      "top_percent": 71.5
+     },
+     "rover": {
+      "score": 0.18,
+      "top_percent": 68.6
+     },
+     "thermal": {
+      "score": 0.191,
+      "top_percent": 84.8
+     },
+     "astrobiology": {
+      "score": 0.235,
+      "top_percent": 44.6
+     }
+    },
+    "shackleton": {
+     "balanced": {
+      "score": 0.021,
+      "top_percent": 69.8
+     },
+     "landing": {
+      "score": 0.014,
+      "top_percent": 77.1
+     },
+     "rover": {
+      "score": 0.017,
+      "top_percent": 76.5
+     },
+     "thermal": {
+      "score": 0.014,
+      "top_percent": 80.3
+     },
+     "astrobiology": {
+      "score": 0.076,
+      "top_percent": 46.0
+     }
+    },
+    "tranquillitatis_pit": {
+     "balanced": {
+      "score": 0.52,
+      "top_percent": 12.3
+     },
+     "landing": {
+      "score": 0.684,
+      "top_percent": 19.4
+     },
+     "rover": {
+      "score": 0.588,
+      "top_percent": 12.6
+     },
+     "thermal": {
+      "score": 0.51,
+      "top_percent": 13.9
+     },
+     "astrobiology": {
+      "score": 0.368,
+      "top_percent": 38.8
+     }
+    }
+   }
+  },
+  {
+   "name": "Atacama Desert (Yungay)",
+   "lat": -24.08,
+   "lon": -69.93,
+   "country": "Chile",
+   "tag": "benchmark",
+   "why": "Hyper-arid, near-sterile soils",
+   "scores": {
+    "acidalia": {
+     "balanced": {
+      "score": 0.267,
+      "top_percent": 43.3
+     },
+     "landing": {
+      "score": 0.258,
+      "top_percent": 73.6
+     },
+     "rover": {
+      "score": 0.267,
+      "top_percent": 62.3
+     },
+     "thermal": {
+      "score": 0.179,
+      "top_percent": 62.4
+     },
+     "astrobiology": {
+      "score": 0.437,
+      "top_percent": 11.0
+     }
+    },
+    "arcadia": {
+     "balanced": {
+      "score": 0.367,
+      "top_percent": 14.4
+     },
+     "landing": {
+      "score": 0.488,
+      "top_percent": 26.1
+     },
+     "rover": {
+      "score": 0.419,
+      "top_percent": 15.2
+     },
+     "thermal": {
+      "score": 0.198,
+      "top_percent": 66.4
+     },
+     "astrobiology": {
+      "score": 0.498,
+      "top_percent": 2.6
+     }
+    },
+    "jezero": {
+     "balanced": {
+      "score": 0.506,
+      "top_percent": 4.4
+     },
+     "landing": {
+      "score": 0.791,
+      "top_percent": 0.8
+     },
+     "rover": {
+      "score": 0.603,
+      "top_percent": 2.7
+     },
+     "thermal": {
+      "score": 0.282,
+      "top_percent": 62.9
+     },
+     "astrobiology": {
+      "score": 0.591,
+      "top_percent": 2.6
+     }
+    },
+    "shackleton": {
+     "balanced": {
+      "score": 0.083,
+      "top_percent": 31.4
+     },
+     "landing": {
+      "score": 0.069,
+      "top_percent": 14.9
+     },
+     "rover": {
+      "score": 0.079,
+      "top_percent": 17.0
+     },
+     "thermal": {
+      "score": 0.026,
+      "top_percent": 54.1
+     },
+     "astrobiology": {
+      "score": 0.285,
+      "top_percent": 28.0
+     }
+    },
+    "tranquillitatis_pit": {
+     "balanced": {
+      "score": 0.513,
+      "top_percent": 13.1
+     },
+     "landing": {
+      "score": 0.327,
+      "top_percent": 70.7
+     },
+     "rover": {
+      "score": 0.426,
+      "top_percent": 36.8
+     },
+     "thermal": {
+      "score": 0.635,
+      "top_percent": 2.1
+     },
+     "astrobiology": {
+      "score": 0.718,
+      "top_percent": 3.8
+     }
+    }
+   }
+  },
+  {
+   "name": "Haughton Crater, Devon Island",
+   "lat": 75.38,
+   "lon": -89.68,
+   "country": "Canada",
+   "tag": "benchmark",
+   "why": "Polar desert impact crater (NASA Haughton-Mars Project)",
+   "scores": {
+    "acidalia": {
+     "balanced": {
+      "score": 0.379,
+      "top_percent": 8.6
+     },
+     "landing": {
+      "score": 0.51,
+      "top_percent": 28.9
+     },
+     "rover": {
+      "score": 0.388,
+      "top_percent": 18.6
+     },
+     "thermal": {
+      "score": 0.412,
+      "top_percent": 10.9
+     },
+     "astrobiology": {
+      "score": 0.411,
+      "top_percent": 16.9
+     }
+    },
+    "arcadia": {
+     "balanced": {
+      "score": 0.544,
+      "top_percent": 0.6
+     },
+     "landing": {
+      "score": 0.71,
+      "top_percent": 1.6
+     },
+     "rover": {
+      "score": 0.577,
+      "top_percent": 1.3
+     },
+     "thermal": {
+      "score": 0.518,
+      "top_percent": 0.8
+     },
+     "astrobiology": {
+      "score": 0.524,
+      "top_percent": 1.6
+     }
+    },
+    "jezero": {
+     "balanced": {
+      "score": 0.451,
+      "top_percent": 7.3
+     },
+     "landing": {
+      "score": 0.505,
+      "top_percent": 15.9
+     },
+     "rover": {
+      "score": 0.439,
+      "top_percent": 15.6
+     },
+     "thermal": {
+      "score": 0.527,
+      "top_percent": 8.0
+     },
+     "astrobiology": {
+      "score": 0.478,
+      "top_percent": 7.1
+     }
+    },
+    "shackleton": {
+     "balanced": {
+      "score": 0.115,
+      "top_percent": 14.0
+     },
+     "landing": {
+      "score": 0.042,
+      "top_percent": 24.3
+     },
+     "rover": {
+      "score": 0.072,
+      "top_percent": 19.1
+     },
+     "thermal": {
+      "score": 0.206,
+      "top_percent": 24.6
+     },
+     "astrobiology": {
+      "score": 0.348,
+      "top_percent": 26.5
+     }
+    },
+    "tranquillitatis_pit": {
+     "balanced": {
+      "score": 0.512,
+      "top_percent": 13.2
+     },
+     "landing": {
+      "score": 0.675,
+      "top_percent": 20.4
+     },
+     "rover": {
+      "score": 0.571,
+      "top_percent": 14.8
+     },
+     "thermal": {
+      "score": 0.392,
+      "top_percent": 42.6
+     },
+     "astrobiology": {
+      "score": 0.509,
+      "top_percent": 19.5
+     }
+    }
+   }
+  },
+  {
+   "name": "McMurdo Dry Valleys",
+   "lat": -77.5,
+   "lon": 162.0,
+   "country": "Antarctica",
+   "tag": "benchmark",
+   "why": "Cold, dry, ice-free valleys",
+   "scores": {
+    "acidalia": {
+     "balanced": {
+      "score": 0.21,
+      "top_percent": 61.9
+     },
+     "landing": {
+      "score": 0.073,
+      "top_percent": 91.0
+     },
+     "rover": {
+      "score": 0.144,
+      "top_percent": 86.2
+     },
+     "thermal": {
+      "score": 0.35,
+      "top_percent": 21.6
+     },
+     "astrobiology": {
+      "score": 0.407,
+      "top_percent": 17.9
+     }
+    },
+    "arcadia": {
+     "balanced": {
+      "score": 0.318,
+      "top_percent": 30.6
+     },
+     "landing": {
+      "score": 0.126,
+      "top_percent": 92.0
+     },
+     "rover": {
+      "score": 0.241,
+      "top_percent": 70.8
+     },
+     "thermal": {
+      "score": 0.427,
+      "top_percent": 16.7
+     },
+     "astrobiology": {
+      "score": 0.511,
+      "top_percent": 2.0
+     }
+    },
+    "jezero": {
+     "balanced": {
+      "score": 0.314,
+      "top_percent": 31.1
+     },
+     "landing": {
+      "score": 0.138,
+      "top_percent": 71.9
+     },
+     "rover": {
+      "score": 0.245,
+      "top_percent": 52.8
+     },
+     "thermal": {
+      "score": 0.421,
+      "top_percent": 29.4
+     },
+     "astrobiology": {
+      "score": 0.493,
+      "top_percent": 6.1
+     }
+    },
+    "shackleton": {
+     "balanced": {
+      "score": 0.742,
+      "top_percent": 0.3
+     },
+     "landing": {
+      "score": 0.761,
+      "top_percent": 0.4
+     },
+     "rover": {
+      "score": 0.738,
+      "top_percent": 0.3
+     },
+     "thermal": {
+      "score": 0.641,
+      "top_percent": 0.3
+     },
+     "astrobiology": {
+      "score": 0.864,
+      "top_percent": 0.3
+     }
+    },
+    "tranquillitatis_pit": {
+     "balanced": {
+      "score": 0.193,
+      "top_percent": 86.1
+     },
+     "landing": {
+      "score": 0.071,
+      "top_percent": 91.9
+     },
+     "rover": {
+      "score": 0.134,
+      "top_percent": 91.2
+     },
+     "thermal": {
+      "score": 0.261,
+      "top_percent": 81.0
+     },
+     "astrobiology": {
+      "score": 0.405,
+      "top_percent": 34.0
+     }
+    }
+   }
+  },
+  {
+   "name": "Icelandic highlands (Askja)",
+   "lat": 64.9,
+   "lon": -16.8,
+   "country": "Iceland",
+   "tag": "benchmark",
+   "why": "Dark basalt plains (Apollo geology training)",
+   "scores": {
+    "acidalia": {
+     "balanced": {
+      "score": 0.233,
+      "top_percent": 55.2
+     },
+     "landing": {
+      "score": 0.127,
+      "top_percent": 86.3
+     },
+     "rover": {
+      "score": 0.184,
+      "top_percent": 79.7
+     },
+     "thermal": {
+      "score": 0.283,
+      "top_percent": 36.8
+     },
+     "astrobiology": {
+      "score": 0.422,
+      "top_percent": 14.3
+     }
+    },
+    "arcadia": {
+     "balanced": {
+      "score": 0.432,
+      "top_percent": 4.5
+     },
+     "landing": {
+      "score": 0.325,
+      "top_percent": 65.0
+     },
+     "rover": {
+      "score": 0.397,
+      "top_percent": 20.6
+     },
+     "thermal": {
+      "score": 0.415,
+      "top_percent": 19.7
+     },
+     "astrobiology": {
+      "score": 0.583,
+      "top_percent": 0.5
+     }
+    },
+    "jezero": {
+     "balanced": {
+      "score": 0.643,
+      "top_percent": 0.9
+     },
+     "landing": {
+      "score": 0.745,
+      "top_percent": 1.7
+     },
+     "rover": {
+      "score": 0.663,
+      "top_percent": 1.3
+     },
+     "thermal": {
+      "score": 0.581,
+      "top_percent": 2.1
+     },
+     "astrobiology": {
+      "score": 0.692,
+      "top_percent": 0.8
+     }
+    },
+    "shackleton": {
+     "balanced": {
+      "score": 0.196,
+      "top_percent": 5.1
+     },
+     "landing": {
+      "score": 0.121,
+      "top_percent": 9.5
+     },
+     "rover": {
+      "score": 0.164,
+      "top_percent": 6.1
+     },
+     "thermal": {
+      "score": 0.142,
+      "top_percent": 27.7
+     },
+     "astrobiology": {
+      "score": 0.483,
+      "top_percent": 9.5
+     }
+    },
+    "tranquillitatis_pit": {
+     "balanced": {
+      "score": 0.295,
+      "top_percent": 56.8
+     },
+     "landing": {
+      "score": 0.144,
+      "top_percent": 85.9
+     },
+     "rover": {
+      "score": 0.222,
+      "top_percent": 79.0
+     },
+     "thermal": {
+      "score": 0.379,
+      "top_percent": 47.1
+     },
+     "astrobiology": {
+      "score": 0.522,
+      "top_percent": 17.8
+     }
+    }
+   }
+  },
+  {
+   "name": "Qaidam Basin",
+   "lat": 37.5,
+   "lon": 94.0,
+   "country": "China",
+   "tag": "benchmark",
+   "why": "High, hyper-arid salt basin",
+   "scores": {
+    "acidalia": {
+     "balanced": {
+      "score": 0.442,
+      "top_percent": 0.3
+     },
+     "landing": {
+      "score": 0.737,
+      "top_percent": 0.0
+     },
+     "rover": {
+      "score": 0.535,
+      "top_percent": 0.1
+     },
+     "thermal": {
+      "score": 0.231,
+      "top_percent": 49.8
+     },
+     "astrobiology": {
+      "score": 0.545,
+      "top_percent": 0.1
+     }
+    },
+    "arcadia": {
+     "balanced": {
+      "score": 0.519,
+      "top_percent": 1.2
+     },
+     "landing": {
+      "score": 0.737,
+      "top_percent": 0.8
+     },
+     "rover": {
+      "score": 0.594,
+      "top_percent": 0.8
+     },
+     "thermal": {
+      "score": 0.312,
+      "top_percent": 46.6
+     },
+     "astrobiology": {
+      "score": 0.624,
+      "top_percent": 0.2
+     }
+    },
+    "jezero": {
+     "balanced": {
+      "score": 0.504,
+      "top_percent": 4.4
+     },
+     "landing": {
+      "score": 0.404,
+      "top_percent": 29.4
+     },
+     "rover": {
+      "score": 0.464,
+      "top_percent": 11.7
+     },
+     "thermal": {
+      "score": 0.486,
+      "top_percent": 15.1
+     },
+     "astrobiology": {
+      "score": 0.682,
+      "top_percent": 0.9
+     }
+    },
+    "shackleton": {
+     "balanced": {
+      "score": 0.037,
+      "top_percent": 48.8
+     },
+     "landing": {
+      "score": 0.022,
+      "top_percent": 57.4
+     },
+     "rover": {
+      "score": 0.027,
+      "top_percent": 57.9
+     },
+     "thermal": {
+      "score": 0.018,
+      "top_percent": 65.9
+     },
+     "astrobiology": {
+      "score": 0.225,
+      "top_percent": 31.7
+     }
+    },
+    "tranquillitatis_pit": {
+     "balanced": {
+      "score": 0.822,
+      "top_percent": 0.0
+     },
+     "landing": {
+      "score": 0.925,
+      "top_percent": 0.0
+     },
+     "rover": {
+      "score": 0.858,
+      "top_percent": 0.0
+     },
+     "thermal": {
+      "score": 0.724,
+      "top_percent": 0.0
+     },
+     "astrobiology": {
+      "score": 0.866,
+      "top_percent": 0.0
+     }
+    }
+   }
+  },
+  {
+   "name": "Mars Desert Research Station",
+   "lat": 38.41,
+   "lon": -110.79,
+   "country": "USA",
+   "tag": "benchmark",
+   "why": "Analog mission habitat in Utah desert",
+   "scores": {
+    "acidalia": {
+     "balanced": {
+      "score": 0.21,
+      "top_percent": 62.0
+     },
+     "landing": {
+      "score": 0.153,
+      "top_percent": 81.9
+     },
+     "rover": {
+      "score": 0.191,
+      "top_percent": 78.5
+     },
+     "thermal": {
+      "score": 0.169,
+      "top_percent": 66.2
+     },
+     "astrobiology": {
+      "score": 0.364,
+      "top_percent": 27.5
+     }
+    },
+    "arcadia": {
+     "balanced": {
+      "score": 0.342,
+      "top_percent": 21.9
+     },
+     "landing": {
+      "score": 0.348,
+      "top_percent": 60.6
+     },
+     "rover": {
+      "score": 0.359,
+      "top_percent": 32.3
+     },
+     "thermal": {
+      "score": 0.231,
+      "top_percent": 61.0
+     },
+     "astrobiology": {
+      "score": 0.46,
+      "top_percent": 7.7
+     }
+    },
+    "jezero": {
+     "balanced": {
+      "score": 0.623,
+      "top_percent": 1.1
+     },
+     "landing": {
+      "score": 0.791,
+      "top_percent": 0.8
+     },
+     "rover": {
+      "score": 0.688,
+      "top_percent": 0.9
+     },
+     "thermal": {
+      "score": 0.466,
+      "top_percent": 19.3
+     },
+     "astrobiology": {
+      "score": 0.642,
+      "top_percent": 1.4
+     }
+    },
+    "shackleton": {
+     "balanced": {
+      "score": 0.084,
+      "top_percent": 31.2
+     },
+     "landing": {
+      "score": 0.074,
+      "top_percent": 13.8
+     },
+     "rover": {
+      "score": 0.084,
+      "top_percent": 16.0
+     },
+     "thermal": {
+      "score": 0.026,
+      "top_percent": 54.0
+     },
+     "astrobiology": {
+      "score": 0.249,
+      "top_percent": 30.1
+     }
+    },
+    "tranquillitatis_pit": {
+     "balanced": {
+      "score": 0.373,
+      "top_percent": 31.8
+     },
+     "landing": {
+      "score": 0.186,
+      "top_percent": 80.0
+     },
+     "rover": {
+      "score": 0.283,
+      "top_percent": 72.2
+     },
+     "thermal": {
+      "score": 0.537,
+      "top_percent": 11.4
+     },
+     "astrobiology": {
+      "score": 0.568,
+      "top_percent": 12.0
+     }
+    }
+   }
+  },
+  {
+   "name": "Lanzarote",
+   "lat": 29.0,
+   "lon": -13.6,
+   "country": "Spain",
+   "tag": "benchmark",
+   "why": "Volcanic terrain and lava tubes (ESA PANGAEA training)",
+   "scores": {
+    "acidalia": {
+     "balanced": {
+      "score": 0.283,
+      "top_percent": 37.0
+     },
+     "landing": {
+      "score": 0.329,
+      "top_percent": 67.5
+     },
+     "rover": {
+      "score": 0.314,
+      "top_percent": 47.7
+     },
+     "thermal": {
+      "score": 0.163,
+      "top_percent": 68.6
+     },
+     "astrobiology": {
+      "score": 0.382,
+      "top_percent": 23.3
+     }
+    },
+    "arcadia": {
+     "balanced": {
+      "score": 0.329,
+      "top_percent": 26.5
+     },
+     "landing": {
+      "score": 0.486,
+      "top_percent": 26.7
+     },
+     "rover": {
+      "score": 0.395,
+      "top_percent": 21.2
+     },
+     "thermal": {
+      "score": 0.171,
+      "top_percent": 73.3
+     },
+     "astrobiology": {
+      "score": 0.401,
+      "top_percent": 22.8
+     }
+    },
+    "jezero": {
+     "balanced": {
+      "score": 0.502,
+      "top_percent": 4.5
+     },
+     "landing": {
+      "score": 0.715,
+      "top_percent": 2.3
+     },
+     "rover": {
+      "score": 0.579,
+      "top_percent": 3.4
+     },
+     "thermal": {
+      "score": 0.322,
+      "top_percent": 54.3
+     },
+     "astrobiology": {
+      "score": 0.53,
+      "top_percent": 4.4
+     }
+    },
+    "shackleton": {
+     "balanced": {
+      "score": 0.057,
+      "top_percent": 40.1
+     },
+     "landing": {
+      "score": 0.043,
+      "top_percent": 23.6
+     },
+     "rover": {
+      "score": 0.051,
+      "top_percent": 27.2
+     },
+     "thermal": {
+      "score": 0.022,
+      "top_percent": 59.8
+     },
+     "astrobiology": {
+      "score": 0.204,
+      "top_percent": 34.1
+     }
+    },
+    "tranquillitatis_pit": {
+     "balanced": {
+      "score": 0.5,
+      "top_percent": 14.8
+     },
+     "landing": {
+      "score": 0.395,
+      "top_percent": 64.9
+     },
+     "rover": {
+      "score": 0.465,
+      "top_percent": 27.7
+     },
+     "thermal": {
+      "score": 0.539,
+      "top_percent": 11.2
+     },
+     "astrobiology": {
+      "score": 0.585,
+      "top_percent": 10.2
+     }
+    }
+   }
+  },
+  {
+   "name": "Mauna Kea",
+   "lat": 19.82,
+   "lon": -155.47,
+   "country": "USA",
+   "tag": "benchmark",
+   "why": "Volcanic soils (lunar regolith testing)",
+   "scores": {
+    "acidalia": {
+     "balanced": {
+      "score": 0.059,
+      "top_percent": 99.9
+     },
+     "landing": {
+      "score": 0.022,
+      "top_percent": 99.9
+     },
+     "rover": {
+      "score": 0.047,
+      "top_percent": 99.9
+     },
+     "thermal": {
+      "score": 0.102,
+      "top_percent": 89.3
+     },
+     "astrobiology": {
+      "score": 0.046,
+      "top_percent": 99.0
+     }
+    },
+    "arcadia": {
+     "balanced": {
+      "score": 0.091,
+      "top_percent": 99.1
+     },
+     "landing": {
+      "score": 0.048,
+      "top_percent": 99.9
+     },
+     "rover": {
+      "score": 0.084,
+      "top_percent": 99.8
+     },
+     "thermal": {
+      "score": 0.138,
+      "top_percent": 81.9
+     },
+     "astrobiology": {
+      "score": 0.056,
+      "top_percent": 95.4
+     }
+    },
+    "jezero": {
+     "balanced": {
+      "score": 0.2,
+      "top_percent": 66.7
+     },
+     "landing": {
+      "score": 0.16,
+      "top_percent": 66.7
+     },
+     "rover": {
+      "score": 0.213,
+      "top_percent": 60.4
+     },
+     "thermal": {
+      "score": 0.288,
+      "top_percent": 61.6
+     },
+     "astrobiology": {
+      "score": 0.084,
+      "top_percent": 84.0
+     }
+    },
+    "shackleton": {
+     "balanced": {
+      "score": 0.086,
+      "top_percent": 30.7
+     },
+     "landing": {
+      "score": 0.332,
+      "top_percent": 3.5
+     },
+     "rover": {
+      "score": 0.175,
+      "top_percent": 5.5
+     },
+     "thermal": {
+      "score": 0.026,
+      "top_percent": 53.8
+     },
+     "astrobiology": {
+      "score": 0.02,
+      "top_percent": 58.7
+     }
+    },
+    "tranquillitatis_pit": {
+     "balanced": {
+      "score": 0.083,
+      "top_percent": 99.8
+     },
+     "landing": {
+      "score": 0.023,
+      "top_percent": 99.9
+     },
+     "rover": {
+      "score": 0.053,
+      "top_percent": 99.9
+     },
+     "thermal": {
+      "score": 0.319,
+      "top_percent": 66.8
+     },
+     "astrobiology": {
+      "score": 0.055,
+      "top_percent": 98.4
+     }
+    }
+   }
+  }
+ ]
+}
