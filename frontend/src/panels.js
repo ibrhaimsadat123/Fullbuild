@@ -158,7 +158,7 @@ function scoresMeta(scores) {
     })
     .join('');
   return `${used ? `<h4>Scored on</h4><p>${used}</p>` : ''}${missing ? `<p class="muted">Not scored yet: ${missing}</p>` : ''}${
-    gaps ? `<h4>Beyond anything on Earth</h4><table class="kv">${gaps}</table><p class="muted">These are scored by closeness to Earth's most extreme value; the gap stays visible.</p>` : ''
+    gaps ? `<h4>Beyond anything on Earth</h4><table class="kv">${gaps}</table><p class="muted">Nowhere on Earth reaches these values, so each place is scored by how far toward the extreme it gets. The gap stays visible.</p>` : ''
   }`;
 }
 
@@ -176,7 +176,20 @@ export function gapsCard(gaps, world, error) {
 
 export function blindCard(blind, error) {
   const title = `<h3>Blind test</h3>`;
-  if (error) return `${title}<p class="empty">Waiting for <code>blind_test.json</code>.</p><p class="muted">Shows how many known analog sites the engine found without being told about them.</p>`;
+  if (error) return `${title}<p class="empty">Waiting for <code>blind_test.json</code>.</p><p class="muted">Shows where famous analog sites rank, with no site names given to the engine.</p>`;
+  // Strict format from pipeline/blind_test.py: % of Earth land cells scoring higher (lower = better, random = 50%).
+  if (blind.per_site_mean_top_percent) {
+    const perTarget = Object.entries(blind.per_target || {})
+      .map(([t, v]) => `<tr><td>${esc(t)}</td><td>top ${fmt(v.median_top_percent)}%</td></tr>`).join('');
+    const rows = Object.entries(blind.per_site_mean_top_percent)
+      .sort((a, b) => a[1] - b[1])
+      .map(([name, p]) => `<tr><td>${p <= 25 ? '✅' : p <= 50 ? '➖' : '❌'} ${esc(name)}</td><td>top ${fmt(p)}%</td></tr>`).join('');
+    return `${title}
+      <p class="muted">The engine was never told about these famous analog sites. Lower is better; a random place averages <b>top 50%</b>.</p>
+      <h4>Each site, averaged over all targets</h4><table class="kv">${rows}</table>
+      <h4 class="nerd-only">Median known site, per target</h4><table class="kv nerd-only">${perTarget}</table>
+      <span class="src nerd-only">${esc(blind.method || '')}</span>`;
+  }
   const r = blind.recall || {};
   const rows = (blind.known_analogs || [])
     .map((k) => `<tr><td>${k.in_top_n ? '✅' : '❌'} ${esc(k.name)}</td><td>${k.rank != null ? `#${fmt(k.rank)}` : '—'}</td></tr>`)

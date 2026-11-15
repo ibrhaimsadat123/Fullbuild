@@ -13,7 +13,18 @@
         "Gravity offloading rigs that carry part of a person's or rover's weight (e.g. NASA's ARGOS at Johnson Space Center)",
         "Parabolic flights: ~20 to 30 seconds of Moon or Mars gravity per arc",
         "Lighter test rovers built to the same ground pressure as the real one"
-      ]
+      ],
+      "gap": "Gravity",
+      "worlds": [
+        "mars",
+        "moon"
+      ],
+      "detail": {
+        "mars": "0.38 g",
+        "moon": "0.17 g",
+        "earth": "1 g"
+      },
+      "source": "Well-established approximate values"
     },
     {
       "id": "atmosphere",
@@ -26,7 +37,18 @@
         "Thermal vacuum chambers for Moon hardware",
         "Mars simulation chambers filled with low-pressure CO2",
         "Earth's highest plateaus (Tibet, Atacama) for partial low-pressure and high-UV testing"
-      ]
+      ],
+      "gap": "Air",
+      "worlds": [
+        "mars",
+        "moon"
+      ],
+      "detail": {
+        "mars": "~600 Pa (under 1% of Earth), mostly carbon dioxide",
+        "moon": "Effectively vacuum",
+        "earth": "~101,000 Pa, nitrogen and oxygen"
+      },
+      "source": "Well-established approximate values"
     },
     {
       "id": "radiation",
@@ -38,7 +60,18 @@
       "how_to_fake_it": [
         "Particle accelerator beams (e.g. NASA Space Radiation Laboratory at Brookhaven)",
         "Testing habitat shielding concepts in caves, lava tubes and under regolith-like soils"
-      ]
+      ],
+      "gap": "Radiation",
+      "worlds": [
+        "mars",
+        "moon"
+      ],
+      "detail": {
+        "mars": "~0.67 mSv per day at the surface (Curiosity RAD), roughly 100x Earth",
+        "moon": "Higher than Mars surface: no atmosphere and no magnetic field",
+        "earth": "~2.4 mSv per year at the surface (shielded by air and magnetic field)"
+      },
+      "source": "Well-established approximate values; Mars surface radiation from Curiosity RAD (Hassler et al. 2014, Science)"
     },
     {
       "id": "magnetic_field",
@@ -50,7 +83,18 @@
       "how_to_fake_it": [
         "Helmholtz coil cages that cancel Earth's field around an instrument",
         "Basalts with strong remnant magnetism (e.g. Iceland) for magnetometer calibration"
-      ]
+      ],
+      "gap": "Magnetic field",
+      "worlds": [
+        "mars",
+        "moon"
+      ],
+      "detail": {
+        "mars": "No global field; patches of ancient magnetised crust",
+        "moon": "No global field; weak local anomalies",
+        "earth": "Global field, ~25 to 65 microtesla"
+      },
+      "source": "Well-established approximate values"
     },
     {
       "id": "temperature_extremes",
@@ -62,7 +106,18 @@
       "how_to_fake_it": [
         "Thermal vacuum and cryogenic chambers",
         "Antarctic and Tibetan field seasons for the coldest natural conditions"
-      ]
+      ],
+      "gap": "Temperature extremes",
+      "worlds": [
+        "mars",
+        "moon"
+      ],
+      "detail": {
+        "mars": "Nights colder than anywhere on Earth; day-night swings ~55 C at Jezero",
+        "moon": "+127 C day to -173 C night at the equator",
+        "earth": "Land surface roughly -64 C to +48 C (2023 yearly means, MODIS)"
+      },
+      "source": "Well-established approximate values"
     }
   ]
 }

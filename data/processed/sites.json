@@ -8,6 +8,7 @@
    "country": "Pakistan",
    "tag": "emerging",
    "why": "Active mud volcanoes, a process analog for the mounds of Acidalia Planitia",
+   "id": "hingol_mud_volcanoes_balochistan",
    "scores": {
     "acidalia": {
      "balanced": {
@@ -128,6 +129,7 @@
    "country": "Pakistan",
    "tag": "emerging",
    "why": "Ancient salt deposits and an underground environment, like Mars chloride deposits",
+   "id": "khewra_salt_mine_punjab",
    "scores": {
     "acidalia": {
      "balanced": {
@@ -248,6 +250,7 @@
    "country": "Pakistan",
    "tag": "emerging",
    "why": "High-altitude ice, thin air, strong UV and extreme cold",
+   "id": "karakoram_baltoro_region",
    "scores": {
     "acidalia": {
      "balanced": {
@@ -368,6 +371,7 @@
    "country": "Pakistan",
    "tag": "emerging",
    "why": "Arid volcanic terrain in a hyper-dry desert",
+   "id": "chagai_hills_koh_i_sultan_balochistan",
    "scores": {
     "acidalia": {
      "balanced": {
@@ -488,6 +492,7 @@
    "country": "Pakistan",
    "tag": "emerging",
    "why": "Dunes, dust and wind-driven processes",
+   "id": "cholistan_desert_punjab",
    "scores": {
     "acidalia": {
      "balanced": {
@@ -608,6 +613,7 @@
    "country": "Pakistan",
    "tag": "emerging",
    "why": "Dunes and dust",
+   "id": "thar_desert_tharparkar_sindh",
    "scores": {
     "acidalia": {
      "balanced": {
@@ -728,6 +734,7 @@
    "country": "Chile",
    "tag": "benchmark",
    "why": "Hyper-arid, near-sterile soils",
+   "id": "atacama_desert_yungay",
    "scores": {
     "acidalia": {
      "balanced": {
@@ -848,6 +855,7 @@
    "country": "Canada",
    "tag": "benchmark",
    "why": "Polar desert impact crater (NASA Haughton-Mars Project)",
+   "id": "haughton_crater_devon_island",
    "scores": {
     "acidalia": {
      "balanced": {
@@ -968,6 +976,7 @@
    "country": "Antarctica",
    "tag": "benchmark",
    "why": "Cold, dry, ice-free valleys",
+   "id": "mcmurdo_dry_valleys",
    "scores": {
     "acidalia": {
      "balanced": {
@@ -1088,6 +1097,7 @@
    "country": "Iceland",
    "tag": "benchmark",
    "why": "Dark basalt plains (Apollo geology training)",
+   "id": "icelandic_highlands_askja",
    "scores": {
     "acidalia": {
      "balanced": {
@@ -1208,6 +1218,7 @@
    "country": "China",
    "tag": "benchmark",
    "why": "High, hyper-arid salt basin",
+   "id": "qaidam_basin",
    "scores": {
     "acidalia": {
      "balanced": {
@@ -1328,6 +1339,7 @@
    "country": "USA",
    "tag": "benchmark",
    "why": "Analog mission habitat in Utah desert",
+   "id": "mars_desert_research_station",
    "scores": {
     "acidalia": {
      "balanced": {
@@ -1448,6 +1460,7 @@
    "country": "Spain",
    "tag": "benchmark",
    "why": "Volcanic terrain and lava tubes (ESA PANGAEA training)",
+   "id": "lanzarote",
    "scores": {
     "acidalia": {
      "balanced": {
@@ -1568,6 +1581,7 @@
    "country": "USA",
    "tag": "benchmark",
    "why": "Volcanic soils (lunar regolith testing)",
+   "id": "mauna_kea",
    "scores": {
     "acidalia": {
      "balanced": {

@@ -33,8 +33,9 @@ export function rampCss() {
 }
 
 /**
- * Lens rescoring: overall = weighted mean of the per-dimension scores (PROJECT.md
- * Section 12, step 5). Only dims present in the cell count; weights renormalise.
+ * Lens rescoring, matching pipeline/score.py: overall = weighted GEOMETRIC mean of the
+ * per-dimension scores, each floored at 0.01, so one badly failed dimension (e.g. bright
+ * ice vs dark Mars rock) pulls the whole score down. Only dims present in the cell count.
  */
 export function rescore(cell, weights) {
   if (!weights) return cell.score;
@@ -43,11 +44,11 @@ export function rescore(cell, weights) {
   for (const [dim, w] of Object.entries(weights)) {
     const v = cell.dims?.[dim];
     if (typeof v === 'number' && w > 0) {
-      sum += v * w;
+      sum += Math.log(Math.max(v, 0.01)) * w;
       wsum += w;
     }
   }
-  return wsum > 0 ? sum / wsum : null;
+  return wsum > 0 ? Math.exp(sum / wsum) : null;
 }
 
 /**

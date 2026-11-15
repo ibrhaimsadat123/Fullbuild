@@ -35,14 +35,19 @@ SITES = [
 ]
 
 
+def slug(name):
+    import re
+    return re.sub(r"[^a-z0-9]+", "_", name.lower()).strip("_")[:40]
+
+
 def lens_score(S, weights, dims):
     w = np.array([weights.get(d, 1.0) for d in dims])[:, None]
     return np.exp((np.log(np.maximum(S, 0.01)) * w).sum(axis=0) / w.sum())
 
 
 def main():
-    lenses = json.load(open(os.path.join(DATA, "lenses.json")))["lenses"]
-    out_sites = [dict(s, scores={}) for s in SITES]
+    lenses = {l["id"]: l for l in json.load(open(os.path.join(DATA, "lenses.json")))["lenses"]}
+    out_sites = [dict(s, id=slug(s["name"]), scores={}) for s in SITES]
     for f in sorted(glob.glob(os.path.join(DATA, "scores_*.json"))):
         d = json.load(open(f))
         arr = np.array(d["cells"], dtype="float64")
