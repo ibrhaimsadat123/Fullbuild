@@ -23,7 +23,9 @@ Rule: no Chinese mission data is used (NASA China funding restriction).
 
 | Dataset | Used for | Access |
 | --- | --- | --- |
-| LRO LOLA LDEM, 16 pixels/degree | Slope and relief at Mare Tranquillitatis and Shackleton (Shackleton re-gridded to a flat polar grid) | NASA PDS Geosciences Node: `pds-geosciences.wustl.edu/lro/lro-l-lola-3-rdr-v1/lrolol_1xxx/data/lola_gdr/cylindrical/img/ldem_16.img` |
+| LRO LOLA LDEM, 16 pixels/degree | Slope and relief at Mare Tranquillitatis and Shackleton (Shackleton re-gridded to a flat polar grid), and for every 1 deg cell of the Moon (`moon_grid.json`) | NASA PDS Geosciences Node: `pds-geosciences.wustl.edu/lro/lro-l-lola-3-rdr-v1/lrolol_1xxx/data/lola_gdr/cylindrical/img/ldem_16.img` |
+| LRO LOLA LDAM, 4 pixels/degree normal albedo at 1064 nm (Lemelin et al. 2016) | Moon albedo for every 1 deg cell (single wavelength: approximate comparison with Earth/Mars broadband albedo) | NASA PDS Geosciences Node: `.../lola_gdr/cylindrical/float_img/ldam_4_float.img` |
+| LRO Diviner Global Cumulative Product (Williams et al. 2017, Icarus 283) | Moon surface temperature at ~10:30 and ~22:30 local time for every 1 deg cell (same times as Earth's MODIS Terra overpass) | NASA PDS Geosciences Node: `lro/urn-nasa-pds-lro_diviner_derived1/data_derived_gcp/` (see `data/sources/moon/README.md`) |
 | LRO Diviner, Mare Tranquillitatis pit temperatures (Horvath et al. 2022, GRL, doi:10.1029/2022GL099710) | Pit surroundings +127 C day, -173 C night; shaded pit ~17 C | Published paper / NASA release |
 | Shackleton rim temperature estimate, -50 +/- 10 C (Bussey, Robinson & Spudis 2004, LPSC XXXV) and rim illumination 80 to 90% (Spudis et al. 1995, LPSC XXVI) | Shackleton rim temperature (labeled as a literature estimate, not a direct Diviner measurement) | As cited in Wikipedia "Shackleton (crater)" |
 

@@ -67,6 +67,19 @@ function twinworldsStatic() {
       });
       server.middlewares.use('/data', serveDir(dataDir, { noStore: true }));
       server.middlewares.use(`/${cesiumBaseUrl}`, serveDir(cesiumSource));
+      // Dev only (AI-assisted, Claude): lets a browser data-prep script save results into
+      // the repo (data/sources/** or data/raw/**). Used to build moon_grid.json from NASA PDS.
+      const repo = path.resolve(import.meta.dirname, '..');
+      server.middlewares.use('/__save', (req, res) => {
+        const rel = decodeURIComponent((req.url || '').split('?path=')[1] || '');
+        const file = path.resolve(repo, rel);
+        const ok = [path.join(repo, 'data', 'sources'), path.join(repo, 'data', 'raw')].some((d) => file.startsWith(d + path.sep));
+        if (req.method !== 'POST' || !ok) { res.statusCode = 400; res.end('bad path'); return; }
+        fs.mkdirSync(path.dirname(file), { recursive: true });
+        const out = fs.createWriteStream(file);
+        req.pipe(out);
+        out.on('finish', () => res.end(JSON.stringify({ saved: rel, bytes: fs.statSync(file).size })));
+      });
     },
     closeBundle() {
       const dist = path.resolve(import.meta.dirname, 'dist');
@@ -87,6 +100,10 @@ export default defineConfig({
     CESIUM_BASE_URL: JSON.stringify(`/${cesiumBaseUrl}`),
   },
   plugins: [twinworldsStatic()],
+  server: {
+    // Dev only: NASA PDS does not send CORS headers, so the browser reaches it through Vite.
+    proxy: { '/pds': { target: 'https://pds-geosciences.wustl.edu', changeOrigin: true, rewrite: (p) => p.replace(/^\/pds/, '') } },
+  },
   build: {
     chunkSizeWarningLimit: 6000,
   },

@@ -1,5 +1,5 @@
 {
-  "version": "0.5",
+  "version": "0.6",
   "illustrative": false,
   "note": "Every value is either 'sourced' (with a citation) or 'pending' (with the dataset to pull it from). Nothing is filled in by guesswork. Slope is defined at a ~5 km baseline to match the Earth grid. Roughness (sub-km) is not comparable across worlds at these resolutions, so v0.2 uses relief_55km_m (elevation std dev over ~55 km) instead.",
   "targets": [
@@ -218,13 +218,13 @@
         },
         "lst_night_c": {
           "value": null,
-          "status": "pending",
-          "source": "Rim is lit 80-90% of the time (Spudis et al. 1995); a night value needs LRO Diviner polar products"
+          "status": "not_applicable",
+          "source": "No regular night on the rim: it is sunlit 80-90% of the time (Spudis et al. 1995). Diviner's 22:30 local-time value for this 1 deg polar cell, -194.8 C, is dominated by the permanently shadowed crater floor, so it is not used for the rim"
         },
         "albedo": {
-          "value": null,
-          "status": "pending",
-          "source": "LRO LOLA normal albedo"
+          "value": 0.4068,
+          "status": "sourced",
+          "source": "LRO LOLA LDAM 4 ppd normal albedo at 1064 nm (Lemelin et al. 2016), mean of the 1 deg cell -89.5, 129.5. Single wavelength: approximate comparison with Earth/Mars broadband albedo"
         },
         "slope_deg": {
           "value": 7.25,
@@ -253,6 +253,11 @@
           ],
           "status": "sourced",
           "source": "Spudis et al. 1995, LPSC XXVI, as cited on Wikipedia 'Shackleton (crater)'"
+        },
+        "lst_swing_c": {
+          "value": null,
+          "status": "not_applicable",
+          "source": "No regular day-night cycle on the rim (sunlit 80-90% of the time), so a day-night swing is not defined"
         }
       }
     },
@@ -286,9 +291,9 @@
           "source": "Horvath et al. 2022 / NASA release (pit roughly 100 m deep)"
         },
         "albedo": {
-          "value": null,
-          "status": "pending",
-          "source": "LRO LOLA normal albedo"
+          "value": 0.1566,
+          "status": "sourced",
+          "source": "LRO LOLA LDAM 4 ppd normal albedo at 1064 nm (Lemelin et al. 2016), mean of the 1 deg cell 8.5, 33.5. Single wavelength: approximate comparison with Earth/Mars broadband albedo"
         },
         "slope_deg": {
           "value": 0.24,

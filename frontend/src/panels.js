@@ -44,16 +44,17 @@ export function targetCard(t, world) {
     .map(([key, f]) => {
       const m = featureMeta(key);
       const v = featureValue(f);
-      const status = f?.status === 'sourced' ? 'sourced' : 'pending';
+      const na = f?.status === 'not_applicable';
+      const status = f?.status === 'sourced' ? 'sourced' : na ? 'n/a' : 'pending';
       return `<tr>
         <td><span class="normal-only">${esc(m.normal)}</span><span class="nerd-only">${esc(m.nerd)}${m.unit ? ` (${esc(m.unit)})` : ''}</span>
-          <span class="src nerd-only">${esc(f?.source || 'no source given')}</span></td>
-        <td class="${v.pending ? 'pending' : ''}">${esc(v.pending ? 'pending' : withUnit(v.text, m.unit))}<span class="chip ${status}">${status}</span></td>
+          <span class="src ${na ? '' : 'nerd-only'}">${esc(f?.source || 'no source given')}</span></td>
+        <td class="${v.pending && !na ? 'pending' : ''}">${esc(na ? 'n/a' : v.pending ? 'pending' : withUnit(v.text, m.unit))}<span class="chip ${na ? 'sourced' : status}">${status}</span></td>
       </tr>`;
     })
     .join('');
   const sourced = Object.values(t.features || {}).filter((f) => f?.status === 'sourced').length;
-  const total = Object.keys(t.features || {}).length;
+  const total = Object.values(t.features || {}).filter((f) => f?.status !== 'not_applicable').length;
   return `
     <h3>${esc(t.name)}</h3>
     <p class="why">${esc(t.why || '')}</p>
