@@ -58,6 +58,25 @@
    },
    "median_top_percent": 6.0
   },
+  "shackleton": {
+   "sites": {
+    "Atacama Desert (Yungay), Chile": 31.5,
+    "Haughton Crater, Devon Island": 13.7,
+    "McMurdo Dry Valleys, Antarctica": 0.3,
+    "Icelandic highlands (Askja)": 4.5,
+    "Mauna Kea, Hawaii": 30.6,
+    "Rio Tinto, Spain": 65.2,
+    "Mojave Desert, USA": 27.9,
+    "Mars Desert Research Station, Utah": 29.1,
+    "Svalbard (AMASE), Norway": 0.9,
+    "Qaidam Basin, China": 49.0,
+    "Death Valley, USA": 10.0,
+    "Danakil Depression, Ethiopia": 29.9,
+    "Pilbara, Australia": 59.5,
+    "Lanzarote, Canary Islands": 40.0
+   },
+   "median_top_percent": 29.5
+  },
   "tranquillitatis_pit": {
    "sites": {
     "Atacama Desert (Yungay), Chile": 13.2,
@@ -79,19 +98,19 @@
   }
  },
  "per_site_mean_top_percent": {
-  "Atacama Desert (Yungay), Chile": 19.1,
-  "Haughton Crater, Devon Island": 7.2,
-  "McMurdo Dry Valleys, Antarctica": 52.0,
-  "Icelandic highlands (Askja)": 29.0,
-  "Mauna Kea, Hawaii": 91.3,
-  "Rio Tinto, Spain": 61.5,
-  "Mojave Desert, USA": 31.7,
-  "Mars Desert Research Station, Utah": 28.7,
-  "Svalbard (AMASE), Norway": 66.0,
-  "Qaidam Basin, China": 1.5,
-  "Death Valley, USA": 52.5,
-  "Danakil Depression, Ethiopia": 66.2,
-  "Pilbara, Australia": 30.9,
-  "Lanzarote, Canary Islands": 20.4
+  "Atacama Desert (Yungay), Chile": 21.6,
+  "Haughton Crater, Devon Island": 8.5,
+  "McMurdo Dry Valleys, Antarctica": 41.6,
+  "Icelandic highlands (Askja)": 24.1,
+  "Mauna Kea, Hawaii": 79.2,
+  "Rio Tinto, Spain": 62.2,
+  "Mojave Desert, USA": 31.0,
+  "Mars Desert Research Station, Utah": 28.8,
+  "Svalbard (AMASE), Norway": 53.0,
+  "Qaidam Basin, China": 11.0,
+  "Death Valley, USA": 44.0,
+  "Danakil Depression, Ethiopia": 58.9,
+  "Pilbara, Australia": 36.6,
+  "Lanzarote, Canary Islands": 24.3
  }
 }
