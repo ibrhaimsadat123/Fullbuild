@@ -26,7 +26,7 @@ export default {
         case 'GET /':
           res = json({
             name: 'TwinWorlds API',
-            endpoints: ['GET /health', 'GET /v1/targets', 'POST /v1/analogs', 'POST /ask', 'POST /analyst', 'POST /whatif'],
+            endpoints: ['GET /health', 'GET /v1/targets', 'POST /v1/analogs', 'POST /ask', 'POST /analyst', 'POST /whatif', 'POST /when'],
             docs: env.DOCS_URL || null,
           });
           break;
@@ -50,6 +50,9 @@ export default {
           break;
         case 'POST /whatif':
           res = json(await whatIfRoute(env, await readBody(request)));
+          break;
+        case 'POST /when':
+          res = json(await whenRoute(env, await readBody(request)));
           break;
         default:
           res = json({ error: `No route ${route}` }, 404);
@@ -421,4 +424,28 @@ async function whatIfRoute(env, b) {
   ].join(' ');
   const { text, model } = await gemini(env, { system, user: JSON.stringify(facts), temperature: 0.3 });
   return { text: text.trim(), label: 'AI-generated from the numbers given', model, ai_generated: true };
+}
+
+// ---------- /when ----------
+// The app simulated an Earth place every 2 weeks (Earth monthly climate + the Mars season) and
+// sends the result. Gemini says when the place is most like the target, how long until then, and why.
+async function whenRoute(env, b) {
+  const clip = (a, n) => (Array.isArray(a) ? a.slice(0, n) : []);
+  const facts = {
+    earth_place: String(b.place || '').slice(0, 120),
+    target: String(b.target || '').slice(0, 120),
+    world: String(b.world || '').slice(0, 10),
+    today: b.today || null, best: b.best || null, worst: b.worst || null,
+    timeline: clip(b.timeline, 40),
+  };
+  if (!facts.best) throw httpError(400, 'best is required');
+  const system = [
+    'You are the timing analyst for TwinWorlds. The app simulated how closely an Earth place matches a site on Mars or the Moon over time,',
+    'using Earth monthly climate and the Mars season. Using ONLY the numbers given, say: when the place is most like the target, how many weeks from now that is,',
+    'and why (which measurements move closer or further, comparing earth_values with target_values and the dimension_scores at best vs today).',
+    'Name what never matches (beyond_anything_on_earth). Match scores run 0 to 1. Do not invent facts, places or numbers.',
+    '4 to 5 plain sentences. No headings, no lists.',
+  ].join(' ');
+  const { text, model } = await gemini(env, { system, user: JSON.stringify(facts).slice(0, 14000), temperature: 0.3 });
+  return { text: text.trim(), label: 'AI-generated from the simulated numbers', model, ai_generated: true };
 }

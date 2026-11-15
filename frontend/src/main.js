@@ -20,9 +20,10 @@ import { buildEarthModel, scoreLive, indexPlanetGrid } from './livescore.js';
 import { TwinDive } from './dive.js';
 import { MissionTwin } from './mission.js';
 import { marsLs, seasonName, earthWeek, compareWeek } from './timesim.js';
+import { loadEarthMonthly, earthGridAt, marsTempsAt, timeline } from './timetravel.js';
 import { DIVE_PAIRS, DIVE_VIEW, WORLDS } from './config.js';
 import { radarChart, overlayChart, sourcesHtml } from './charts.js';
-import { apiEnabled, askPlanet, analyst, whatIf } from './api.js';
+import { apiEnabled, askPlanet, analyst, whatIf, whenBest } from './api.js';
 import * as P from './panels.js';
 
 const $ = (id) => document.getElementById(id);
@@ -631,6 +632,150 @@ async function startMission() {
   if (state.mt === mt) mt.play();
 }
 
+// ---------- Time travel: watch Earth's matches change through the seasons ----------
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+const fmtDate = (d) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
+async function travelData() {
+  if (!state.monthly) {
+    const idx = await dataIndex();
+    if (!idx.has('earth_monthly.json')) throw new Error('Monthly Earth data (earth_monthly.json) is not published yet.');
+    state.monthly = await loadEarthMonthly();
+  }
+  if (state.world === 'mars' && !state.marsSeasonal) {
+    const r = await load('mars_seasonal.json');
+    if (!r.ok) throw new Error('mars_seasonal.json is not published yet.');
+    state.marsSeasonal = r.data;
+  }
+}
+/** Target values on a date: Mars temperatures follow the Mars season; terrain, albedo, plants stay. */
+function targetValuesAt(date) {
+  const v = { ...baseValues(), ...(state.whatIf || {}) };
+  let mars = null;
+  if (state.world === 'mars' && state.marsSeasonal) {
+    mars = marsTempsAt(state.marsSeasonal, state.target.lat, state.target.lon, date);
+    if ('lst_day_c' in v) v.lst_day_c = mars.day;
+    if ('lst_night_c' in v) v.lst_night_c = mars.night;
+    if ('lst_swing_c' in v) v.lst_swing_c = mars.swing;
+  }
+  return { v, mars };
+}
+function scoreAt(date) {
+  const model = buildEarthModel(earthGridAt(state.gridRaw, state.monthly, date));
+  const { v, mars } = targetValuesAt(date);
+  const res = scoreLive(model, v, { id: state.target.id, world: state.world, name: `${state.target.name}, ${fmtDate(date)}` });
+  return { res, mars, v };
+}
+function resetTravel() {
+  const card = $('card-travel');
+  if (!state.target || !state.gridRaw) { card.hidden = true; return; }
+  card.hidden = false;
+  state.travelPlaying = false;
+  state.travelDates = timeline(new Date(), state.world === 'mars' ? 100 : 52);
+  const n = state.travelDates.length - 1;
+  const cell = state.cell ? (P.placeName(state.cell.lat, state.cell.lon) || 'the selected spot') : null;
+  card.innerHTML = `<h3>Time travel</h3>
+    <p class="muted">Earth changes with its seasons${state.world === 'mars' ? ', and so does Mars' : ''}. Drag or play to watch every place on Earth re-colour as its match to ${P.esc(state.target.name)} changes${state.world === 'mars' ? ' over the next Mars year (about 23 months)' : ' over the next year (the Moon has almost no seasons, so only Earth changes)'}.</p>
+    <div class="tt-row"><button id="tt-play" aria-label="Play">▶</button><input id="tt-slider" type="range" min="0" max="${n}" value="0" step="1"><span id="tt-date">${fmtDate(state.travelDates[0])}</span></div>
+    <p id="tt-info" class="muted"></p>
+    <h4>When is a place most ${state.world === 'moon' ? 'Moon' : 'Mars'}-like?</h4>
+    ${cell ? `<p>Find the best time this ${state.world === 'mars' ? 'Mars year' : 'year'} to rehearse at <b>${P.esc(cell)}</b>.</p><button id="tt-when">Find the best time</button>`
+      : '<p class="muted">Click a place on Earth first, then come back here.</p>'}
+    <div id="tt-when-out"></div>`;
+  $('tt-slider').oninput = (e) => travelTo(+e.target.value);
+  $('tt-play').onclick = toggleTravel;
+  const w = $('tt-when'); if (w) w.onclick = findBestTime;
+}
+let _ttBusy = false, _ttWant = null;
+async function travelTo(i) {
+  _ttWant = i;
+  if (_ttBusy) return;
+  _ttBusy = true;
+  try {
+    await travelData();
+    while (_ttWant != null) {
+      const k = _ttWant; _ttWant = null;
+      const d = state.travelDates[k];
+      $('tt-date').textContent = fmtDate(d);
+      const { res, mars } = scoreAt(d);
+      if (res.error) { toast(res.error, 4000); break; }
+      state.scores = res;
+      await drawHeat();
+      const top = topPlaces(state.heat, 3).map((x) => x.place).join(', ');
+      $('tt-info').innerHTML = `Earth: ${MONTHS[d.getUTCMonth()]} conditions (NASA MODIS monthly)${mars ? ` · Mars: Ls ${mars.ls.toFixed(0)}°, ${seasonName(mars.ls, state.target.lat)}, ${mars.day.toFixed(0)} °C by day / ${mars.night.toFixed(0)} °C at night` : ''}<br>Top matches now: <b>${P.esc(top)}</b>`;
+    }
+  } catch (e) {
+    toast(e.message, 5000);
+    $('tt-info').textContent = e.message;
+  } finally {
+    _ttBusy = false;
+  }
+}
+async function toggleTravel() {
+  state.travelPlaying = !state.travelPlaying;
+  $('tt-play').textContent = state.travelPlaying ? '❚❚' : '▶';
+  const s = $('tt-slider');
+  while (state.travelPlaying && document.body.contains(s)) {
+    const next = (+s.value + 1) % (+s.max + 1);
+    s.value = String(next);
+    await travelTo(next);
+    await new Promise((r) => setTimeout(r, 120));
+  }
+}
+async function findBestTime() {
+  const out = $('tt-when-out');
+  const c = state.cell;
+  const place = P.placeName(c.lat, c.lon) || `${c.lat.toFixed(2)}, ${c.lon.toFixed(2)}`;
+  try { await travelData(); } catch (e) { out.innerHTML = `<p class="empty">${P.esc(e.message)}</p>`; return; }
+  const dates = state.travelDates.filter((_, k) => k % 2 === 0); // every 2 weeks
+  const series = [];
+  const key = cellKey(c.lat, c.lon, 0.5);
+  for (let k = 0; k < dates.length; k++) {
+    out.innerHTML = `<p class="empty">Simulating ${fmtDate(dates[k])} (${k + 1} of ${dates.length})…</p>`;
+    await new Promise((r) => setTimeout(r, 0));
+    const { res, v } = scoreAt(dates[k]);
+    if (res.error) { out.innerHTML = `<p class="empty">${P.esc(res.error)}</p>`; return; }
+    const cellRes = res.cells.find((x) => cellKey(x.lat, x.lon, 0.5) === key);
+    if (!cellRes) { out.innerHTML = '<p class="empty">No land data at the selected spot.</p>'; return; }
+    const better = res.cells.reduce((a, x) => a + (x.score > cellRes.score ? 1 : 0), 0);
+    const g = earthGridAt({ fields: state.gridRaw.fields, cells: [state.gridRaw.cells.find((r) => cellKey(r[0], r[1], 0.5) === key)] }, sliceMonthly(key), dates[k]);
+    series.push({ date: dates[k], score: cellRes.score, top: (100 * better) / res.cells.length, dims: cellRes.dims, target: v,
+      earth: Object.fromEntries(g.fields.map((f, i) => [f, g.cells[0][i]])), gaps: Object.keys(res.earth_gaps || {}) });
+  }
+  const best = series.reduce((a, s) => (s.score > a.score ? s : a), series[0]);
+  const worst = series.reduce((a, s) => (s.score < a.score ? s : a), series[0]);
+  const now = series[0];
+  const weeks = Math.round((best.date - now.date) / (7 * 86400000));
+  const round = (o) => Object.fromEntries(Object.entries(o).filter(([k]) => k !== 'lat' && k !== 'lon').map(([k, x]) => [k, typeof x === 'number' ? +x.toFixed(2) : x]));
+  out.innerHTML = `<div class="time-chart"><canvas id="tt-canvas"></canvas></div>
+    <p><b>Best time:</b> ${fmtDate(best.date)}${weeks > 0 ? `, ${weeks} weeks from now` : ' (now)'}: match ${best.score.toFixed(2)}, top ${best.top.toFixed(1)}% of Earth. <b>Worst:</b> ${fmtDate(worst.date)} (${worst.score.toFixed(2)}). Today: ${now.score.toFixed(2)}.</p>
+    ${apiEnabled() ? '<button id="tt-ai">Explain with AI</button>' : ''}<div id="tt-ai-out"></div>
+    <span class="src nerd-only">Simulated every 2 weeks. Earth: NASA MODIS 2023 monthly data by calendar month (MOD11C3, MOD13C2, MCD43C3). Mars: Mars Climate Database v6.2 by season (Ls). Terrain stays fixed.</span>`;
+  state.ttChart?.destroy();
+  state.ttChart = overlayChart($('tt-canvas'), {
+    x: { label: 'Weeks from now', unit: 'wk' }, y: { label: 'Match score', unit: '0-1' },
+    series: [{ world: 'earth', label: `${place} vs ${state.target.name}`, points: series.map((s) => [Math.round((s.date - now.date) / (7 * 86400000)), +s.score.toFixed(3)]) }],
+  });
+  const ai = $('tt-ai');
+  if (ai) ai.onclick = async () => {
+    const o = $('tt-ai-out');
+    o.innerHTML = '<p class="empty">Writing\u2026</p>';
+    const pick = (s) => ({ date: fmtDate(s.date), weeks_from_now: Math.round((s.date - now.date) / (7 * 86400000)), match_score: +s.score.toFixed(3), top_percent_of_earth: +s.top.toFixed(1), dimension_scores: round(s.dims), earth_values: round(s.earth), target_values: round(s.target), beyond_anything_on_earth: s.gaps });
+    try {
+      const r = await whenBest({ place, target: state.target.name, world: state.world, today: pick(now), best: pick(best), worst: pick(worst),
+        timeline: series.filter((_, k) => k % 2 === 0).map((s) => ({ date: fmtDate(s.date), match_score: +s.score.toFixed(3) })) });
+      o.innerHTML = `<p>${P.esc(r.text)}</p><p class="ai-label">AI-generated from the simulated numbers (Gemini)</p>`;
+    } catch (e) { o.innerHTML = `<p class="empty">${P.esc(e.message)}</p>`; }
+  };
+}
+/** Monthly values for one cell, as a tiny earth_monthly object (for the earth_values shown to Gemini). */
+function sliceMonthly(key) {
+  const M = state.monthly;
+  const k = state.gridRaw.cells.findIndex((r) => cellKey(r[0], r[1], 0.5) === key);
+  const nv = M.vars.length, data = new Int16Array(12 * nv);
+  for (let m = 0; m < 12; m++) for (let v = 0; v < nv; v++) data[m * nv + v] = M.data[(m * nv + v) * M.cells + k];
+  return { ...M, cells: 1, data };
+}
+
 // ---------- Time factor: a week on Mars vs a week at its Earth twin ----------
 function timeEarthSpot() {
   if (state.cell) return { lat: state.cell.lat, lon: state.cell.lon, name: P.placeName(state.cell.lat, state.cell.lon) || 'selected spot' };
@@ -638,6 +783,7 @@ function timeEarthSpot() {
   return b ? { lat: b.lat, lon: b.lon, name: P.placeName(b.lat, b.lon) || 'best match' } : null;
 }
 function resetTime() {
+  if (!state.travelPlaying && !_ttBusy) resetTravel();
   const card = $('card-time');
   const e = timeEarthSpot();
   if (state.world !== 'mars' || !state.target || !e) { card.hidden = true; return; }

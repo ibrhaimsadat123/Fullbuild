@@ -195,3 +195,8 @@ body.world-moon #pane-planet .pane-label > span:first-child { color: var(--moon)
 
 /* Time factor */
 .time-chart { position: relative; height: 220px; margin: 8px 0; }
+
+/* Time travel */
+.tt-row { display: grid; grid-template-columns: auto 1fr auto; gap: 8px; align-items: center; margin: 6px 0; }
+.tt-row input { width: 100%; accent-color: var(--accent); }
+#tt-date { font-variant-numeric: tabular-nums; font-size: 12px; min-width: 7.5em; text-align: right; }

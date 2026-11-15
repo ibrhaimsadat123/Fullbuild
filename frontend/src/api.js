@@ -41,3 +41,8 @@ export function analyst(payload) {
 export function whatIf(payload) {
   return post('/whatif', payload);
 }
+
+/** When: Gemini explains when an Earth place is closest to the target, from the computed timeline. */
+export function whenBest(payload) {
+  return post('/when', payload);
+}

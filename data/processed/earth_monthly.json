@@ -1,0 +1,30 @@
+{
+ "year": 2023,
+ "months": 12,
+ "cells": 79625,
+ "vars": [
+  "lst_day_c",
+  "lst_night_c",
+  "albedo",
+  "ndvi"
+ ],
+ "scale": {
+  "lst_day_c": 10,
+  "lst_night_c": 10,
+  "albedo": 1000,
+  "ndvi": 1000
+ },
+ "order": "Int16 [month][var][cell], cell order = earth_grid.json",
+ "fallback_to_annual": {
+  "lst_day_c": 730,
+  "lst_night_c": 2743,
+  "albedo": 113036,
+  "ndvi": 229843
+ },
+ "sources": {
+  "lst_day_c": "NASA MODIS MOD11C3 v061 monthly LST day (2023)",
+  "lst_night_c": "NASA MODIS MOD11C3 v061 monthly LST night (2023)",
+  "albedo": "NASA MODIS MCD43C3 v061 white-sky shortwave albedo, monthly mean (2023)",
+  "ndvi": "NASA MODIS MOD13C2 v061 monthly NDVI (2023)"
+ }
+}
