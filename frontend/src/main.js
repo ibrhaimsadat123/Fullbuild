@@ -284,6 +284,7 @@ async function drawHeat() {
   renderMatch();
   resetTime();
   if (!_ttBusy && !state.travelPlaying) renderNerd();
+  hideSplash();
   renderGround();
   renderSky();
 }
@@ -660,6 +661,25 @@ async function loadNerd(site) {
   selectCell(site.lat, site.lon, true);
 }
 
+// ---------- Splash ----------
+function hideSplash() { const el = document.getElementById('splash'); if (el && !el.classList.contains('out')) { el.classList.add('out'); setTimeout(() => el.remove(), 800); } }
+setTimeout(hideSplash, 9000);
+
+// ---------- Drawer tabs ----------
+function showTab(name) {
+  const body = document.querySelector('.drawer-body');
+  if (!body) return;
+  body.dataset.tab = name;
+  document.querySelectorAll('.tabs [data-tab]').forEach((b) => {
+    const on = b.dataset.tab === name;
+    b.classList.toggle('on', on);
+    b.setAttribute('aria-selected', String(on));
+    if (on) { const ink = document.querySelector('.tab-ink'); if (ink) { ink.style.left = `${b.offsetLeft}px`; ink.style.width = `${b.offsetWidth}px`; } }
+  });
+  body.scrollTop = 0;
+  body.classList.remove('swap'); void body.offsetWidth; body.classList.add('swap');
+}
+
 // ---------- Story Mode: a scripted ~30 s tour for the demo video ----------
 let _story = null;
 async function playStory() {
@@ -967,6 +987,7 @@ function addMissionInvite() {
 }
 
 async function startMission() {
+  showTab('match');
   const m = twinForTarget();
   if (!m) return toast('Pick a mission with a rover route (Perseverance or Curiosity) first.');
   if (m.planet.world && m.planet.world !== state.world) await setWorld(m.planet.world);
@@ -1281,6 +1302,7 @@ async function explainWhatIf() {
 
 // ---------- Ask the Planet + Analyst ----------
 async function ask(question) {
+  showTab('match');
   if (!apiEnabled()) return toast('Ask the Planet needs the backend. It is not connected yet.');
   const dims = state.scores?.cells?.[0]?.dims ? Object.keys(state.scores.cells[0].dims) : [];
   if (!dims.length) return toast('Ask the Planet needs scores with per-dimension values first.');
@@ -1468,6 +1490,8 @@ function wireUi() {
     if (best) flyToPoint(state.earth.viewer, 'earth', best.lon, best.lat, null, 1.2);
     else flyHome(state.earth.viewer, 'earth', 1.2);
   });
+  document.querySelectorAll('.tabs [data-tab]').forEach((b) => b.addEventListener('click', () => showTab(b.dataset.tab)));
+  showTab('match');
   $('drawer-toggle').addEventListener('click', () => {
     document.querySelector('.stage').classList.toggle('drawer-closed');
     // Cesium resizes on the next frame; nudge both canvases after the transition.

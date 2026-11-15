@@ -6,9 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>TwinWorlds</title>
     <meta name="description" content="Find the places on Earth that best match real sites on the Moon and Mars, using measurements taken the same way on both worlds." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" />
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='11' cy='16' r='8' fill='%23c1440e'/%3E%3Ccircle cx='21' cy='16' r='8' fill='%232f7fd1' fill-opacity='.85'/%3E%3C/svg%3E" />
   </head>
   <body class="mode-normal">
+    <div id="splash" aria-hidden="true"><div class="sp-orbs"><i class="sp-mars"></i><i class="sp-earth"></i></div><div class="sp-name">TwinWorlds</div><div class="sp-sub">Scoring 79,625 places on Earth against Mars and the Moon…</div></div>
     <header class="topbar">
       <div class="brand">
         <span class="logo" aria-hidden="true"></span>
@@ -70,30 +73,37 @@
         <button id="reset-btn">Reset</button>
         <button id="mt-btn" hidden title="Rehearse Perseverance's real drive in Jezero on a matched path on Earth">🚙 Mission Twin</button>
         <button id="mt-play" hidden aria-label="Play or pause">▶</button>
-        <label class="sun-ctl" title="Sun and shadows at the same local solar time on both worlds"><input type="checkbox" id="sun-on"> ☀ <input type="range" id="sun-hour" min="5" max="19" step="0.25" value="9" disabled> <span id="sun-label">off</span></label>
+        <label class="sun-ctl" title="Sun and shadows at the same local solar time on both worlds"><input type="checkbox" id="sun-on"> ☀ Sun <input type="range" id="sun-hour" min="5" max="19" step="0.25" value="9" disabled> <span id="sun-label">off</span></label>
         <input id="mt-seek" type="range" min="0" max="1000" value="0" hidden aria-label="Mission progress" />
         <span id="dive-readout" class="readout"></span>
       </div>
 
       <aside class="drawer" id="drawer">
         <button class="drawer-toggle" id="drawer-toggle" aria-label="Show or hide the panel">⟨</button>
-        <div class="drawer-body">
-          <section class="card" id="card-target"></section>
-          <section class="card" id="card-whatif"></section>
-          <section class="card" id="card-mission" hidden></section>
-          <section class="card" id="card-now" hidden></section>
-          <section class="card" id="card-match"></section>
-          <section class="card" id="card-travel" hidden></section>
-          <section class="card" id="card-time" hidden></section>
-          <section class="card nerd-only" id="card-nerd" hidden></section>
-          <section class="card" id="card-ask" hidden></section>
-          <section class="card" id="card-gaps"></section>
-          <section class="card" id="card-minerals" hidden></section>
-          <section class="card" id="card-ground" hidden></section>
-          <section class="card" id="card-sky" hidden></section>
-          <section class="card" id="card-landsat" hidden></section>
-          <section class="card" id="card-blind"></section>
-          <section class="card nerd-only" id="card-status"></section>
+        <nav class="tabs" role="tablist" aria-label="Panel sections">
+          <button role="tab" data-tab="match" class="on">Match</button>
+          <button role="tab" data-tab="explore">Explore</button>
+          <button role="tab" data-tab="science">Science</button>
+          <button role="tab" data-tab="proof">Proof</button>
+          <span class="tab-ink" aria-hidden="true"></span>
+        </nav>
+        <div class="drawer-body" data-tab="match">
+          <section class="card t-match" id="card-target"></section>
+          <section class="card t-match" id="card-mission" hidden></section>
+          <section class="card t-match" id="card-ask" hidden></section>
+          <section class="card t-match" id="card-match"></section>
+          <section class="card t-match" id="card-now" hidden></section>
+          <section class="card t-explore" id="card-whatif"></section>
+          <section class="card t-explore" id="card-travel" hidden></section>
+          <section class="card t-explore" id="card-time" hidden></section>
+          <section class="card t-explore" id="card-landsat" hidden></section>
+          <section class="card t-science" id="card-minerals" hidden></section>
+          <section class="card t-science" id="card-ground" hidden></section>
+          <section class="card t-science" id="card-sky" hidden></section>
+          <section class="card t-science" id="card-gaps"></section>
+          <section class="card t-proof" id="card-blind"></section>
+          <section class="card t-proof nerd-only" id="card-nerd" hidden></section>
+          <section class="card t-proof nerd-only" id="card-status"></section>
         </div>
       </aside>
     </main>
