@@ -4,11 +4,13 @@
 import { ImageryLayer, Rectangle, SingleTileImageryProvider, Credit } from 'cesium';
 import { inferResolution, cellKey } from './data.js';
 
-// Score ramp: transparent at the bottom so Earth stays visible where nothing matches.
+// Score ramp: fully transparent for the bottom ~85% of Earth so the satellite imagery
+// stays clean; colour only where a place is a real candidate (input is percentile^6:
+// 0.53 = top 10%, 0.74 = top 5%, 0.89 = top 2%, 0.97 = top 0.5%).
 const RAMP = [
-  [0.0, [40, 60, 140, 0]],
-  [0.3, [40, 90, 170, 90]],
-  [0.5, [90, 200, 200, 150]],
+  [0.0, [40, 90, 170, 0]],
+  [0.38, [40, 90, 170, 0]],
+  [0.53, [90, 200, 200, 150]],
   [0.65, [232, 227, 90, 190]],
   [0.8, [255, 176, 0, 215]],
   [0.92, [255, 90, 54, 235]],

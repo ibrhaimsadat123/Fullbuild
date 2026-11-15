@@ -11,6 +11,7 @@ import {
   GeographicTilingScheme,
   UrlTemplateImageryProvider,
   ImageryLayer,
+  SkyBox,
   TileMapServiceImageryProvider,
   Terrain,
   CesiumTerrainProvider,
@@ -99,7 +100,10 @@ export async function createPlanetViewer(container, worldId) {
     baseLayer: new ImageryLayer(trek),
     terrainProvider: new EllipsoidTerrainProvider({ ellipsoid: w.ellipsoid }),
     skyAtmosphere: false,
+    // Cesium only adds its star background for Earth's ellipsoid; give Mars and the Moon the same stars.
+    skyBox: SkyBox.createEarthSkyBox(),
   });
+  if (viewer.scene.moon) viewer.scene.moon.show = false; // Earth's Moon does not belong in the Mars sky
   viewer.scene.globe.showGroundAtmosphere = false;
   viewer.scene.globe.enableLighting = false;
   viewer.scene.backgroundColor = Color.BLACK;
@@ -158,7 +162,7 @@ export async function createEarthViewer(container) {
   const terrain = Terrain.fromWorldTerrain({ requestVertexNormals: true });
   const viewer = new Viewer(container, { ...BASE_OPTIONS, terrain });
   viewer.scene.backgroundColor = Color.BLACK;
-  tune(viewer, 3);
+  tune(viewer, 2); // Cesium's default detail level: sharper satellite imagery
   const globe = { viewer, world: 'earth', sources: [w.credit], onSourcesChanged: null };
   if (!ION_TOKEN) globe.sources.push('using the CesiumJS demo token');
 
