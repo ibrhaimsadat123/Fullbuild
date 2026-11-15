@@ -20,3 +20,9 @@ Tested on the dev build (same code as twinworlds.pages.dev): all 12 Mars and 8 M
 ## Also fixed in the second pass
 - 'Right now' card showed 'Bad target id' for mission sites; it now shows only for the three named Mars targets the live job covers.
 - Sky card now refreshes when you pick a mission, and its dust sentence compares with the actual Earth place instead of always saying Mars is dustier.
+
+## Pass 3 (Mon 16 Nov, 05:00 PKT): judge review after the design pass
+- Fixed: Minerals card ignored the selected site. It now (a) says how far the site is from the only rover-chemistry site (Gale, Rocknest), and (b) opens the spectrum of the CRISM reference detection nearest the site, with every option labelled by distance (Jezero: Fe-olivine at Nili Fossae, 230 km; Phoenix: north polar gypsum, 715 km; Opportunity: Fe-smectite at Mawrth Vallis, 1,789 km).
+- Fixed: switching targets quickly could stack two heatmaps and threw "Cannot read properties of null (reading 'res')". Heatmap drawing now discards a layer that finished loading after a newer request.
+- Swept all 12 Mars and 8 Moon sites again after the redesign: 0 JavaScript errors, cards appear in the right tabs, temperature warning shows for Phoenix, all Apollo sites and the Tranquillitatis pit.
+- Data weight on first load: ~23 MB uncompressed in dev (scores 4.3 MB, Earth grid 5.6 MB, Mars grid 3.2 MB); Cloudflare compresses JSON, so roughly 4-6 MB over the wire.

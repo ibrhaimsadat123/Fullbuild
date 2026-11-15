@@ -212,6 +212,7 @@ async function selectTarget(id) {
   renderNow();
   renderGround();
   renderSky();
+  renderMinerals();
   renderLandsat();
   addMissionInvite();
   state.whatIf = null; state.whatIfDiff = null; state.whatIfBefore = null;
@@ -272,13 +273,19 @@ async function loadScores() {
   if (best && !state.dive?.active) flyToPoint(state.earth.viewer, 'earth', best.lon, best.lat, null, 2);
 }
 
+let _heatSeq = 0;
 async function drawHeat() {
+  const seq = ++_heatSeq;
   removeHeat();
   if (!state.scores) { resetTime(); return; }
-  state.heat = buildHeat(state.scores, state.weights, state.lenses?.tier_thresholds || state.scores?.tiers);
+  const heat = buildHeat(state.scores, state.weights, state.lenses?.tier_thresholds || state.scores?.tiers);
+  state.heat = heat;
   const credit = `TwinWorlds similarity scores, ${state.target.name}${state.weights ? ` (${state.lensLabel})` : ''}`;
-  state.heatLayer = await addHeatLayer(state.earth.viewer, state.heat, credit);
-  if (state.showZones !== false && !state.travelPlaying) state.zones = drawZones(state.earth.viewer, state.heat);
+  const layer = await addHeatLayer(state.earth.viewer, heat, credit);
+  // A newer target or lens arrived while this layer was loading: drop this one so heatmaps never stack.
+  if (seq !== _heatSeq) { state.earth.viewer.imageryLayers.remove(layer, true); return; }
+  state.heatLayer = layer;
+  if (state.showZones !== false && !state.travelPlaying) state.zones = drawZones(state.earth.viewer, heat);
   $('legend').hidden = false;
   renderBadges();
   renderMatch();
@@ -556,7 +563,7 @@ async function selectLiveSpot(lat, lon, meta = {}) {
   queueMicrotask(renderWhatIf);
   placeLiveMarker(cell.lat, cell.lon);
   highlightTarget();
-  queueMicrotask(() => { renderSky(); renderGround(); renderNow(); });
+  queueMicrotask(() => { renderSky(); renderGround(); renderNow(); renderMinerals(); });
   state.cell = null;
   clearEarthMarker();
   $('earth-site').textContent = '';
@@ -1355,10 +1362,30 @@ async function renderMinerals() {
   if (state.world !== 'mars') { card.hidden = true; return; }
   state.minerals ||= await load('minerals.json');
   if (!state.minerals.ok) { card.hidden = true; return; }
-  card.innerHTML = P.mineralsCard(state.minerals.data) + `<div id="spec-box"></div>`;
+  const t = state.target;
+  const gale = { lat: -4.59, lon: 137.44 };
+  const dGale = t ? marsKm(t, gale) : null;
+  const chemNote = dGale == null ? '' : dGale < 60
+    ? `<p class="loc-note">This is Gale crater: the rover chemistry below was measured here.</p>`
+    : `<p class="loc-note">Rover chemistry exists for one Mars site, Gale crater (Rocknest), <b>${Math.round(dGale).toLocaleString()} km</b> from ${P.esc(t.name)}. Martian soil is wind-mixed basaltic sand planet-wide, so it is the standard reference; the spectra below are matched to ${P.esc(t.name)} itself.</p>`;
+  card.innerHTML = P.mineralsCard(state.minerals.data).replace('</h3>', `</h3>${chemNote}`) + `<div id="spec-box"></div>`;
   card.hidden = false;
   state.spectra ||= await load('spectra.json');
-  if (state.spectra.ok) renderSpectrum(state.specPick || (state.spectra.data.spectra.some((x) => x.pair === 'orbit') ? 'emit_gypsum' : 'fe_olivine'));
+  if (!state.spectra.ok) return;
+  // Location-aware: default to the orbital mineral detection nearest this site; list the rest by distance.
+  if (state.specFor !== t?.id) {
+    state.specFor = t?.id;
+    const near = t ? [...state.spectra.data.spectra].sort((a, b) => marsKm(t, a.mars) - marsKm(t, b.mars))[0] : null;
+    state.specPick = near ? near.id : 'fe_olivine';
+  }
+  renderSpectrum(state.specPick);
+}
+
+/** Great-circle distance on Mars (km). */
+function marsKm(a, b) {
+  const r = Math.PI / 180, R = 3389.5;
+  const s = Math.sin((b.lat - a.lat) * r / 2) ** 2 + Math.cos(a.lat * r) * Math.cos(b.lat * r) * Math.sin((b.lon - a.lon) * r / 2) ** 2;
+  return 2 * R * Math.asin(Math.min(1, Math.sqrt(s)));
 }
 
 /** Mars (CRISM, from orbit) vs Earth (EMIT from orbit, or RELAB lab) spectrum of one mineral, continuum removed. */
@@ -1372,12 +1399,17 @@ function renderSpectrum(id) {
   const orbit = e.kind === 'orbit';
   const lunar = e.type === 'Returned Lunar Sample';
   const earthWhat = orbit ? `NASA\u2019s EMIT, looking down from the ISS at ${e.where}` : lunar ? 'a Moon rock (Apollo 17) in the lab' : `an Earth sample${e.where ? ` from ${e.where}` : ''} in the lab`;
-  const opt = (x) => `<option value="${x.id}" ${x.id === sp.id ? 'selected' : ''}>${P.esc(x.mineral)} (r = ${x.shape_r.toFixed(2)})</option>`;
-  const orbitOpts = S.spectra.filter((x) => x.pair === 'orbit');
-  const labOpts = S.spectra.filter((x) => x.pair !== 'orbit');
+  const t = state.target;
+  const km = (x) => (t ? marsKm(t, x.mars) : null);
+  const byDist = (a, b) => (km(a) ?? 0) - (km(b) ?? 0);
+  const opt = (x) => `<option value="${x.id}" ${x.id === sp.id ? 'selected' : ''}>${P.esc(x.mineral)} \u00b7 ${km(x) != null ? `${Math.round(km(x)).toLocaleString()} km away` : ''} (r = ${x.shape_r.toFixed(2)})</option>`;
+  const orbitOpts = S.spectra.filter((x) => x.pair === 'orbit').sort(byDist);
+  const labOpts = S.spectra.filter((x) => x.pair !== 'orbit').sort(byDist);
+  const nearNote = t ? `<p class="loc-note">CRISM saw <b>${P.esc(sp.mineral.toLowerCase())}</b> in ${P.esc(m.where.replace(/, Mars$/, '').replace(/^.*? from /, ''))}, <b>${Math.round(km(sp)).toLocaleString()} km</b> from ${P.esc(t.name)}${state.specPick === sp.id && [...S.spectra].sort(byDist)[0].id === sp.id ? ' (the nearest of the 12 reference detections in our CRISM library)' : ''}.</p>` : '';
   const verdict = sp.shape_r >= 0.85 ? 'a strong match' : sp.shape_r >= 0.6 ? 'a partial match' : 'a weak match';
   $('spec-box').innerHTML = `<h4>Spectra: Mars from orbit vs ${orbit ? 'Earth from orbit' : 'Earth in the lab'}</h4>
     <label class="muted">Mineral <select id="spec-pick">${orbitOpts.length ? `<optgroup label="Earth from orbit (EMIT)">${orbitOpts.map(opt).join('')}</optgroup>` : ''}<optgroup label="Earth in the lab (RELAB)">${labOpts.map(opt).join('')}</optgroup></select></label>
+    ${nearNote}
     <div class="time-chart"><canvas id="spec-chart"></canvas></div>
     <p class="normal-only">Minerals absorb light at their own wavelengths, like a fingerprint. <span style="color:#e0703a">NASA\u2019s CRISM spectrum of ${P.esc(m.where)}</span> vs <span style="color:#4aa3ff">${P.esc(earthWhat)}</span>: shape match <b>r = ${sp.shape_r.toFixed(2)}</b>, ${verdict} (1 = identical).${sp.id === 'fe_ca_carbonate' ? ' The Mars carbonate contains iron and the lab calcite has none, so the 2.3 \u00b5m band lines up but the band shapes differ.' : ''}</p>
     <p class="muted nerd-only">Compared over ${sp.window_um[0]}\u2013${sp.window_um[1]} \u00b5m (${P.esc(sp.window_why || '')}). ${P.esc(S.method)} ${P.esc(S.note)} ${orbit ? `EMIT scene ${P.esc(e.scene)} (${P.esc(e.date)}), ${P.esc(e.pixels)}, centred ${e.lat.toFixed(3)}\u00b0, ${e.lon.toFixed(3)}\u00b0.` : `Lab specimen ${P.esc(e.sample || '')} ${P.esc(e.name || '')}${e.description ? `: ${P.esc(e.description.replace(/&lt;/g, '<'))}` : ''}${e.where ? `, ${P.esc(e.where)}` : ''}.`} Mars: ${P.esc(m.product || '')} at ${m.lat.toFixed(2)}\u00b0, ${m.lon.toFixed(2)}\u00b0. Gaps: masked bands.</p>
