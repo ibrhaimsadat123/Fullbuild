@@ -6,6 +6,8 @@ import {
   Chart,
   RadarController,
   LineController,
+  BarController,
+  BarElement,
   RadialLinearScale,
   LinearScale,
   CategoryScale,
@@ -16,7 +18,7 @@ import {
   Legend,
 } from 'chart.js';
 
-Chart.register(RadarController, LineController, RadialLinearScale, LinearScale, CategoryScale, PointElement, LineElement, Filler, Tooltip, Legend);
+Chart.register(RadarController, LineController, BarController, BarElement, RadialLinearScale, LinearScale, CategoryScale, PointElement, LineElement, Filler, Tooltip, Legend);
 Chart.defaults.color = '#9aa1ad';
 Chart.defaults.borderColor = 'rgba(255,255,255,0.1)';
 Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
@@ -78,6 +80,7 @@ export function overlayChart(canvas, spec) {
         backgroundColor: WORLD_COLORS[s.world] || '#ffffff',
         pointRadius: 0,
         borderWidth: 2,
+        borderDash: s.dash ? [5, 4] : [],
         tension: 0.25,
         spanGaps: false,
       })),
@@ -104,4 +107,37 @@ export function sourcesHtml(spec, esc) {
   return (spec.series || [])
     .map((s) => `<span class="src"><b>${esc(s.label || s.world)}:</b> ${esc(s.source || 'source missing')}${s.source_type ? ` <span class="chip">${esc(s.source_type)}</span>` : ''}</span>`)
     .join('');
+}
+
+/**
+ * Histogram of Earth's values for one measurement, with vertical markers (target, selected place).
+ * spec: { labels: [bin labels], counts: [n], markers: [{ pos: bin index (fractional), label, color, dash }] }
+ */
+export function histChart(canvas, spec) {
+  const markers = {
+    id: 'markers',
+    afterDatasetsDraw(chart) {
+      const { ctx, chartArea: a, scales } = chart;
+      for (const m of spec.markers || []) {
+        const x = scales.x.getPixelForValue(Math.max(0, Math.min(spec.labels.length - 1, m.pos)));
+        ctx.save();
+        ctx.strokeStyle = m.color; ctx.lineWidth = 2; ctx.setLineDash(m.dash ? [4, 3] : []);
+        ctx.beginPath(); ctx.moveTo(x, a.top); ctx.lineTo(x, a.bottom); ctx.stroke();
+        ctx.setLineDash([]); ctx.fillStyle = m.color; ctx.font = '600 10px Inter, system-ui, sans-serif';
+        ctx.textAlign = x > (a.left + a.right) / 2 ? 'right' : 'left';
+        ctx.fillText(m.label, x + (ctx.textAlign === 'left' ? 4 : -4), a.top + 10 + (m.row || 0) * 12);
+        ctx.restore();
+      }
+    },
+  };
+  return new Chart(canvas, {
+    type: 'bar',
+    data: { labels: spec.labels, datasets: [{ data: spec.counts, backgroundColor: 'rgba(154,161,173,0.45)', borderWidth: 0, barPercentage: 1, categoryPercentage: 1 }] },
+    options: {
+      maintainAspectRatio: false, animation: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => `${c.raw.toLocaleString()} Earth cells` } } },
+      scales: { x: { ticks: { maxTicksLimit: 6, font: { size: 9 } }, grid: { display: false } }, y: { display: false } },
+    },
+    plugins: [markers],
+  });
 }

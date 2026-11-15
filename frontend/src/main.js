@@ -21,6 +21,7 @@ import { TwinDive } from './dive.js';
 import { MissionTwin } from './mission.js';
 import { marsLs, seasonName, earthWeek, compareWeek } from './timesim.js';
 import { loadEarthMonthly, earthGridAt, marsTempsAt, timeline } from './timetravel.js';
+import * as N from './nerd.js';
 import { DIVE_PAIRS, DIVE_VIEW, WORLDS } from './config.js';
 import { radarChart, overlayChart, sourcesHtml } from './charts.js';
 import { apiEnabled, askPlanet, analyst, whatIf, whenBest } from './api.js';
@@ -52,7 +53,7 @@ const state = {
   nerdCharts: [],
 };
 
-const WANTED = ['targets.json', 'earth_grid.json', 'lenses.json', 'sites.json', 'gaps.json', 'blind_test.json', 'mission_twin.json'];
+const WANTED = ['targets.json', 'missions.json', 'earth_grid.json', 'earth_places.json', 'earth_monthly.json', 'mars_grid.json', 'moon_grid.json', 'mars_seasonal.json', 'mars_diurnal.json', 'lenses.json', 'sites.json', 'gaps.json', 'blind_test.json', 'mission_twin_perseverance.json', 'mission_twin_curiosity.json'];
 
 // ---------- boot ----------
 async function boot() {
@@ -270,6 +271,7 @@ async function drawHeat() {
   renderBadges();
   renderMatch();
   resetTime();
+  if (!_ttBusy && !state.travelPlaying) renderNerd();
 }
 
 function removeHeat() {
@@ -296,6 +298,7 @@ function selectCell(lat, lon, fly = false) {
   $('earth-site').textContent = P.placeName(lat, lon) || `${lat.toFixed(2)}, ${lon.toFixed(2)}`;
   placeEarthMarker(lat, lon);
   if (!state.time_lock) queueMicrotask(resetTime);
+  queueMicrotask(renderNerd);
   if (fly) {
     flyToPoint(state.earth.viewer, 'earth', lon, lat, 900_000, 1.4);
   }
@@ -534,27 +537,71 @@ function wireReadout() {
 }
 
 // ---------- Nerd Mode charts (nerd_<site>.json) ----------
+/** A site marker opens that place in the match card (and the Nerd panel in Nerd Mode). */
 async function loadNerd(site) {
+  selectCell(site.lat, site.lon, true);
+}
+
+// ---------- Nerd Mode panel ----------
+let _nerdSeq = 0;
+async function renderNerd() {
   const card = $('card-nerd');
+  if (!document.body.classList.contains('mode-nerd') || !state.target || !state.gridRaw) { card.hidden = true; return; }
+  const seq = ++_nerdSeq;
   state.nerdCharts.forEach((c) => c.destroy());
   state.nerdCharts = [];
-  const r = await load(`nerd_${site.id}.json`);
   card.hidden = false;
-  if (!r.ok) {
-    card.innerHTML = `<h3>${P.esc(site.name)}</h3><p class="empty">Waiting for <code>nerd_${P.esc(site.id)}.json</code>.</p>`;
-    return;
-  }
-  const d = r.data;
-  const cards = (d.cards || [])
-    .map((c) => `<div class="gap"><b>${P.esc(c.title)}</b><p>${P.esc(c.text || '')}</p><span class="src nerd-only">${P.esc(c.source || '')}</span></div>`)
-    .join('');
-  const charts = (d.charts || [])
-    .map((c, i) => `<h4>${P.esc(c.title || '')}</h4><div class="chart-wrap"><canvas id="nerd-chart-${i}"></canvas></div>${sourcesHtml(c, P.esc)}`)
-    .join('');
-  card.innerHTML = `<h3>${P.esc(site.name)}${d.illustrative ? ' <span class="chip">illustrative</span>' : ''}</h3>
-    ${cards}<div class="nerd-only">${charts || '<p class="empty">No charts in this file.</p>'}</div>
-    ${charts ? '<p class="normal-only muted">Switch to 🤓 Nerd Mode for the Earth vs target charts.</p>' : ''}`;
-  (d.charts || []).forEach((c, i) => state.nerdCharts.push(overlayChart($(`nerd-chart-${i}`), c)));
+  state.earthModel ||= buildEarthModel(state.gridRaw);
+  const model = state.earthModel;
+  const spot = state.cell || (state.heat?.ranked?.[0] && { lat: state.heat.ranked[0].lat, lon: state.heat.ranked[0].lon });
+  const row = spot ? state.grid?.get(spot.lat, spot.lon) : null;
+  const place = spot ? (P.placeName(spot.lat, spot.lon) || `${spot.lat.toFixed(2)}, ${spot.lon.toFixed(2)}`) : null;
+  const target = { ...baseValues(), ...(state.whatIf || {}) };
+  const gaps = state.scores?.earth_gaps || {};
+  const rows = N.mathRows(model, target, row, state.weights, gaps);
+  const voting = rows.filter((r) => r.w > 0 && r.sim != null);
+  const wsum = voting.reduce((a, r) => a + r.w, 0);
+  const score = wsum ? Math.exp(voting.reduce((a, r) => a + r.w * Math.log(Math.max(r.sim, 0.01)), 0) / wsum) : null;
+  const f = (x, k = 2) => (x == null || !Number.isFinite(x) ? '\u2014' : Math.abs(x) >= 100 ? x.toFixed(0) : x.toFixed(k));
+  const table = rows.map((r) => `<tr class="${r.beyond ? 'beyond' : ''}"><td>${P.esc(P.featureMeta(r.d).nerd)}</td><td>${f(r.t)}</td><td>${f(r.e)}</td>
+      <td>${r.log ? 'ln(1+x)' : 'x'}</td><td>${f(r.sigma, 3)}</td><td>${r.beyond ? 'rank' : f(r.z)}</td><td>${f(r.sim, 3)}</td><td>${r.w ? f(r.w, 2) : '0 (beyond Earth)'}</td></tr>`).join('');
+  const hists = rows.map((r, i) => `<div class="nerd-hist"><div class="muted">${P.esc(P.featureMeta(r.d).nerd)}${P.featureMeta(r.d).unit ? ` (${P.esc(P.featureMeta(r.d).unit)})` : ''}</div><div class="hist-wrap"><canvas id="nh-${i}"></canvas></div></div>`).join('');
+  const isMars = state.world === 'mars';
+  card.innerHTML = `<h3>\ud83e\udd13 Nerd view${place ? `: ${P.esc(state.target.name)} vs ${P.esc(place)}` : ''}</h3>
+    <h4>The maths</h4>
+    <pre class="formula">s\u1d62 = exp(\u2212(x\u1d07 \u2212 x\u209c)\u00b2 / 2\u03c3\u1d62\u00b2)    \u03c3\u1d62 = \u00bc (p95 \u2212 p5) of Earth\nscore = exp( \u03a3 w\u1d62 ln max(s\u1d62, 0.01) / \u03a3 w\u1d62 )\nw: temperature family shares one vote (\u2153 each); beyond-Earth dims get w = 0</pre>
+    ${row ? `<div class="nerd-table-wrap"><table class="kv nerd-table"><tr><th>Measurement</th><th>Target</th><th>Earth</th><th>Scale</th><th>\u03c3</th><th>z</th><th>s</th><th>w</th></tr>${table}</table></div>
+      <p class="muted">Score from these rows: <b>${f(score, 3)}</b>${state.weights ? ` (lens: ${P.esc(state.lensLabel || 'custom')})` : ''}. Earth values are 2023 yearly means; \u03c3 and ranks come from all ${model.n.toLocaleString()} Earth land cells.</p>`
+      : '<p class="empty">No land data at this spot (ocean or no terrain data).</p>'}
+    <h4>Where the target sits in Earth\u2019s range</h4>
+    <p class="muted">Grey: all ${model.n.toLocaleString()} Earth land cells. <span style="color:#e0703a">\u25A0</span> ${isMars ? 'Mars' : 'Moon'} target \u00b7 <span style="color:#4aa3ff">\u25A0</span> ${P.esc(place || 'Earth place')}. Slope and relief on a log scale.</p>
+    <div class="nerd-hists">${hists}</div>
+    ${isMars ? '<h4>Through the year (next Mars year)</h4><div class="time-chart"><canvas id="nerd-year"></canvas></div><p class="muted" id="nerd-year-note"></p>' : ''}
+    ${isMars ? '<h4>Through a day (today)</h4><div class="time-chart"><canvas id="nerd-day"></canvas></div><p class="muted" id="nerd-day-note"></p>' : '<p class="muted">The Moon\u2019s day lasts 29.5 Earth days, so day and year curves are shown for Mars targets only.</p>'}
+    <span class="src">Earth: NASA MODIS (MOD11A2, MCD43A3, MOD13A2 yearly; MOD11A2, MCD43A3, MOD13A3 monthly, 2023), USGS GMTED2010, NOAA ETOPO1. ${isMars ? 'Mars: MGS MOLA, TES, Mars Climate Database v6.2 (ESA/CNES/LMD). Earth hourly: Open-Meteo forecast.' : 'Moon: LRO LOLA, LRO Diviner.'}</span>`;
+  rows.forEach((r, i) => state.nerdCharts.push(N.histChart($(`nh-${i}`), N.histSpec(model, r.d, r.log, [
+    { value: r.t, label: isMars ? 'Mars' : 'Moon', color: '#e0703a' },
+    { value: r.e, label: 'Earth', color: '#4aa3ff', dash: true },
+  ]))));
+  if (!isMars) return;
+  try {
+    await travelData();
+    if (seq !== _nerdSeq) return;
+    const gf = state.gridRaw.fields, iLa = gf.indexOf('lat'), iLo = gf.indexOf('lon'), res = state.gridRaw.resolution_deg || 0.5;
+    const want = spot ? cellKey(spot.lat, spot.lon, res) : null;
+    const k = want ? state.gridRaw.cells.findIndex((c) => cellKey(c[iLa], c[iLo], res) === want) : -1;
+    const months = k >= 0 ? N.cellMonths(state.monthly, k) : null;
+    state.nerdCharts.push(N.overlayChart($('nerd-year'), { x: { label: 'Weeks from now', unit: 'wk' }, y: { label: 'Ground temperature', unit: '\u00b0C' },
+      series: N.yearSeries(state.marsSeasonal, state.target, months) }));
+    $('nerd-year-note').textContent = 'Solid: 10:30 local time, dashed: 22:30. Mars: Mars Climate Database by season (Ls). Earth: NASA MODIS 2023 monthly, by calendar month.';
+  } catch (e) { const n = $('nerd-year-note'); if (n) n.textContent = e.message; }
+  try {
+    const D = await load('mars_diurnal.json');
+    const ds = await N.daySeries(D.ok ? D.data : null, state.target, spot);
+    if (seq !== _nerdSeq || !$('nerd-day')) return;
+    state.nerdCharts.push(N.overlayChart($('nerd-day'), { x: { label: 'Local time', unit: 'h' }, y: { label: 'Ground temperature', unit: '\u00b0C' }, series: ds }));
+    $('nerd-day-note').textContent = 'Same local time on both worlds (a sol is 24 h 39 min). Mars: MCD maps every 3 h, interpolated. Earth: Open-Meteo soil temperature at 0 cm.';
+  } catch (e) { const n = $('nerd-day-note'); if (n) n.textContent = `Hourly Earth data unavailable: ${e.message}`; }
 }
 
 // ---------- Mission Twin ----------
@@ -995,6 +1042,7 @@ function wireUi() {
     const nerd = document.body.classList.toggle('mode-nerd');
     document.body.classList.toggle('mode-normal', !nerd);
     $('mode-toggle').setAttribute('aria-pressed', String(nerd));
+    renderNerd();
   });
   $('ask-form').addEventListener('submit', (e) => {
     e.preventDefault();
