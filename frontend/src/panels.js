@@ -69,7 +69,7 @@ export function targetCard(t, world) {
   return `
     <h3>${esc(t.name)}</h3>
     <p class="why">${esc(t.why || '')}</p>
-    <p class="muted">${latLon(t.lat, t.lon)}${t.coords_note ? `<span class="src nerd-only">${esc(t.coords_note)}</span>` : ''}</p>
+    <p class="muted">${t.site ? `${latLon(t.site.lat, t.site.lon)} <span class="muted">(landing site; scored on the 1\u00b0 cell centred at ${latLon(t.lat, t.lon)})</span>` : latLon(t.lat, t.lon)}${t.coords_note ? `<span class="src nerd-only">${esc(t.coords_note)}</span>` : ''}</p>
     <h4>Measurements <span class="chip">${sourced} of ${total} sourced</span></h4>
     <table class="kv">${rows}</table>`;
 }
@@ -215,14 +215,14 @@ export function blindCard(blind, error) {
   // Strict format from pipeline/blind_test.py: % of Earth land cells scoring higher (lower = better, random = 50%).
   if (blind.per_site_mean_top_percent) {
     const perTarget = Object.entries(blind.per_target || {})
-      .map(([t, v]) => `<tr><td>${esc(t)}</td><td>top ${fmt(v.median_top_percent)}%</td></tr>`).join('');
+      .map(([t, v]) => `<tr><td>${esc(t)}${v.median_top_percent > 25 && (v.why || []).length ? `<div class="muted">Famous sites differ in ${v.why.map((w) => `${esc(w.label)} (similarity ${fmt(w.famous_sites)} vs ${fmt(w.best_places)} at the best places)`).join(' and ')}${v.why.some((w) => /slope|relief/.test(w.dim)) ? ': this site is flatter than the rugged places used as analogs today, so the engine prefers flat plains' : ''}.</div>` : ''}</td><td>top ${fmt(v.median_top_percent)}%</td></tr>`).join('');
     const rows = Object.entries(blind.per_site_mean_top_percent)
       .sort((a, b) => a[1] - b[1])
       .map(([name, p]) => `<tr><td>${p <= 25 ? '✅' : p <= 50 ? '➖' : '❌'} ${esc(name)}</td><td>top ${fmt(p)}%</td></tr>`).join('');
     return `${title}
       <p class="muted">The engine was never told about these famous analog sites. Lower is better; a random place averages <b>top 50%</b>.</p>
       <h4>Each site, averaged over all targets</h4><table class="kv">${rows}</table>
-      <h4 class="nerd-only">Median known site, per target</h4><table class="kv nerd-only">${perTarget}</table>
+      <h4>Median known site, per target</h4><table class="kv">${perTarget}</table>
       <span class="src nerd-only">${esc(blind.method || '')}</span>`;
   }
   const r = blind.recall || {};

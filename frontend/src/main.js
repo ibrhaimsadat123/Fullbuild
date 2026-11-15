@@ -543,6 +543,7 @@ async function selectLiveSpot(lat, lon, meta = {}) {
     name: meta.name || `${state.world === 'moon' ? 'Moon' : 'Mars'} spot ${label}`,
     why: meta.why || `Any spot you click is scored live against all of Earth (${g.res}° cell).`,
     mission: meta.mission || null,
+    site: meta.mission ? { lat: meta.mission.lat, lon: meta.mission.lon } : null,
     coords_note: meta.mission ? `Landing site ${label}. ${state.missionsSource || ''}` : undefined,
     features,
   };
@@ -554,6 +555,7 @@ async function selectLiveSpot(lat, lon, meta = {}) {
   queueMicrotask(renderWhatIf);
   placeLiveMarker(cell.lat, cell.lon);
   highlightTarget();
+  queueMicrotask(() => { renderSky(); renderGround(); renderNow(); });
   state.cell = null;
   clearEarthMarker();
   $('earth-site').textContent = '';
@@ -762,7 +764,7 @@ async function renderSky() {
   card.innerHTML = `<h3>Sky: dust, water, UV</h3>
     <table class="kv"><tr><th></th><th style="color:#e0703a">${tName}</th><th style="color:#4aa3ff">${P.esc(place || 'Earth place')}</th></tr>
     ${rows.map(([a, b, c]) => `<tr><td>${a}</td><td>${b}</td><td>${c}</td></tr>`).join('')}</table>
-    <p class="normal-only">${moon ? 'The Moon has no air: no dust haze, no water, nothing to block ultraviolet light.' : `Dust haze on Mars is often thicker than most places on Earth, the air holds hundreds of times less water than even Earth\u2019s driest places, and with almost no ozone the ground gets the Sun\u2019s UV nearly unfiltered.`} ${uv != null ? `The Earth place averages UV index ${f(uv, 1)}.` : ''} Earth cannot reproduce ${moon ? 'airlessness' : 'the missing ozone'} outdoors: test UV damage in a lamp chamber.</p>
+    <p class="normal-only">${moon ? 'The Moon has no air: no dust haze, no water, nothing to block ultraviolet light.' : `${ann('AOD_55') != null && mars.mean.dust > ann('AOD_55') ? 'Dust haze here is thicker than at this Earth place' : 'Dust haze here is lighter than at this Earth place, though Mars dust storms can raise it far higher'}, the air holds hundreds of times less water than even Earth\u2019s driest places, and with almost no ozone the ground gets the Sun\u2019s UV nearly unfiltered.`} ${uv != null ? `The Earth place averages UV index ${f(uv, 1)}.` : ''} Earth cannot reproduce ${moon ? 'airlessness' : 'the missing ozone'} outdoors: test UV damage in a lamp chamber.</p>
     ${err ? `<p class="muted">Earth data unavailable: ${P.esc(err)}</p>` : ''}
     <p class="muted nerd-only">${moon ? '' : `Mars: ${P.esc(state.sky.data.source)}; dust = column optical depth in the visible, water = column vapour (1 kg/m\u00b2 = 1 mm), ozone = O\u2083 column / 2.1415e-5 kg m\u207b\u00b2 per DU; mean of 24 seasons. `}Earth: NASA POWER climatology 2001\u20132025 at the place, annual mean: MERRA-2 aerosol optical depth at 550 nm, precipitable water, all-sky UV index. Earth ozone: global average, not this place.</p>
     <span class="src">NASA POWER (power.larc.nasa.gov)${moon ? '' : '; Mars Climate Database v6.2 (LMD/OU/IAA/ESA/CNES)'}</span>`;
@@ -822,7 +824,7 @@ let _nowSeq = 0;
 async function renderNow() {
   const card = $('card-now');
   const seq = ++_nowSeq;
-  if (!state.target || state.world !== 'mars' || !apiEnabled()) { card.hidden = true; return; }
+  if (!state.target || state.target.live || state.world !== 'mars' || !apiEnabled()) { card.hidden = true; return; }
   card.hidden = false;
   card.innerHTML = '<h3>\ud83d\udd34 Right now</h3><p class="muted">Checking live ground temperatures\u2026</p>';
   try {

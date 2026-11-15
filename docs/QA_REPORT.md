@@ -12,7 +12,11 @@ Tested on the dev build (same code as twinworlds.pages.dev): all 12 Mars and 8 M
 
 ## Known limits (honest answers for judges)
 - Regional concentration: for 120 random Mars spots the best Earth place is in China 35% of the time (Kunlun 23%); for random Moon spots 67%. Cause: high, cold, dry, barren plateaus match best on the measurements Earth can reach, and on the Moon temperature cannot vote at all, so terrain and brightness decide. Variants tested (beyond-Earth values voting at half weight against Earth's extreme, with 1x or 2x width) increased the China share (to 65-75% on Mars) and did not fix Phoenix, so the current rule stays. The blind test still finds known analogs (Jezero: Atacama top 1.4%, Utah MDRS 0.8%).
-- Acidalia: known analog sites rank poorly (median top 70%); its night and swing are beyond Earth and it is very dark and flat.
-- Sky card (dust, water, UV) covers the three named Mars targets; the Mars Climate Database server stopped answering while fetching the 9 mission sites (script ready: re-run when it is back).
-- Mission and click-anywhere spots are scored on the 1-degree grid cell that contains them (InSight shows 4.50N 135.50E, the cell centre).
-- Rehearsability colours on the Mars 3D globe could not be checked in the test browser (it does not draw Mars); verify on the live site.
+- Acidalia: known analog sites rank poorly (median top 70%). Now explained in the app from the data: famous sites score 0.28 on slope and 0.29 on hilliness vs 0.98 and 0.94 at the best places, because Acidalia is far flatter than the rugged sites used as analogs today (blind_test.json 'why').
+- Sky card (dust, water, UV) now covers the three named Mars targets and all 9 NASA Mars mission sites (fixed). Click-anywhere spots have no Sky card.
+- Mission sites now show their real landing coordinates, with a note that scoring uses the 1-degree cell that contains them (fixed).
+- Rehearsability: verified the map layer loads and is shown on the Mars globe (3D tiles hidden, NASA Trek globe on, map layer ready). The test browser cannot paint Mars, so look once on the live site.
+
+## Also fixed in the second pass
+- 'Right now' card showed 'Bad target id' for mission sites; it now shows only for the three named Mars targets the live job covers.
+- Sky card now refreshes when you pick a mission, and its dust sentence compares with the actual Earth place instead of always saying Mars is dustier.

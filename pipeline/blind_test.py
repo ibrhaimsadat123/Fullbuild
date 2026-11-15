@@ -44,6 +44,26 @@ def top_percent(arr, lat, lon):
     return round(100.0 * float((arr[:, 2] > arr[i, 2]).mean()), 1)
 
 
+LABEL = {"slope_deg": "slope", "relief_55km_m": "hilliness", "lst_day_c": "daytime temperature", "lst_night_c": "night temperature",
+         "lst_swing_c": "day-night swing", "albedo": "brightness", "ndvi": "plant cover"}
+
+
+def why_low(t):
+    """Which measurements separate the famous sites from this target's best places (biggest similarity deficit)."""
+    d = json.load(open(os.path.join(DATA, f"scores_{t}.json")))
+    f = d["fields"]; C = np.array(d["cells"], dtype="float64")
+    dims = [x for x in f if x.startswith("s_") and x[2:] in (d.get("dims_voting") or [])]
+    known = []
+    for lat, lon in KNOWN.values():
+        dd = np.abs(C[:, 0] - lat) + np.abs(((C[:, 1] - lon + 180) % 360) - 180) * np.cos(np.radians(lat))
+        if dd.min() <= 1: known.append(C[dd.argmin(), [f.index(x) for x in dims]])
+    top = C[np.argsort(-C[:, f.index("score")])[:200]][:, [f.index(x) for x in dims]]
+    gap = top.mean(0) - np.array(known).mean(0)
+    order = np.argsort(-gap)[:2]
+    return [{"dim": dims[i][2:], "label": LABEL.get(dims[i][2:], dims[i][2:]), "famous_sites": round(float(np.array(known).mean(0)[i]), 2),
+             "best_places": round(float(top.mean(0)[i]), 2)} for i in order if gap[i] > 0.1]
+
+
 def main():
     loaded = {}
     for f in sorted(glob.glob(os.path.join(DATA, "scores_*.json"))):
@@ -55,7 +75,7 @@ def main():
     for t, arr in loaded.items():
         vals = {s: top_percent(arr, *ll) for s, ll in KNOWN.items()}
         ok = [v for v in vals.values() if v is not None]
-        per_target[t] = {"sites": vals, "median_top_percent": round(float(np.median(ok)), 1)}
+        per_target[t] = {"sites": vals, "median_top_percent": round(float(np.median(ok)), 1), "why": why_low(t)}
         print(f"   {t:22s} known sites median: top {np.median(ok):5.1f}%")
 
     print("\nPer known site (average over all targets):")

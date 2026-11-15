@@ -18,7 +18,21 @@
     "Pilbara, Australia": 2.9,
     "Lanzarote, Canary Islands": 14.2
    },
-   "median_top_percent": 70.5
+   "median_top_percent": 70.5,
+   "why": [
+    {
+     "dim": "slope_deg",
+     "label": "slope",
+     "famous_sites": 0.28,
+     "best_places": 0.98
+    },
+    {
+     "dim": "relief_55km_m",
+     "label": "hilliness",
+     "famous_sites": 0.29,
+     "best_places": 0.94
+    }
+   ]
   },
   "arcadia": {
    "sites": {
@@ -37,7 +51,21 @@
     "Pilbara, Australia": 9.9,
     "Lanzarote, Canary Islands": 9.1
    },
-   "median_top_percent": 13.6
+   "median_top_percent": 13.6,
+   "why": [
+    {
+     "dim": "slope_deg",
+     "label": "slope",
+     "famous_sites": 0.36,
+     "best_places": 0.9
+    },
+    {
+     "dim": "relief_55km_m",
+     "label": "hilliness",
+     "famous_sites": 0.59,
+     "best_places": 0.96
+    }
+   ]
   },
   "jezero": {
    "sites": {
@@ -56,7 +84,21 @@
     "Pilbara, Australia": 34.6,
     "Lanzarote, Canary Islands": 2.5
    },
-   "median_top_percent": 5.8
+   "median_top_percent": 5.8,
+   "why": [
+    {
+     "dim": "slope_deg",
+     "label": "slope",
+     "famous_sites": 0.58,
+     "best_places": 0.95
+    },
+    {
+     "dim": "albedo",
+     "label": "brightness",
+     "famous_sites": 0.74,
+     "best_places": 0.93
+    }
+   ]
   },
   "shackleton": {
    "sites": {
@@ -75,7 +117,21 @@
     "Pilbara, Australia": 53.3,
     "Lanzarote, Canary Islands": 20.4
    },
-   "median_top_percent": 6.8
+   "median_top_percent": 6.8,
+   "why": [
+    {
+     "dim": "slope_deg",
+     "label": "slope",
+     "famous_sites": 0.14,
+     "best_places": 0.91
+    },
+    {
+     "dim": "relief_55km_m",
+     "label": "hilliness",
+     "famous_sites": 0.41,
+     "best_places": 0.76
+    }
+   ]
   },
   "tranquillitatis_pit": {
    "sites": {
@@ -94,7 +150,21 @@
     "Pilbara, Australia": 3.6,
     "Lanzarote, Canary Islands": 12.1
    },
-   "median_top_percent": 39.5
+   "median_top_percent": 39.5,
+   "why": [
+    {
+     "dim": "slope_deg",
+     "label": "slope",
+     "famous_sites": 0.28,
+     "best_places": 0.98
+    },
+    {
+     "dim": "relief_55km_m",
+     "label": "hilliness",
+     "famous_sites": 0.35,
+     "best_places": 0.96
+    }
+   ]
   }
  },
  "per_site_mean_top_percent": {
