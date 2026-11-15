@@ -124,7 +124,7 @@ export function matchCell({ cell, target, earthRow, grid, apiOn, scores }) {
           const m = featureMeta(k);
           const tv = featureValue(target.features[k]);
           const ev = earthRow[k];
-          const earthSrc = grid?.sources?.[k] ? `${grid.sources[k]}${grid.year ? `, ${grid.year} yearly mean` : ''}` : `Earth grid${grid?.year ? `, ${grid.year}` : ''}`;
+          const earthSrc = grid?.sources?.[k] || `Earth grid${grid?.year ? `, ${grid.year}` : ''}`; // each source already states its own period
           return `<tr><td><span class="normal-only">${esc(m.normal)}</span><span class="nerd-only">${esc(m.nerd)}</span>
               <span class="src nerd-only">Earth: ${esc(earthSrc)}</span>
               <span class="src nerd-only">Target: ${esc(target.features[k]?.source || '')}</span></td>

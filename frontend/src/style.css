@@ -53,9 +53,11 @@ body.mode-nerd .normal-only { display: none !important; }
 .mode { background: #1b1e24; border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; cursor: pointer; white-space: nowrap; }
 
 /* Stage */
-.stage { position: relative; height: calc(100% - 56px); display: grid; grid-template-columns: 1fr 1fr 360px; transition: grid-template-columns 0.25s ease; }
+/* grid-template-rows + min-height: 0 keep the globes exactly screen-height; without them the
+   row grows to the side panel's content and each globe's centre ends up far below the screen. */
+.stage { position: relative; height: calc(100% - 56px); display: grid; grid-template-columns: 1fr 1fr 360px; grid-template-rows: minmax(0, 1fr); overflow: hidden; transition: grid-template-columns 0.25s ease; }
 .stage.drawer-closed { grid-template-columns: 1fr 1fr 0px; }
-.pane { position: relative; overflow: hidden; border-right: 1px solid var(--line); }
+.pane { position: relative; overflow: hidden; min-height: 0; border-right: 1px solid var(--line); }
 .globe { position: absolute; inset: 0; }
 .pane-label {
   position: absolute; top: 10px; left: 12px; display: flex; gap: 8px; align-items: baseline;
@@ -104,7 +106,7 @@ body.world-moon #pane-planet .pane-label > span:first-child { color: var(--moon)
 .readout:empty { display: none; }
 
 /* Drawer */
-.drawer { position: relative; min-width: 0; z-index: 6; display: flex; }
+.drawer { position: relative; min-width: 0; min-height: 0; z-index: 6; display: flex; }
 .stage.drawer-closed .dive-hud { left: 50%; }
 .drawer-toggle {
   position: absolute; left: -22px; top: 70px; width: 22px; height: 44px;
@@ -156,7 +158,7 @@ body.world-moon #pane-planet .pane-label > span:first-child { color: var(--moon)
   .controls { flex-wrap: wrap; width: 100%; }
   .field select { max-width: 160px; }
   .ask { order: 5; width: 100%; flex-basis: 100%; }
-  .stage { height: auto; grid-template-columns: 1fr; grid-template-rows: 46vh 46vh auto; }
+  .stage { height: auto; overflow: visible; grid-template-columns: 1fr; grid-template-rows: 46vh 46vh auto auto; }
   .pane { border-right: 0; border-bottom: 1px solid var(--line); }
   .dive-hud { position: sticky; bottom: 8px; left: auto; transform: none; margin: 8px auto; grid-row: 3; justify-self: center; }
   .drawer { grid-row: 4; }

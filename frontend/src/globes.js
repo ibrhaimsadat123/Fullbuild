@@ -19,6 +19,9 @@ import {
   buildModuleUrl,
   Color,
   sampleTerrainMostDetailed,
+  BoundingSphere,
+  HeadingPitchRange,
+  Math as CesiumMath,
 } from 'cesium';
 import { WORLDS, ION_TOKEN } from './config.js';
 
@@ -36,6 +39,34 @@ const BASE_OPTIONS = {
   infoBox: false,
   selectionIndicator: false,
 };
+
+/**
+ * Laptop-friendly settings: two 3D globes render side by side, so cap the frame rate,
+ * load fewer tiles and skip anti-aliasing. Smooth on integrated GPUs; looks the same.
+ */
+function tune(viewer, sse = 2.5) {
+  viewer.targetFrameRate = 30;
+  viewer.scene.globe.maximumScreenSpaceError = sse;
+  viewer.scene.globe.tileCacheSize = 200;
+  viewer.scene.postProcessStages.fxaa.enabled = false;
+  viewer.scene.fog.enabled = true;
+}
+
+/**
+ * Fly to look straight down on a point. `height` in metres; pass null for the
+ * "twin" overview, which is the same multiple of each planet's radius, so Mars,
+ * the Moon and Earth appear the same size side by side.
+ */
+export function flyToPoint(viewer, worldId, lon, lat, height = null, duration = 1.5) {
+  const ell = WORLDS[worldId].ellipsoid;
+  const h = height ?? ell.maximumRadius * 1.9;
+  const safeLat = Math.max(-89.5, Math.min(89.5, lat)); // straight down exactly over a pole spins the camera
+  viewer.camera.flyTo({
+    destination: Cartesian3.fromDegrees(lon, safeLat, h, ell),
+    orientation: { heading: 0, pitch: CesiumMath.toRadians(-90), roll: 0 },
+    duration,
+  });
+}
 
 export function toCartesian(world, lon, lat, height = 0) {
   return Cartesian3.fromDegrees(lon, lat, height, WORLDS[world].ellipsoid);
@@ -68,6 +99,7 @@ export async function createPlanetViewer(container, worldId) {
   viewer.scene.globe.enableLighting = false;
   viewer.scene.backgroundColor = Color.BLACK;
   viewer.scene.globe.baseColor = Color.fromCssColorString('#2a1a12');
+  tune(viewer, 2.5);
 
   const sources = [w.imagery.credit];
   let tileset = null;
@@ -80,6 +112,12 @@ export async function createPlanetViewer(container, worldId) {
       viewer.scene.primitives.add(tileset);
       viewer.scene.globe.show = false;
       sources.splice(0, 1, w.ion3dTiles.credit);
+      // Safety net: if the 3D tiles fail to load, bring the Trek imagery globe back
+      // instead of leaving a black screen.
+      tileset.tileFailed.addEventListener((e) => {
+        console.warn(`[${worldId}] 3D tile failed, showing Trek imagery globe`, e);
+        viewer.scene.globe.show = true;
+      });
     } catch (e) {
       console.warn(`[${worldId}] Cesium ion 3D tiles unavailable, staying on Trek imagery`, e);
       sources.push('no 3D terrain (ion asset not available)');
@@ -91,6 +129,12 @@ export async function createPlanetViewer(container, worldId) {
         requestVertexNormals: true,
       });
       sources.push(w.ionTerrain.credit);
+      // Safety net: tiles that 404 would leave the globe black; drop back to the smooth ellipsoid.
+      viewer.terrainProvider.errorEvent.addEventListener(() => {
+        if (viewer.terrainProvider instanceof EllipsoidTerrainProvider) return;
+        console.warn(`[${worldId}] terrain tiles failing, falling back to the ellipsoid`);
+        viewer.terrainProvider = new EllipsoidTerrainProvider({ ellipsoid: w.ellipsoid });
+      });
     } catch (e) {
       console.warn(`[${worldId}] Cesium ion terrain unavailable, staying on the ellipsoid`, e);
       sources.push('no 3D terrain (ion asset not available)');
@@ -109,6 +153,7 @@ export async function createEarthViewer(container) {
   const terrain = Terrain.fromWorldTerrain({ requestVertexNormals: true });
   const viewer = new Viewer(container, { ...BASE_OPTIONS, terrain });
   viewer.scene.backgroundColor = Color.BLACK;
+  tune(viewer, 3);
   const globe = { viewer, world: 'earth', sources: [w.credit], onSourcesChanged: null };
   if (!ION_TOKEN) globe.sources.push('using the CesiumJS demo token');
 
@@ -132,7 +177,7 @@ export async function createEarthViewer(container) {
 
 export function flyHome(viewer, worldId, duration = 1.5) {
   const h = WORLDS[worldId].home;
-  viewer.camera.flyTo({ destination: toCartesian(worldId, h.lon, h.lat, h.height), duration });
+  flyToPoint(viewer, worldId, h.lon, h.lat, null, duration);
 }
 
 /** Best-effort surface height at a point (terrain or 3D tiles). Falls back to 0. */

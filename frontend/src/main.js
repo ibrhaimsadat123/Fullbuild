@@ -10,8 +10,10 @@ import {
   ScreenSpaceEventType,
   defined,
   NearFarScalar,
+  DistanceDisplayCondition,
+  Cartesian3,
 } from 'cesium';
-import { createPlanetViewer, createEarthViewer, toCartesian, toLonLat, flyHome } from './globes.js';
+import { createPlanetViewer, createEarthViewer, toCartesian, toLonLat, flyHome, flyToPoint } from './globes.js';
 import { load, dataIndex, indexGrid, normalizeScores } from './data.js';
 import { buildHeat, addHeatLayer, rampCss } from './heatmap.js';
 import { TwinDive } from './dive.js';
@@ -108,6 +110,13 @@ async function setWorld(world) {
   state.dive = new TwinDive(state.planet, state.earth);
   wirePlanetClicks();
   wireReadout();
+  wireFarSideCulling(state.planet.viewer);
+  // Earth's viewer lives for the whole session: wire its listeners only once.
+  if (!state.earthWired) {
+    wireHeatFade();
+    wireFarSideCulling(state.earth.viewer);
+    state.earthWired = true;
+  }
   drawTargets();
   renderSources();
 
@@ -148,10 +157,7 @@ async function selectTarget(id) {
   $('card-target').innerHTML = P.targetCard(state.target, state.world);
   highlightTarget();
   if (state.target && !state.dive?.active) {
-    state.planet.viewer.camera.flyTo({
-      destination: toCartesian(state.world, state.target.lon, state.target.lat, state.world === 'moon' ? 3_500_000 : 6_000_000),
-      duration: 1.6,
-    });
+    flyToPoint(state.planet.viewer, state.world, state.target.lon, state.target.lat, null, 1.6);
   }
   state.cell = null;
   clearEarthMarker();
@@ -185,6 +191,9 @@ async function loadScores() {
   }
   state.scores = normalizeScores(r.data);
   await drawHeat();
+  // Take the viewer straight to Earth's best match for this target.
+  const best = state.heat?.ranked?.[0];
+  if (best && !state.dive?.active) flyToPoint(state.earth.viewer, 'earth', best.lon, best.lat, null, 2);
 }
 
 async function drawHeat() {
@@ -222,7 +231,7 @@ function selectCell(lat, lon, fly = false) {
   $('earth-site').textContent = `${lat.toFixed(2)}, ${lon.toFixed(2)}`;
   placeEarthMarker(lat, lon);
   if (fly) {
-    state.earth.viewer.camera.flyTo({ destination: toCartesian('earth', lon, lat, 900_000), duration: 1.4 });
+    flyToPoint(state.earth.viewer, 'earth', lon, lat, 900_000, 1.4);
   }
   // With the Earth grid in, a click shows measured values even before scores exist.
   if (!state.scores && !state.grid) {
@@ -276,7 +285,8 @@ function drawSites() {
         verticalOrigin: VerticalOrigin.BOTTOM,
         pixelOffset: new Cartesian2(0, -10),
         disableDepthTestDistance: Number.POSITIVE_INFINITY,
-        distanceDisplayCondition: undefined,
+        // Names appear once you zoom in; from orbit the sites are just dots (no label pile-up).
+        distanceDisplayCondition: new DistanceDisplayCondition(0, 4_500_000),
       },
     });
   }
@@ -331,6 +341,38 @@ async function startDive(earthSite = diveEarthSite()) {
   placeEarthMarker(earthSite.lat, earthSite.lon);
   if (earthSite.source) toast(`Earth site: ${earthSite.name}. Source: ${earthSite.source}`, 6000);
   await state.dive.start({ lat: state.target.lat, lon: state.target.lon }, earthSite);
+}
+
+// Markers draw on top of terrain (disableDepthTestDistance), which also lets them show
+// THROUGH the planet from the far side. Hide any marker whose spot faces away from the camera.
+const _n = new Cartesian3();
+const _v = new Cartesian3();
+function wireFarSideCulling(viewer) {
+  viewer.scene.postRender.addEventListener(() => {
+    const cam = viewer.camera.positionWC;
+    const time = viewer.clock.currentTime;
+    for (const e of viewer.entities.values) {
+      const p = e.position?.getValue(time);
+      if (!p) continue;
+      Cartesian3.normalize(p, _n);
+      Cartesian3.subtract(cam, p, _v);
+      const facing = Cartesian3.dot(_n, _v) > 0;
+      if (e.show !== facing) e.show = facing;
+    }
+  });
+}
+
+// The heatmap is 55 km cells: great from orbit, a flat coloured sheet up close.
+// Fade it with camera height so close-ups show the real ground (Twin Dive, clicks).
+function wireHeatFade() {
+  const v = state.earth.viewer;
+  const FULL = 0.7, FAR = 1_500_000, NEAR = 150_000;
+  v.scene.postRender.addEventListener(() => {
+    if (!state.heatLayer) return;
+    const h = v.camera.positionCartographic?.height ?? FAR;
+    const a = FULL * Math.max(0, Math.min(1, (h - NEAR) / (FAR - NEAR)));
+    if (Math.abs(state.heatLayer.alpha - a) > 0.01) state.heatLayer.alpha = a;
+  });
 }
 
 function wireReadout() {
@@ -458,7 +500,7 @@ function renderGaps() {
 function renderSources() {
   if (state.planet) $('planet-source').textContent = state.planet.sources.join(' · ');
   const earth = [...(state.earth?.sources || [])];
-  if (state.grid?.year) earth.push(`Earth data: ${state.grid.year} yearly means`);
+  if (state.grid?.year) earth.push(`Earth data: ${state.grid.year}`);
   $('earth-source').textContent = earth.join(' · ');
 }
 
@@ -500,8 +542,14 @@ function wireUi() {
   $('reset-btn').addEventListener('click', () => {
     state.dive?.stop();
     stopMission();
-    flyHome(state.planet.viewer, state.world);
-    flyHome(state.earth.viewer, 'earth');
+    $('dive-readout').textContent = '';
+    // Fly back to the whole globe, but keep the chosen target and best match centred.
+    const t = state.target;
+    const best = state.heat?.ranked?.[0];
+    if (t) flyToPoint(state.planet.viewer, state.world, t.lon, t.lat, null, 1.2);
+    else flyHome(state.planet.viewer, state.world, 1.2);
+    if (best) flyToPoint(state.earth.viewer, 'earth', best.lon, best.lat, null, 1.2);
+    else flyHome(state.earth.viewer, 'earth', 1.2);
   });
   $('drawer-toggle').addEventListener('click', () => {
     document.querySelector('.stage').classList.toggle('drawer-closed');

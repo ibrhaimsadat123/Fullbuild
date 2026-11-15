@@ -29,8 +29,9 @@ export const WORLDS = {
       maximumLevel: 8, // deeper levels 404 on Trek (checked 2026-11-14)
       credit: 'NASA Moon Trek: LRO WAC global mosaic, 303 ppd',
     },
-    // Cesium Moon Terrain: built from NASA LRO LOLA. Needs a Cesium ion token.
-    ionTerrain: { assetId: 2684829, credit: 'Cesium Moon Terrain (NASA LRO LOLA) via Cesium ion' },
+    // Cesium Moon Terrain: built from NASA LRO LOLA. Published as 3D Tiles (like Cesium Mars),
+    // not as a quantized-mesh terrain provider: loading it as terrain gives 404 tiles and a black globe.
+    ion3dTiles: { assetId: 2684829, credit: 'Cesium Moon Terrain (NASA LRO LOLA) via Cesium ion' },
     home: { lon: 30, lat: -10, height: 7_000_000 },
   },
   earth: {

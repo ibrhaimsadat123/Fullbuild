@@ -85,19 +85,32 @@ export function buildHeat(scores, weights = null, thresholds = null) {
   const img = ctx.createImageData(w, h);
   const lookup = new Map();
   const ranked = [];
-  for (const c of cells) {
-    const score = weights ? rescore(c, weights) : c.score;
-    const entry = { ...c, score, tier: weights ? tierFor(score, thresholds) : c.tier };
+  // Scores are honest absolute values (no place on Earth is truly Mars-like), so the
+  // colours show RANK instead: the top 0.5% of Earth for this target glows red.
+  const scored = cells.map((c) => (weights ? rescore(c, weights) : c.score));
+  const sortedVals = scored.filter((v) => typeof v === 'number').sort((a, b) => a - b);
+  const n = sortedVals.length;
+  const pctOf = (v) => {
+    let lo = 0, hi = n;
+    while (lo < hi) { const m = (lo + hi) >> 1; if (sortedVals[m] < v) lo = m + 1; else hi = m; }
+    return n > 1 ? lo / (n - 1) : 1;
+  };
+  // Relative tiers for a lens (same rule as pipeline/score.py): top 0.5 / 2 / 5 / 10 %.
+  const q = (top) => sortedVals[Math.max(0, Math.min(n - 1, Math.floor(n * (1 - top / 100))))];
+  const lensTiers = weights && !thresholds?.fixed ? { exact: q(0.5), strong: q(2), moderate: q(5), variable: q(10) } : thresholds;
+  cells.forEach((c, idx) => {
+    const score = scored[idx];
+    const entry = { ...c, score, tier: weights ? tierFor(score, lensTiers) : c.tier };
     lookup.set(cellKey(c.lat, c.lon, res), entry);
-    if (typeof score !== 'number') continue;
+    if (typeof score !== 'number') return;
     ranked.push(entry);
     const x = Math.floor((c.lon - west) / res);
     const y = h - 1 - Math.floor((c.lat - south) / res);
-    if (x < 0 || y < 0 || x >= w || y >= h) continue;
-    const [r, g, b, a] = rampColor(score);
+    if (x < 0 || y < 0 || x >= w || y >= h) return;
+    const [r, g, b, a] = rampColor(Math.pow(pctOf(score), 6));
     const i = (y * w + x) * 4;
     img.data[i] = r; img.data[i + 1] = g; img.data[i + 2] = b; img.data[i + 3] = a;
-  }
+  });
   ctx.putImageData(img, 0, 0);
   ranked.sort((a, b) => b.score - a.score);
   return {
