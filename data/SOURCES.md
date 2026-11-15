@@ -31,7 +31,7 @@ Rule: no Chinese mission data is used (NASA China funding restriction).
 
 | Dataset | Used for | Access |
 | --- | --- | --- |
-| Mars Climate Database v6.2 (LMD / OU / IAA / **ESA** / **CNES**), climatology average solar scenario | Mars surface temperature at local times 10.5 h and 22.5 h (matched to NASA Terra overpass times), averaged over the Mars year | `www-mars.lmd.jussieu.fr/mcd_python/` (raw files in `data/sources/mcd/`) |
+| Mars Climate Database v6.2 (LMD / OU / IAA / **ESA** / **CNES**), climatology average solar scenario | Mars surface temperature at local times 10.5 h and 22.5 h (matched to NASA Terra overpass times), averaged over the Mars year. Point values for the 3 Mars targets, plus whole-planet maps (5.7 x 3.8 deg) interpolated to every 1 deg cell of `mars_grid.json` for click-anywhere (`pipeline/mars_temps.py`) | `www-mars.lmd.jussieu.fr/mcd_python/` (raw files in `data/sources/mcd/`, maps in `mcd_tsurf_maps.txt`) |
 
 ## Other open data
 
