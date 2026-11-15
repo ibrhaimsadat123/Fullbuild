@@ -6,6 +6,7 @@
 //   POST /v1/analogs    ranked Earth cells for a target, optional lens / weights / needs
 //   POST /ask           Gemini "Ask the Planet": plain English -> lens weights (JSON only)
 //   POST /analyst       Gemini "Analog Analyst": explanation grounded in the numbers sent
+//   POST /brief         Gemini Field Brief: a one-page test plan for one Earth place, from measured data only
 //   GET  /v1/now        live: which candidate Earth place is closest to the Mars target's ground
 //                       temperature at this very moment (Cron Trigger refreshes it hourly)
 //
@@ -39,7 +40,7 @@ export default {
         case 'GET /':
           res = json({
             name: 'TwinWorlds API',
-            endpoints: ['GET /health', 'GET /v1/targets', 'GET /v1/now', 'POST /v1/analogs', 'POST /ask', 'POST /analyst', 'POST /whatif', 'POST /when'],
+            endpoints: ['GET /health', 'GET /v1/targets', 'GET /v1/now', 'POST /v1/analogs', 'POST /ask', 'POST /analyst', 'POST /brief', 'POST /whatif', 'POST /when'],
             docs: env.DOCS_URL || null,
           });
           break;
@@ -63,6 +64,9 @@ export default {
           break;
         case 'POST /analyst':
           res = json(await analystRoute(env, await readBody(request)));
+          break;
+        case 'POST /brief':
+          res = json(await briefRoute(env, await readBody(request)));
           break;
         case 'POST /whatif':
           res = json(await whatIfRoute(env, await readBody(request)));
@@ -416,6 +420,46 @@ async function analystRoute(env, b) {
   ].join(' ');
   const { text, model } = await gemini(env, { system, user: JSON.stringify(facts).slice(0, 12_000), temperature: 0.3 });
   return { text: text.trim(), label: 'AI-generated from measured data', model, ai_generated: true };
+}
+
+// ---------- /brief ----------
+// Field Brief: a short mission test plan for one Earth place, written ONLY from the data the app sends.
+async function briefRoute(env, b) {
+  const t = b.target || {};
+  const facts = {
+    target: { name: t.name, world: t.world, features: t.features },
+    earth_place: { name: typeof b.place === 'string' ? b.place.slice(0, 120) : null, overall_score: b.cell?.score, rank_top_percent: b.cell?.top, dimension_scores: b.cell?.dims },
+    earth_values: b.earth || null,
+    beyond_earth: b.beyondEarth || null,
+    cannot_simulate_and_how_to_fake_it: Array.isArray(b.gaps) ? b.gaps.slice(0, 8) : null,
+    ground_type: b.ground || null,
+    best_months: b.months || null,
+  };
+  const schema = {
+    type: 'OBJECT',
+    properties: {
+      title: { type: 'STRING' },
+      why_here: { type: 'STRING' },
+      what_matches: { type: 'ARRAY', items: { type: 'STRING' } },
+      what_does_not: { type: 'ARRAY', items: { type: 'STRING' } },
+      tests_to_run: { type: 'ARRAY', items: { type: 'STRING' } },
+      hardware_for_the_gaps: { type: 'ARRAY', items: { type: 'STRING' } },
+      when_to_go: { type: 'STRING' },
+    },
+    required: ['title', 'why_here', 'what_matches', 'what_does_not', 'tests_to_run', 'hardware_for_the_gaps', 'when_to_go'],
+  };
+  const system = [
+    'You write a one-page Field Brief for a mission team planning to test hardware at a place on Earth that resembles a Mars or Moon site.',
+    'Use ONLY the data given. Never invent numbers, places, people, permits, logistics or facts that are not in it. Quote numbers exactly as given, with units.',
+    'Scores run 0 to 1 (1 = identical). Dimensions in beyond_earth are outside anything on Earth: say so; never call them a match.',
+    'tests_to_run: 3 to 5 concrete tests the matching dimensions make sensible (rover mobility on similar slopes, thermal cycling, instrument calibration on similar albedo), each one sentence tied to a number.',
+    'hardware_for_the_gaps: one line per item in cannot_simulate_and_how_to_fake_it, from that list only.',
+    'when_to_go: from best_months if given, else say timing data was not provided. Plain English, short sentences.',
+  ].join(' ');
+  const { text, model } = await gemini(env, { system, user: JSON.stringify(facts).slice(0, 14_000), schema, temperature: 0.3 });
+  let brief;
+  try { brief = JSON.parse(text); } catch { throw httpError(502, 'Gemini returned an unreadable brief; try again'); }
+  return { brief, label: 'AI-generated from measured data', model, ai_generated: true, facts };
 }
 
 // ---------- /whatif ----------

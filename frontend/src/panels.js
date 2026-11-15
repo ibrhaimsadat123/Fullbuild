@@ -103,7 +103,7 @@ export function tierChip(tier) {
   return `<span class="tier" style="background:${c}" title="Among the best ${esc(label.replace('Top ', ''))} of Earth's land for this target">${esc(label)}</span>`;
 }
 
-export function matchEmpty({ target, scoresError, heat, scores }) {
+export function matchEmpty({ target, scoresError, heat, scores, exclude = null }) {
   if (scoresError) {
     return `<h3>Earth matches</h3>
       <p class="empty">Waiting for the similarity engine: ${esc(scoresError)}.</p>
@@ -114,6 +114,7 @@ export function matchEmpty({ target, scoresError, heat, scores }) {
   const seen = new Set();
   const picks = [];
   for (const c of heat.ranked) {
+    if (exclude && exclude(c)) continue;
     const p = placeOf(c.lat, c.lon);
     if (p && seen.has(p)) continue;
     if (p) seen.add(p);
@@ -126,7 +127,7 @@ export function matchEmpty({ target, scoresError, heat, scores }) {
     .join('');
   return `<h3>Earth matches</h3>
     <p class="muted">Click anywhere on Earth to see how well it matches ${esc(target?.name || 'the target')}.</p>
-    <h4>Top places</h4><table class="kv">${top}</table>${scoresMeta(scores)}`;
+    <h4>Top places${exclude ? ' <span class="chip">undiscovered only</span>' : ''}</h4><table class="kv">${top}</table>${exclude ? '<p class="muted">Hidden: anywhere within 3\u00b0 of a well-studied (Benchmark) analog site.</p>' : ''}${scoresMeta(scores)}`;
 }
 
 export function matchCell({ cell, target, earthRow, grid, apiOn, scores }) {
@@ -170,7 +171,7 @@ export function matchCell({ cell, target, earthRow, grid, apiOn, scores }) {
 
   const actions = `<div class="row">
       <button id="dive-here">Dive here</button>
-      ${apiOn ? '<button id="explain-btn">Explain (AI)</button>' : ''}
+      ${apiOn ? '<button id="explain-btn">Explain (AI)</button><button id="brief-btn">\ud83d\udcc4 Field Brief</button>' : ''}
     </div>
     <div id="analyst-out"></div>`;
 

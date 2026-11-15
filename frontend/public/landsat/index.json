@@ -1,0 +1,165 @@
+{
+ "source": "USGS/NASA Landsat Collection 2 Level-2 surface reflectance via Google Earth Engine. Then: Landsat 5 TM 1985-1990 median of clear pixels. Now: Landsat 8 and 9 OLI 2023-2024 median of clear pixels. True colour, same stretch (0 to 0.35 reflectance).",
+ "sites": [
+  {
+   "id": "makgadikgadi",
+   "name": "Makgadikgadi Pan, Botswana",
+   "lat": -20.8,
+   "lon": 25.333,
+   "box": [
+    25.083,
+    -21.05,
+    25.583,
+    -20.55
+   ],
+   "then_scenes": 62,
+   "then": "makgadikgadi_then.jpg",
+   "now_scenes": 176,
+   "now": "makgadikgadi_now.jpg"
+  },
+  {
+   "id": "hingol",
+   "name": "Hingol mud volcanoes, Pakistan",
+   "lat": 25.445,
+   "lon": 65.866,
+   "box": [
+    65.616,
+    25.195,
+    66.116,
+    25.695
+   ],
+   "then_scenes": 118,
+   "then": "hingol_then.jpg",
+   "now_scenes": 269,
+   "now": "hingol_now.jpg"
+  },
+  {
+   "id": "chagai",
+   "name": "Chagai Hills, Pakistan",
+   "lat": 29.13,
+   "lon": 62.82,
+   "box": [
+    62.57,
+    28.88,
+    63.07,
+    29.38
+   ],
+   "then_scenes": 130,
+   "then": "chagai_then.jpg",
+   "now_scenes": 269,
+   "now": "chagai_now.jpg"
+  },
+  {
+   "id": "kirthar",
+   "name": "Kirthar Range, Pakistan",
+   "lat": 26.1,
+   "lon": 67.5,
+   "box": [
+    67.25,
+    25.85,
+    67.75,
+    26.35
+   ],
+   "then_scenes": 83,
+   "then": "kirthar_then.jpg",
+   "now_scenes": 182,
+   "now": "kirthar_now.jpg"
+  },
+  {
+   "id": "qaidam",
+   "name": "Qaidam Basin, China",
+   "lat": 37.9,
+   "lon": 93.9,
+   "box": [
+    93.65,
+    37.65,
+    94.15,
+    38.15
+   ],
+   "then_scenes": 267,
+   "then": "qaidam_then.jpg",
+   "now_scenes": 357,
+   "now": "qaidam_now.jpg"
+  },
+  {
+   "id": "kunlun",
+   "name": "Kunlun Mountains, China (best match for Jezero)",
+   "lat": 36.25,
+   "lon": 83.75,
+   "box": [
+    83.5,
+    36.0,
+    84.0,
+    36.5
+   ],
+   "then_scenes": 10,
+   "then": "kunlun_then.jpg",
+   "now_scenes": 268,
+   "now": "kunlun_now.jpg"
+  },
+  {
+   "id": "altyn_tagh",
+   "name": "Altyn-Tagh, China (Perseverance Mission Twin)",
+   "lat": 37.73,
+   "lon": 88.685,
+   "box": [
+    88.435,
+    37.48,
+    88.935,
+    37.98
+   ],
+   "then_scenes": 96,
+   "then": "altyn_tagh_then.jpg",
+   "now_scenes": 269,
+   "now": "altyn_tagh_now.jpg"
+  },
+  {
+   "id": "atacama",
+   "name": "Atacama Desert (Yungay), Chile",
+   "lat": -24.12,
+   "lon": -69.91,
+   "box": [
+    -70.16,
+    -24.37,
+    -69.66,
+    -23.87
+   ],
+   "then_scenes": 131,
+   "then": "atacama_then.jpg",
+   "now_scenes": 184,
+   "now": "atacama_now.jpg"
+  },
+  {
+   "id": "lanzarote",
+   "name": "Lanzarote lava fields, Spain",
+   "lat": 29.16,
+   "lon": -13.44,
+   "box": [
+    -13.69,
+    28.91,
+    -13.19,
+    29.41
+   ],
+   "then_scenes": 28,
+   "then": "lanzarote_then.jpg",
+   "now_scenes": 158,
+   "now": "lanzarote_now.jpg"
+  },
+  {
+   "id": "white_sands",
+   "name": "White Sands, New Mexico, USA",
+   "lat": 32.85,
+   "lon": -106.3,
+   "box": [
+    -106.55,
+    32.6,
+    -106.05,
+    33.1
+   ],
+   "then_scenes": 115,
+   "then": "white_sands_then.jpg",
+   "now_scenes": 180,
+   "now": "white_sands_now.jpg"
+  }
+ ]
+}

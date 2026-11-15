@@ -55,3 +55,8 @@ export async function liveNow(target) {
   if (!r.ok) throw new Error(j.error || `Backend error ${r.status}`);
   return j;
 }
+
+/** Field Brief: a one-page Gemini test plan for one Earth place, from measured data only. */
+export function fieldBrief(payload) {
+  return post('/brief', payload);
+}

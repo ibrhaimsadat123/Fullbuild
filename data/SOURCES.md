@@ -112,3 +112,12 @@ Approximate public coordinates for Atacama (Yungay), Haughton Crater, McMurdo Dr
 - Same 1-D heat-conduction model on all worlds (sun in, radiation out, equinox, no atmosphere, emissivity 0.95, rho*c 1.2e6 J m-3 K-1), inverted against each cell's existing albedo and 10:30 minus 22:30 ground temperature. Earth flux 1361 x 0.75; Mars 1361/1.524^2; Moon 1361.
 - Check: Jezero model 443 vs published 180-605 (Martinez et al. 2023, Mars 2020 MEDA). Earth values are apparent (air and moisture damp the swing) and read high.
 - Classes: Mellon, M. T. et al. (2000), High-Resolution Thermal Inertia Mapping from the MGS TES, Icarus 148, 437-455.
+
+## Sky: dust, water, UV shield (added Sun 15 Nov)
+
+- Mars: Mars Climate Database v6.2 point series at each Mars target (every 15 deg of Ls, local time 12 h): dust column visible optical depth (dod), water vapour column (col_h2ovapor), ozone column (col_o3). Raw: data/sources/mcd/mcd_sky_targets.json; processed by pipeline/mars_sky.py into data/processed/mars_sky.json.
+- Earth: NASA POWER climatology API (2001-2025), fetched live for the selected Earth place: AOD_55 (MERRA-2 aerosol optical depth, 550 nm), PW (precipitable water), ALLSKY_SFC_UV_INDEX. Earth ozone shown as the global average (~300 DU), not per place.
+
+## Landsat then and now (added Sun 15 Nov)
+
+- USGS/NASA Landsat Collection 2 Level-2 surface reflectance via Google Earth Engine (`pipeline/landsat_colab.py`). Then: Landsat 5 TM 1985-1990, median of clear pixels (QA_PIXEL cloud and shadow bits). Now: Landsat 8 and 9 OLI 2023-2024. True colour, same stretch. 10 sites, 0.5 x 0.5 deg boxes. Images in `frontend/public/landsat/` with `index.json` (scene counts per site).

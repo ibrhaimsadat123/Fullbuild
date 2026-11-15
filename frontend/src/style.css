@@ -236,3 +236,25 @@ body.world-moon #pane-planet .pane-label > span:first-child { color: var(--moon)
 .ti-scale { position: relative; height: 34px; margin: 10px 0 8px; border-radius: 6px; overflow: hidden; background: linear-gradient(90deg, #c9a46b, #b98a52 30%, #8a7a6a 60%, #4c5568); }
 .ti-band { position: absolute; top: 0; bottom: 0; border-right: 1px solid rgba(0,0,0,0.35); font-size: 11px; color: #0e1220; font-weight: 600; padding: 2px 4px; white-space: nowrap; overflow: hidden; }
 .ti-mark { position: absolute; bottom: 0; width: 4px; height: 18px; margin-left: -2px; border-radius: 2px; box-shadow: 0 0 0 1px #0e1220; }
+
+.reh-key { position: absolute; right: 10px; bottom: 34px; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; z-index: 5; font-size: 11px; }
+.reh-key .mini { background: #26304d; color: #e8ecf5; border: 1px solid #44507a; border-radius: 6px; font-size: 12px; padding: 3px 8px; }
+.reh-key .mini[aria-pressed="true"] { background: #2f6b4f; }
+.reh-legend { display: grid; grid-template-columns: auto auto; gap: 2px 8px; background: rgba(14,18,32,0.85); padding: 6px 8px; border-radius: 6px; }
+.reh-legend .reh-bar { grid-column: 1 / 3; height: 8px; border-radius: 4px; background: linear-gradient(90deg, #c82828, #eb6e32 10%, #f0c846 40%, #78c86e 75%, #28aa78); }
+.reh-legend[hidden] { display: none; }
+
+.story-cap { position: fixed; left: 50%; bottom: 84px; transform: translateX(-50%); z-index: 50; max-width: min(760px, calc(100vw - 32px)); background: rgba(14,18,32,0.9); color: #f2eee6; border: 1px solid #e8784a; border-radius: 12px; padding: 12px 18px; font-size: 18px; line-height: 1.4; text-align: center; box-shadow: 0 8px 30px rgba(0,0,0,0.5); }
+.story-cap b { color: #f0a37e; }
+button.api-link { background: none; cursor: pointer; font: inherit; font-size: 12px; }
+
+.sun-ctl { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: #c9d0e0; margin-left: 6px; }
+.sun-ctl input[type=range] { width: 110px; }
+.dive-hud { flex-wrap: wrap; justify-content: center; row-gap: 6px; }
+
+.ls-compare { position: relative; width: 100%; aspect-ratio: 1 / 1; border-radius: 8px; overflow: hidden; background: #111; margin: 8px 0 4px; }
+.ls-compare img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.ls-then { position: absolute; inset: 0; border-right: 2px solid #f2eee6; }
+.ls-tag { position: absolute; top: 6px; font-size: 11px; background: rgba(14,18,32,0.8); padding: 2px 6px; border-radius: 4px; }
+.ls-tag.l { left: 6px; } .ls-tag.r { right: 6px; }
+#ls-slider { width: 100%; }

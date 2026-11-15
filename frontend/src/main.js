@@ -23,12 +23,15 @@ import { marsLs, seasonName, earthWeek, compareWeek } from './timesim.js';
 import { loadEarthMonthly, earthGridAt, marsTempsAt, timeline } from './timetravel.js';
 import * as N from './nerd.js';
 import { drawZones, zoneProfile } from './zones.js';
+import { addRehearseLayer, rehearseIndex } from './rehearse.js';
+import { setSun, clearSun } from './sun.js';
 import { DIVE_PAIRS, HERO_PAIRS, DIVE_VIEW, WORLDS } from './config.js';
 import { radarChart, overlayChart, sourcesHtml } from './charts.js';
-import { apiEnabled, askPlanet, analyst, whatIf, whenBest, liveNow } from './api.js';
+import { apiEnabled, askPlanet, analyst, whatIf, whenBest, liveNow, fieldBrief } from './api.js';
 import * as P from './panels.js';
 
 const $ = (id) => document.getElementById(id);
+queueMicrotask(() => { if (import.meta.env.DEV) window.__tw = state; });
 
 const state = {
   world: 'mars',
@@ -54,7 +57,7 @@ const state = {
   nerdCharts: [],
 };
 
-const WANTED = ['targets.json', 'missions.json', 'earth_grid.json', 'earth_places.json', 'earth_monthly.json', 'mars_grid.json', 'moon_grid.json', 'mars_seasonal.json', 'mars_diurnal.json', 'lenses.json', 'sites.json', 'gaps.json', 'blind_test.json', 'mission_twin_perseverance.json', 'mission_twin_curiosity.json', 'minerals.json', 'spectra.json', 'thermal_inertia.json'];
+const WANTED = ['targets.json', 'missions.json', 'earth_grid.json', 'earth_places.json', 'earth_monthly.json', 'mars_grid.json', 'moon_grid.json', 'mars_seasonal.json', 'mars_diurnal.json', 'lenses.json', 'sites.json', 'gaps.json', 'blind_test.json', 'mission_twin_perseverance.json', 'mission_twin_curiosity.json', 'minerals.json', 'spectra.json', 'thermal_inertia.json', 'rehearsability.json', 'mars_sky.json'];
 
 // ---------- boot ----------
 async function boot() {
@@ -132,6 +135,8 @@ async function setWorld(world) {
   wireReadout();
   updateMissionButton();
   wireFarSideCulling(state.planet.viewer);
+  state.rehLayer = null;
+  if (state.rehOn) toggleRehearse(true);
   // Earth's viewer lives for the whole session: wire its listeners only once.
   if (!state.earthWired) {
     wireHeatFade();
@@ -206,6 +211,8 @@ async function selectTarget(id) {
   renderDivePairs();
   renderNow();
   renderGround();
+  renderSky();
+  renderLandsat();
   addMissionInvite();
   state.whatIf = null; state.whatIfDiff = null; state.whatIfBefore = null;
   queueMicrotask(renderWhatIf);
@@ -278,6 +285,7 @@ async function drawHeat() {
   resetTime();
   if (!_ttBusy && !state.travelPlaying) renderNerd();
   renderGround();
+  renderSky();
 }
 
 function removeHeat() {
@@ -308,6 +316,8 @@ function selectCell(lat, lon, fly = false) {
   if (!state.time_lock) queueMicrotask(resetTime);
   queueMicrotask(renderNerd);
   queueMicrotask(renderGround);
+  queueMicrotask(renderSky);
+  queueMicrotask(() => renderLandsat());
   if (fly) {
     flyToPoint(state.earth.viewer, 'earth', lon, lat, 900_000, 1.4);
   }
@@ -323,13 +333,55 @@ function selectCell(lat, lon, fly = false) {
   if (dh) dh.onclick = () => startDive({ lat, lon, name: P.placeName(lat, lon) || `${lat.toFixed(2)}, ${lon.toFixed(2)}` });
   const ex = $('explain-btn');
   if (ex) ex.onclick = () => explain(cell, earthRow);
+  const fb = $('brief-btn');
+  if (fb) fb.onclick = () => openBrief(cell, earthRow);
+}
+
+/** Field Brief: Gemini writes the plan from our numbers; the numbers table is ours, not the AI's. */
+async function openBrief(cell, earthRow) {
+  const w = window.open('', '_blank');
+  if (!w) return toast('Allow pop-ups to open the Field Brief.');
+  const place = P.placeName(cell.lat, cell.lon) || `${cell.lat.toFixed(2)}, ${cell.lon.toFixed(2)}`;
+  const esc = P.esc;
+  const page = (body) => `<!doctype html><html><head><meta charset="utf-8"><title>Field Brief: ${esc(place)}</title>
+    <style>body{font:14px/1.5 Inter,system-ui,sans-serif;color:#14182a;max-width:820px;margin:24px auto;padding:0 16px}h1{font-size:24px;margin:0}h2{font-size:15px;margin:18px 0 6px;color:#9a3d17;text-transform:uppercase;letter-spacing:1px}
+    .sub{color:#555}table{border-collapse:collapse;width:100%;font-size:13px}td,th{border-bottom:1px solid #ddd;padding:4px 6px;text-align:left}.ai{font-size:12px;color:#7a4b00;background:#fff4dd;padding:4px 8px;border-radius:4px;display:inline-block}
+    .src{font-size:11px;color:#666}button{padding:6px 12px}@media print{button{display:none}}</style></head><body>${body}</body></html>`;
+  w.document.write(page('<p>Writing the Field Brief from measured data\u2026</p>'));
+  const gaps = (state.gaps?.data?.gaps || []).filter((g) => (g.worlds || []).includes(state.world)).map((g) => ({ gap: g.label, earth: g.earth, there: g[state.world], how_to_fake_it: g.how_to_fake_it }));
+  const tiT = state.ti?.ok ? state.ti.data.targets[state.target.id]?.ti : null;
+  const tiE = state.ti?.ok ? await tiAt('earth', cell.lat, cell.lon) : null;
+  try {
+    const r = await fieldBrief({ target: state.target, place, cell: { score: cell.score, top: cell.top, dims: cell.dims }, earth: earthRow,
+      beyondEarth: state.scores?.earth_gaps || null, gaps, ground: { target_thermal_inertia: tiT, earth_apparent_thermal_inertia: tiE, note: 'model estimate; Earth values read high' } });
+    const b = r.brief;
+    const list = (a) => `<ul>${(a || []).map((x) => `<li>${esc(x)}</li>`).join('')}</ul>`;
+    const dims = Object.entries(cell.dims || {}).map(([d, v]) => `<tr><td>${esc(P.featureMeta(d).normal)}</td><td>${typeof v === 'number' ? v.toFixed(2) : '\u2014'}</td><td>${esc(String(earthRow?.[d] ?? '\u2014'))}</td></tr>`).join('');
+    w.document.open();
+    w.document.write(page(`<button onclick="print()">Print / save as PDF</button>
+      <h1>${esc(b.title || `Field Brief: ${place}`)}</h1>
+      <p class="sub">TwinWorlds Field Brief \u00b7 ${esc(place)} as an analog for ${esc(state.target.name)} \u00b7 score ${typeof cell.score === 'number' ? cell.score.toFixed(2) : '\u2014'}${typeof cell.top === 'number' ? ` (top ${cell.top.toFixed(1)}% of Earth)` : ''}</p>
+      <p class="ai">Text below the line is AI-generated (Gemini) from TwinWorlds measured data; the table is the data itself.</p>
+      <h2>Measured match</h2><table><tr><th>Measurement</th><th>Similarity (0 to 1)</th><th>Earth value</th></tr>${dims}</table>
+      <hr>
+      <h2>Why here</h2><p>${esc(b.why_here)}</p>
+      <h2>What matches</h2>${list(b.what_matches)}
+      <h2>What does not</h2>${list(b.what_does_not)}
+      <h2>Tests to run</h2>${list(b.tests_to_run)}
+      <h2>Hardware for what Earth can\u2019t do</h2>${list(b.hardware_for_the_gaps)}
+      <h2>When to go</h2><p>${esc(b.when_to_go)}</p>
+      <p class="src">Data: NASA MODIS 2023, USGS GMTED2010, MGS MOLA/TES, Mars Climate Database, LRO LOLA/Diviner. Model: ${esc(r.model || 'Gemini')}. twinworlds.us</p>`));
+    w.document.close();
+  } catch (e) {
+    w.document.open(); w.document.write(page(`<p>Could not write the brief: ${esc(e.message)}</p>`)); w.document.close();
+  }
 }
 
 function renderMatch() {
   if (state.cell && (state.scores || state.grid)) return selectCell(state.cell.lat, state.cell.lon);
   state.radar?.destroy();
   state.radar = null;
-  $('card-match').innerHTML = P.matchEmpty({ target: state.target, scoresError: state.scoresError, heat: state.heat, scores: state.scores });
+  $('card-match').innerHTML = P.matchEmpty({ target: state.target, scoresError: state.scoresError, heat: state.heat, scores: state.scores, exclude: benchmarkFilter() });
   document.querySelectorAll('.top-row').forEach((tr) =>
     tr.addEventListener('click', () => selectCell(+tr.dataset.lat, +tr.dataset.lon, true)),
   );
@@ -348,9 +400,16 @@ function clearEarthMarker() {
   earthMarker = null;
 }
 
+function benchmarkFilter() {
+  if (!state.undiscovered) return null;
+  const bench = (state.sites?.sites || []).filter((s) => String(s.tag).toLowerCase() === 'benchmark');
+  return (c) => bench.some((b) => Math.abs(b.lat - c.lat) <= 3 && Math.abs(((b.lon - c.lon + 540) % 360) - 180) <= 3);
+}
+
 function drawSites() {
   for (const s of state.sites?.sites || []) {
     const tag = String(s.tag || '').toLowerCase();
+    if (state.undiscovered && tag === 'benchmark') continue;
     state.earth.viewer.entities.add({
       id: `site:${s.id}`,
       position: toCartesian('earth', s.lon, s.lat, 0),
@@ -420,7 +479,41 @@ async function selectMission(id) {
   await selectLiveSpot(m.lat, m.lon, { id: `mission:${m.id}`, name: m.name, why: `${m.why}. Its landing spot is scored live against all of Earth.`, mission: m });
 }
 
+async function toggleRehearse(on) {
+  state.rehOn = on;
+  $('reh-btn').setAttribute('aria-pressed', String(on));
+  document.querySelector('.reh-legend').hidden = !on;
+  const v = state.planet.viewer;
+  if (state.rehLayer) { v.imageryLayers.remove(state.rehLayer, true); state.rehLayer = null; }
+  // Mars and the Moon draw as 3D tiles, which hide the globe and its image layers: while the map is on,
+  // show the flat NASA Trek globe with the map on top, and put the 3D tiles back afterwards.
+  const ts = state.planet.tileset;
+  if (ts) { ts.show = !on; v.scene.globe.show = on; }
+  if (!on) return;
+  state.reh ||= await load('rehearsability.json');
+  if (!state.reh.ok) { toast('Rehearsability map needs rehearsability.json in data/processed.'); return; }
+  const W = state.reh.data.worlds[state.world];
+  if (!W) return;
+  state.rehLayer = await addRehearseLayer(v, state.world, W);
+  toast('Rehearsability Map: green = Earth can rehearse it well, red = analog desert (bottom 10% of this world). Click anywhere for details.', 7000);
+}
+
+function rehearseInfo(lat, lon) {
+  if (!state.rehOn || !state.reh?.ok) return;
+  const W = state.reh.data.worlds[state.world];
+  const idx = (state.rehIdx ||= {})[state.world] ||= rehearseIndex(W);
+  const c = idx.get(lat, lon);
+  if (!c) return;
+  const f = W.fields, g = (k) => c[f.indexOf(k)];
+  const r = g('rehearsability');
+  if (r == null) return toast('Rehearsability: not enough measurements here.');
+  const pct = Math.round(idx.rank(r) * 100);
+  const desert = r <= W.deserts_below;
+  toast(`${desert ? 'Analog desert. ' : ''}Rehearsability ${r.toFixed(2)} (better than ${pct}% of ${state.world === 'moon' ? 'the Moon' : 'Mars'}). Best Earth place: ${W.places[g('place')] || '?'} (score ${g('best_score').toFixed(2)}); Earth reaches ${Math.round(g('coverage') * 100)}% of the measurements${g('dims_beyond_earth') ? `, ${g('dims_beyond_earth')} beyond anything on Earth` : ''}.`, 9000);
+}
+
 async function selectLiveSpot(lat, lon, meta = {}) {
+  rehearseInfo(lat, lon);
   const file = `${state.world}_grid.json`;
   state.planetGrids ||= {};
   if (!state.planetGrids[state.world]) {
@@ -561,6 +654,116 @@ function wireReadout() {
 /** A site marker opens that place in the match card (and the Nerd panel in Nerd Mode). */
 async function loadNerd(site) {
   selectCell(site.lat, site.lon, true);
+}
+
+// ---------- Story Mode: a scripted ~30 s tour for the demo video ----------
+let _story = null;
+async function playStory() {
+  if (_story) { _story.stop = true; $('story-cap').hidden = true; _story = null; $('story-btn').textContent = '\u25b6 Story'; return; }
+  const me = (_story = { stop: false });
+  $('story-btn').textContent = '\u25a0 Stop';
+  const cap = $('story-cap');
+  const say = (t) => { cap.hidden = false; cap.innerHTML = t; };
+  const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+  const step = async (ms, fn) => { if (me.stop) throw new Error('stopped'); await fn?.(); await wait(ms); };
+  try {
+    state.dive?.stop(); stopMission();
+    if (state.world !== 'mars') await setWorld('mars');
+    await step(3000, async () => { say('<b>TwinWorlds.</b> Rovers get one shot on Mars. Where on Earth do you practise?'); flyHome(state.earth.viewer, 'earth', 1.5); });
+    await step(4500, async () => { say('Pick a real site: <b>Jezero crater</b>, where Perseverance landed. All 79,625 land cells on Earth are scored on the same measurements.'); await selectTarget('jezero'); });
+    await step(4500, async () => { say('We never told it about the Atacama. It still ranked it in the <b>top 1.4%</b> of Earth.'); flyToPoint(state.earth.viewer, 'earth', -69.9, -24.1, 2_500_000, 2); });
+    await step(4000, async () => { say('And it finds places nobody uses: <b>Chagai Hills, Pakistan</b>, top 1% for Jezero.'); flyToPoint(state.earth.viewer, 'earth', 62.8, 29.1, 2_500_000, 2); });
+    await step(6000, async () => { say('<b>Twin Dive:</b> both worlds, same scale, side by side.'); await startDive(); });
+    await step(8000, async () => { say('<b>Mission Twin:</b> Perseverance\u2019s real route, driven on a matched path in Altyn-Tagh, China. 15 of 16 segments match.'); await startMission(); });
+    await step(4000, () => say('Before a rover drives a meter on Mars, <b>drive it on Earth.</b> &nbsp;twinworlds.us'));
+  } catch (e) { /* stopped */ }
+  if (_story === me) { _story = null; $('story-btn').textContent = '\u25b6 Story'; setTimeout(() => { if (!_story) cap.hidden = true; }, 3000); }
+}
+
+// ---------- Landsat then and now (1985-1990 vs 2023-2024) ----------
+let _landsat = null;
+async function renderLandsat(pickId) {
+  const card = $('card-landsat');
+  if (!_landsat) {
+    try { const r = await fetch('/landsat/index.json', { cache: 'no-store' }); _landsat = r.ok && (r.headers.get('content-type') || '').includes('json') ? await r.json() : { sites: [] }; }
+    catch { _landsat = { sites: [] }; }
+  }
+  const sites = (_landsat.sites || []).filter((x) => x.then && x.now);
+  if (!sites.length) { card.hidden = true; return; }
+  const c = state.cell;
+  const near = c ? sites.map((x) => [x, Math.hypot(x.lat - c.lat, x.lon - c.lon)]).sort((a, b) => a[1] - b[1])[0] : null;
+  const site = sites.find((x) => x.id === pickId) || (near && near[1] < 1.5 ? near[0] : null) || sites.find((x) => x.id === state.landsatPick) || sites[0];
+  state.landsatPick = site.id;
+  card.hidden = false;
+  card.innerHTML = `<h3>Then and now (Landsat)</h3>
+    <label class="muted">Site <select id="ls-pick">${sites.map((x) => `<option value="${x.id}" ${x.id === site.id ? 'selected' : ''}>${P.esc(x.name)}</option>`).join('')}</select></label>
+    <div class="ls-compare" id="ls-compare">
+      <img src="/landsat/${encodeURI(site.now)}" alt="${P.esc(site.name)}, Landsat 8/9, 2023 to 2024">
+      <div class="ls-then" id="ls-then"><img src="/landsat/${encodeURI(site.then)}" alt="${P.esc(site.name)}, Landsat 5, 1985 to 1990"></div>
+      <span class="ls-tag l">1985\u20131990</span><span class="ls-tag r">2023\u20132024</span>
+    </div>
+    <input type="range" id="ls-slider" min="0" max="100" value="50" aria-label="Slide between 1985 and now">
+    <p class="muted">Drag to compare. Same place, same colours: lakes, ice, dunes and fields that changed show up. ${site.then_scenes} and ${site.now_scenes} cloud-free scene medians.</p>
+    <span class="src">${P.esc(_landsat.source || '')}</span>`;
+  const set = (v) => { $('ls-then').style.clipPath = `inset(0 ${100 - v}% 0 0)`; };
+  set(50);
+  $('ls-slider').addEventListener('input', (e) => set(+e.target.value));
+  $('ls-pick').addEventListener('change', (e) => renderLandsat(e.target.value));
+}
+
+// ---------- Sky: dust, water and UV shield, Mars (MCD) vs the Earth place (NASA POWER) ----------
+const _powerCache = new Map();
+async function powerAt(lat, lon) {
+  const k = `${lat.toFixed(2)},${lon.toFixed(2)}`;
+  if (!_powerCache.has(k)) {
+    _powerCache.set(k, (async () => {
+      const r = await fetch(`https://power.larc.nasa.gov/api/temporal/climatology/point?parameters=AOD_55,PW,ALLSKY_SFC_UV_INDEX&community=RE&longitude=${lon.toFixed(3)}&latitude=${lat.toFixed(3)}&format=JSON`);
+      if (!r.ok) throw new Error(`NASA POWER returned ${r.status}`);
+      return (await r.json()).properties.parameter;
+    })());
+  }
+  return _powerCache.get(k);
+}
+
+let _skySeq = 0;
+async function renderSky() {
+  const card = $('card-sky');
+  const seq = ++_skySeq;
+  if (!state.target) { card.hidden = true; return; }
+  const spot = state.cell || (state.heat?.ranked?.[0] && { lat: state.heat.ranked[0].lat, lon: state.heat.ranked[0].lon });
+  const place = spot ? (P.placeName(spot.lat, spot.lon) || `${spot.lat.toFixed(2)}, ${spot.lon.toFixed(2)}`) : null;
+  const moon = state.world === 'moon';
+  let mars = null;
+  if (!moon) {
+    state.sky ||= await load('mars_sky.json');
+    mars = state.sky.ok ? state.sky.data.targets[state.target.id] : null;
+  }
+  if (!moon && !mars) { card.hidden = true; return; }
+  card.hidden = false;
+  card.innerHTML = '<h3>Sky: dust, water, UV</h3><p class="muted">Loading NASA POWER climate data\u2026</p>';
+  let E = null, err = '';
+  try { if (spot) E = await powerAt(spot.lat, spot.lon); } catch (e) { err = e.message; }
+  if (seq !== _skySeq) return;
+  const ann = (k) => (E && E[k] && E[k].ANN > -900 ? E[k].ANN : null);
+  const f = (x, d = 2) => (x == null ? '\u2014' : x.toFixed(d));
+  const tName = P.esc(state.target.name);
+  const rows = moon ? [
+    ['Dust haze (column optical depth)', '0 (no air)', f(ann('AOD_55'))],
+    ['Water vapour (mm of rain if it all fell)', '0 (no air)', f(ann('PW') != null ? ann('PW') * 10 : null, 1)],
+    ['UV shield (ozone)', 'none', 'about 300 DU (Earth average)'],
+  ] : [
+    ['Dust haze (column optical depth)', `${f(mars.mean.dust)} <span class="muted">(up to ${f(mars.max.dust)})</span>`, f(ann('AOD_55'))],
+    ['Water vapour (mm of rain if it all fell)', `${f(mars.mean.water_mm, 3)}`, f(ann('PW') != null ? ann('PW') * 10 : null, 1)],
+    ['UV shield (ozone, Dobson units)', `${f(mars.mean.ozone_du, 2)}`, 'about 300 (Earth average)'],
+  ];
+  const uv = ann('ALLSKY_SFC_UV_INDEX');
+  card.innerHTML = `<h3>Sky: dust, water, UV</h3>
+    <table class="kv"><tr><th></th><th style="color:#e0703a">${tName}</th><th style="color:#4aa3ff">${P.esc(place || 'Earth place')}</th></tr>
+    ${rows.map(([a, b, c]) => `<tr><td>${a}</td><td>${b}</td><td>${c}</td></tr>`).join('')}</table>
+    <p class="normal-only">${moon ? 'The Moon has no air: no dust haze, no water, nothing to block ultraviolet light.' : `Dust haze on Mars is often thicker than most places on Earth, the air holds hundreds of times less water than even Earth\u2019s driest places, and with almost no ozone the ground gets the Sun\u2019s UV nearly unfiltered.`} ${uv != null ? `The Earth place averages UV index ${f(uv, 1)}.` : ''} Earth cannot reproduce ${moon ? 'airlessness' : 'the missing ozone'} outdoors: test UV damage in a lamp chamber.</p>
+    ${err ? `<p class="muted">Earth data unavailable: ${P.esc(err)}</p>` : ''}
+    <p class="muted nerd-only">${moon ? '' : `Mars: ${P.esc(state.sky.data.source)}; dust = column optical depth in the visible, water = column vapour (1 kg/m\u00b2 = 1 mm), ozone = O\u2083 column / 2.1415e-5 kg m\u207b\u00b2 per DU; mean of 24 seasons. `}Earth: NASA POWER climatology 2001\u20132025 at the place, annual mean: MERRA-2 aerosol optical depth at 550 nm, precipitable water, all-sky UV index. Earth ozone: global average, not this place.</p>
+    <span class="src">NASA POWER (power.larc.nasa.gov)${moon ? '' : '; Mars Climate Database v6.2 (LMD/OU/IAA/ESA/CNES)'}</span>`;
 }
 
 // ---------- Ground type: model thermal inertia, same model on every world ----------
@@ -1188,6 +1391,32 @@ function wireUi() {
     state.weights = lens ? lens.weights : null;
     state.lensLabel = lens ? lens.name || lens.id : '';
     await drawHeat();
+  });
+  $('reh-btn').addEventListener('click', () => toggleRehearse(!state.rehOn));
+  $('story-btn').addEventListener('click', playStory);
+  const sunApply = () => {
+    const on = $('sun-on').checked;
+    $('sun-hour').disabled = !on;
+    if (!on || !state.target) { clearSun({ planet: state.planet, earth: state.earth }); $('sun-label').textContent = 'off'; return; }
+    const h = +$('sun-hour').value;
+    const spot = diveEarthSite() || { lat: 0, lon: 0 };
+    setSun({ planet: state.planet, earth: state.earth, world: state.world, target: state.target, earthSpot: spot, hour: h });
+    for (const v of [state.planet.viewer, state.earth.viewer]) {
+      if (v._twSun) continue;
+      v._twSun = true;
+      v.camera.moveEnd.addEventListener(() => { if ($('sun-on').checked) sunApply(); });
+    }
+    $('sun-label').textContent = `${String(Math.floor(h)).padStart(2, '0')}:${String(Math.round((h % 1) * 60)).padStart(2, '0')} local`;
+  };
+  $('sun-on').addEventListener('change', sunApply);
+  $('sun-hour').addEventListener('input', sunApply);
+  $('undisc-btn').addEventListener('click', () => {
+    state.undiscovered = !state.undiscovered;
+    $('undisc-btn').setAttribute('aria-pressed', String(state.undiscovered));
+    for (const s of state.sites?.sites || []) state.earth.viewer.entities.removeById(`site:${s.id}`);
+    drawSites();
+    renderMatch();
+    toast(state.undiscovered ? 'Undiscovered: famous analog sites hidden; top places skip anywhere within 3\u00b0 of them.' : 'Showing all sites.', 4000);
   });
   $('zones-btn').addEventListener('click', () => {
     state.showZones = state.showZones === false;
