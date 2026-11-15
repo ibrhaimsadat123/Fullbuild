@@ -1,321 +1,321 @@
 {
-  "version": "0.6",
-  "illustrative": false,
-  "note": "Every value is either 'sourced' (with a citation) or 'pending' (with the dataset to pull it from). Nothing is filled in by guesswork. Slope is defined at a ~5 km baseline to match the Earth grid. Roughness (sub-km) is not comparable across worlds at these resolutions, so v0.2 uses relief_55km_m (elevation std dev over ~55 km) instead.",
-  "targets": [
-    {
-      "id": "jezero",
-      "world": "mars",
-      "name": "Jezero crater floor",
-      "lat": 18.44,
-      "lon": 77.45,
-      "why": "Perseverance landing site; ancient lake and river delta",
-      "features": {
-        "thermal_inertia_si": {
-          "value": null,
-          "range": [
-            180,
-            605
-          ],
-          "status": "sourced",
-          "source": "Martinez et al. 2023, JGR Planets, 'Surface Energy Budget, Albedo and Thermal Inertia at Jezero Crater, Mars, as Observed From the Mars 2020 MEDA Instrument' (180 = sand dune, 605 = bedrock-dominated)"
-        },
-        "albedo": {
-          "value": 0.176,
-          "box_range": [
-            0.16,
-            0.195
-          ],
-          "status": "sourced",
-          "source": "MGS TES Lambert albedo, USGS Astrogeology global mosaic (7410 m, 8 px/deg), mean over a ~55 km box. Earth side uses MODIS white-sky shortwave albedo; both are broadband surface reflectance."
-        },
-        "lst_day_c": {
-          "value": -16.0,
-          "seasonal_range": [
-            -29.2,
-            -4.6
-          ],
-          "status": "sourced",
-          "source": "Mars Climate Database v6.2 (LMD/OU/IAA/ESA/CNES), climatology average solar scenario, surface temperature at local time 10.5 h, mean over the Mars year (Ls 0-345 in 15 deg steps). Local times chosen to match NASA Terra/MODIS overpass (~10:30 / 22:30)."
-        },
-        "lst_night_c": {
-          "value": -71.0,
-          "seasonal_range": [
-            -77.1,
-            -67.2
-          ],
-          "status": "sourced",
-          "source": "Mars Climate Database v6.2 (LMD/OU/IAA/ESA/CNES), climatology average solar scenario, surface temperature at local time 22.5 h, mean over the Mars year (Ls 0-345 in 15 deg steps). Local times chosen to match NASA Terra/MODIS overpass (~10:30 / 22:30)."
-        },
-        "slope_deg": {
-          "value": 1.29,
-          "status": "sourced",
-          "source": "Computed by TwinWorlds from MGS MOLA MEGDR 16 ppd (NASA PDS), resampled to 5.55 km pixels, mean over a 55 km box"
-        },
-        "ndvi": {
-          "value": 0.0,
-          "status": "sourced",
-          "source": "No vegetation on Mars (target value by definition)"
-        },
-        "relief_55km_m": {
-          "value": 276,
-          "status": "sourced",
-          "source": "Computed by TwinWorlds from MGS MOLA MEGDR 16 ppd: std dev of elevation within a 55 km box"
-        },
-        "lst_swing_c": {
-          "value": 55.1,
-          "status": "sourced",
-          "source": "Derived: lst_day_c minus lst_night_c (Mars Climate Database v6.2)"
-        }
-      }
+ "version": "0.6",
+ "illustrative": false,
+ "note": "Every value is either 'sourced' (with a citation) or 'pending' (with the dataset to pull it from). Nothing is filled in by guesswork. Slope is defined at a ~5 km baseline to match the Earth grid. Roughness (sub-km) is not comparable across worlds at these resolutions, so v0.2 uses relief_55km_m (elevation std dev over ~55 km) instead.",
+ "targets": [
+  {
+   "id": "jezero",
+   "world": "mars",
+   "name": "Jezero crater floor",
+   "lat": 18.44,
+   "lon": 77.45,
+   "why": "Perseverance landing site; ancient lake and river delta",
+   "features": {
+    "thermal_inertia_si": {
+     "value": null,
+     "range": [
+      180,
+      605
+     ],
+     "status": "sourced",
+     "source": "Martinez et al. 2023, JGR Planets, 'Surface Energy Budget, Albedo and Thermal Inertia at Jezero Crater, Mars, as Observed From the Mars 2020 MEDA Instrument' (180 = sand dune, 605 = bedrock-dominated)"
     },
-    {
-      "id": "acidalia",
-      "world": "mars",
-      "name": "Acidalia Planitia mound field",
-      "lat": 44.0,
-      "lon": -30.0,
-      "coords_note": "Approximate centre of the mound field; refine from Oehler & Allen 2010 (Icarus) before demo",
-      "why": "Mounds proposed as mud volcanoes; process analog for Hingol",
-      "features": {
-        "thermal_inertia_si": {
-          "value": null,
-          "status": "pending",
-          "source": "MGS TES / Mars Odyssey THEMIS thermal inertia maps"
-        },
-        "albedo": {
-          "value": 0.117,
-          "box_range": [
-            0.109,
-            0.128
-          ],
-          "status": "sourced",
-          "source": "MGS TES Lambert albedo, USGS Astrogeology global mosaic (7410 m, 8 px/deg), mean over a ~55 km box. Earth side uses MODIS white-sky shortwave albedo; both are broadband surface reflectance."
-        },
-        "lst_day_c": {
-          "value": -46.0,
-          "seasonal_range": [
-            -99.6,
-            -7.4
-          ],
-          "status": "sourced",
-          "source": "Mars Climate Database v6.2 (LMD/OU/IAA/ESA/CNES), climatology average solar scenario, surface temperature at local time 10.5 h, mean over the Mars year (Ls 0-345 in 15 deg steps). Local times chosen to match NASA Terra/MODIS overpass (~10:30 / 22:30)."
-        },
-        "lst_night_c": {
-          "value": -82.1,
-          "seasonal_range": [
-            -111.8,
-            -62.4
-          ],
-          "status": "sourced",
-          "source": "Mars Climate Database v6.2 (LMD/OU/IAA/ESA/CNES), climatology average solar scenario, surface temperature at local time 22.5 h, mean over the Mars year (Ls 0-345 in 15 deg steps). Local times chosen to match NASA Terra/MODIS overpass (~10:30 / 22:30)."
-        },
-        "slope_deg": {
-          "value": 0.24,
-          "status": "sourced",
-          "source": "Computed by TwinWorlds from MGS MOLA MEGDR 16 ppd (NASA PDS), resampled to 5.55 km pixels, mean over a 55 km box"
-        },
-        "ndvi": {
-          "value": 0.0,
-          "status": "sourced",
-          "source": "No vegetation on Mars"
-        },
-        "relief_55km_m": {
-          "value": 32,
-          "status": "sourced",
-          "source": "Computed by TwinWorlds from MGS MOLA MEGDR 16 ppd: std dev of elevation within a 55 km box"
-        },
-        "lst_swing_c": {
-          "value": 36.1,
-          "status": "sourced",
-          "source": "Derived: lst_day_c minus lst_night_c (Mars Climate Database v6.2)"
-        }
-      }
+    "albedo": {
+     "value": 0.176,
+     "box_range": [
+      0.16,
+      0.195
+     ],
+     "status": "sourced",
+     "source": "MGS TES Lambert albedo, USGS Astrogeology global mosaic (7410 m, 8 px/deg), mean over a ~55 km box. Earth side uses MODIS white-sky shortwave albedo; both are broadband surface reflectance."
     },
-    {
-      "id": "arcadia",
-      "world": "mars",
-      "name": "Arcadia Planitia",
-      "lat": 40.0,
-      "lon": -165.0,
-      "coords_note": "Approximate; refine from NASA SWIM (Subsurface Water Ice Mapping) project maps",
-      "why": "Shallow buried ice; candidate for human landings",
-      "features": {
-        "thermal_inertia_si": {
-          "value": null,
-          "status": "pending",
-          "source": "TES / THEMIS thermal inertia"
-        },
-        "albedo": {
-          "value": 0.24,
-          "box_range": [
-            0.233,
-            0.254
-          ],
-          "status": "sourced",
-          "source": "MGS TES Lambert albedo, USGS Astrogeology global mosaic (7410 m, 8 px/deg), mean over a ~55 km box. Earth side uses MODIS white-sky shortwave albedo; both are broadband surface reflectance."
-        },
-        "lst_day_c": {
-          "value": -35.7,
-          "seasonal_range": [
-            -76.0,
-            -7.6
-          ],
-          "status": "sourced",
-          "source": "Mars Climate Database v6.2 (LMD/OU/IAA/ESA/CNES), climatology average solar scenario, surface temperature at local time 10.5 h, mean over the Mars year (Ls 0-345 in 15 deg steps). Local times chosen to match NASA Terra/MODIS overpass (~10:30 / 22:30)."
-        },
-        "lst_night_c": {
-          "value": -92.8,
-          "seasonal_range": [
-            -106.7,
-            -81.0
-          ],
-          "status": "sourced",
-          "source": "Mars Climate Database v6.2 (LMD/OU/IAA/ESA/CNES), climatology average solar scenario, surface temperature at local time 22.5 h, mean over the Mars year (Ls 0-345 in 15 deg steps). Local times chosen to match NASA Terra/MODIS overpass (~10:30 / 22:30)."
-        },
-        "slope_deg": {
-          "value": 0.44,
-          "status": "sourced",
-          "source": "Computed by TwinWorlds from MGS MOLA MEGDR 16 ppd (NASA PDS), resampled to 5.55 km pixels, mean over a 55 km box"
-        },
-        "ice_depth_m": {
-          "value": null,
-          "status": "pending",
-          "source": "SWIM project / SHARAD"
-        },
-        "ndvi": {
-          "value": 0.0,
-          "status": "sourced",
-          "source": "No vegetation on Mars"
-        },
-        "relief_55km_m": {
-          "value": 100,
-          "status": "sourced",
-          "source": "Computed by TwinWorlds from MGS MOLA MEGDR 16 ppd: std dev of elevation within a 55 km box"
-        },
-        "lst_swing_c": {
-          "value": 57.1,
-          "status": "sourced",
-          "source": "Derived: lst_day_c minus lst_night_c (Mars Climate Database v6.2)"
-        }
-      }
+    "lst_day_c": {
+     "value": -16.0,
+     "seasonal_range": [
+      -29.2,
+      -4.6
+     ],
+     "status": "sourced",
+     "source": "Mars Climate Database v6.2 (LMD/OU/IAA/ESA/CNES), climatology average solar scenario, surface temperature at local time 10.5 h, mean over the Mars year (Ls 0-345 in 15 deg steps). Local times chosen to match NASA Terra/MODIS overpass (~10:30 / 22:30)."
     },
-    {
-      "id": "shackleton",
-      "world": "moon",
-      "name": "Shackleton crater rim (lunar south pole)",
-      "lat": -89.67,
-      "lon": 129.8,
-      "coords_note": "Crater centre; rim/ridge sites lie within ~10 km. Refine from Artemis III candidate regions",
-      "why": "Artemis base candidate; near-constant low sun, cold traps",
-      "features": {
-        "lst_day_c": {
-          "value": -50,
-          "uncertainty": 10,
-          "status": "sourced",
-          "estimate": true,
-          "source": "Literature estimate for near-constantly illuminated rim sites: -50 +/- 10 C (Bussey, Robinson & Spudis 2004, LPSC XXXV, as cited on Wikipedia 'Shackleton (crater)'). Not a direct Diviner measurement."
-        },
-        "lst_night_c": {
-          "value": null,
-          "status": "not_applicable",
-          "source": "No regular night on the rim: it is sunlit 80-90% of the time (Spudis et al. 1995). Diviner's 22:30 local-time value for this 1 deg polar cell, -194.8 C, is dominated by the permanently shadowed crater floor, so it is not used for the rim"
-        },
-        "albedo": {
-          "value": 0.4068,
-          "status": "sourced",
-          "source": "LRO LOLA LDAM 4 ppd normal albedo at 1064 nm (Lemelin et al. 2016), mean of the 1 deg cell -89.5, 129.5. Single wavelength: approximate comparison with Earth/Mars broadband albedo"
-        },
-        "slope_deg": {
-          "value": 7.25,
-          "status": "sourced",
-          "source": "Computed by TwinWorlds from NASA PDS LRO LOLA LDEM 16 ppd, re-gridded to a flat 5.55 km polar grid, mean over a 55 km box (box includes the crater itself)"
-        },
-        "sun_elevation_deg": {
-          "value": null,
-          "status": "pending",
-          "source": "Computed from latitude: sun stays within ~1.5 deg of horizon at the pole"
-        },
-        "ndvi": {
-          "value": 0.0,
-          "status": "sourced",
-          "source": "No vegetation on the Moon"
-        },
-        "relief_55km_m": {
-          "value": 918,
-          "status": "sourced",
-          "source": "Computed by TwinWorlds from LRO LOLA LDEM 16 ppd: std dev of elevation within a 55 km box"
-        },
-        "illumination_pct": {
-          "range": [
-            80,
-            90
-          ],
-          "status": "sourced",
-          "source": "Spudis et al. 1995, LPSC XXVI, as cited on Wikipedia 'Shackleton (crater)'"
-        },
-        "lst_swing_c": {
-          "value": null,
-          "status": "not_applicable",
-          "source": "No regular day-night cycle on the rim (sunlit 80-90% of the time), so a day-night swing is not defined"
-        }
-      }
+    "lst_night_c": {
+     "value": -71.0,
+     "seasonal_range": [
+      -77.1,
+      -67.2
+     ],
+     "status": "sourced",
+     "source": "Mars Climate Database v6.2 (LMD/OU/IAA/ESA/CNES), climatology average solar scenario, surface temperature at local time 22.5 h, mean over the Mars year (Ls 0-345 in 15 deg steps). Local times chosen to match NASA Terra/MODIS overpass (~10:30 / 22:30)."
     },
-    {
-      "id": "tranquillitatis_pit",
-      "world": "moon",
-      "name": "Mare Tranquillitatis pit",
-      "lat": 8.335,
-      "lon": 33.222,
-      "coords_note": "Pit location as reported by LROC; verify before demo",
-      "why": "Lava tube skylight; thermally stable shelter for a base",
-      "features": {
-        "lst_day_c": {
-          "value": 127,
-          "status": "sourced",
-          "source": "Horvath et al. 2022, Geophysical Research Letters, doi:10.1029/2022GL099710 (surrounding surface daytime high, LRO Diviner)"
-        },
-        "lst_night_c": {
-          "value": -173,
-          "status": "sourced",
-          "source": "Horvath et al. 2022, GRL (surrounding surface nighttime low)"
-        },
-        "pit_shade_temp_c": {
-          "value": 17,
-          "status": "sourced",
-          "source": "Horvath et al. 2022, GRL (permanently shadowed part of the pit stays near 17 C)"
-        },
-        "pit_depth_m": {
-          "value": 100,
-          "status": "sourced",
-          "source": "Horvath et al. 2022 / NASA release (pit roughly 100 m deep)"
-        },
-        "albedo": {
-          "value": 0.1566,
-          "status": "sourced",
-          "source": "LRO LOLA LDAM 4 ppd normal albedo at 1064 nm (Lemelin et al. 2016), mean of the 1 deg cell 8.5, 33.5. Single wavelength: approximate comparison with Earth/Mars broadband albedo"
-        },
-        "slope_deg": {
-          "value": 0.24,
-          "status": "sourced",
-          "source": "Computed by TwinWorlds from LRO LOLA LDEM 16 ppd (NASA PDS), resampled to 5.55 km pixels, mean over a 55 km box"
-        },
-        "ndvi": {
-          "value": 0.0,
-          "status": "sourced",
-          "source": "No vegetation on the Moon"
-        },
-        "relief_55km_m": {
-          "value": 41,
-          "status": "sourced",
-          "source": "Computed by TwinWorlds from LRO LOLA LDEM 16 ppd: std dev of elevation within a 55 km box"
-        },
-        "lst_swing_c": {
-          "value": 300,
-          "status": "sourced",
-          "source": "Derived from Horvath et al. 2022 (GRL): 127 C day minus -173 C night"
-        }
-      }
+    "slope_deg": {
+     "value": 1.29,
+     "status": "sourced",
+     "source": "Computed by TwinWorlds from MGS MOLA MEGDR 16 ppd (NASA PDS), resampled to 5.55 km pixels, mean over a 55 km box"
+    },
+    "ndvi": {
+     "value": 0.0,
+     "status": "sourced",
+     "source": "No vegetation on Mars (target value by definition)"
+    },
+    "relief_55km_m": {
+     "value": 276,
+     "status": "sourced",
+     "source": "Computed by TwinWorlds from MGS MOLA MEGDR 16 ppd: std dev of elevation within a 55 km box"
+    },
+    "lst_swing_c": {
+     "value": 55.1,
+     "status": "sourced",
+     "source": "Derived: lst_day_c minus lst_night_c (Mars Climate Database v6.2)"
     }
-  ]
+   }
+  },
+  {
+   "id": "acidalia",
+   "world": "mars",
+   "name": "Acidalia Planitia mound field",
+   "lat": 44.0,
+   "lon": -30.0,
+   "coords_note": "Approximate centre of the mound field; refine from Oehler & Allen 2010 (Icarus) before demo",
+   "why": "Mounds proposed as mud volcanoes; process analog for Hingol",
+   "features": {
+    "thermal_inertia_si": {
+     "value": null,
+     "status": "pending",
+     "source": "MGS TES / Mars Odyssey THEMIS thermal inertia maps"
+    },
+    "albedo": {
+     "value": 0.117,
+     "box_range": [
+      0.109,
+      0.128
+     ],
+     "status": "sourced",
+     "source": "MGS TES Lambert albedo, USGS Astrogeology global mosaic (7410 m, 8 px/deg), mean over a ~55 km box. Earth side uses MODIS white-sky shortwave albedo; both are broadband surface reflectance."
+    },
+    "lst_day_c": {
+     "value": -46.0,
+     "seasonal_range": [
+      -99.6,
+      -7.4
+     ],
+     "status": "sourced",
+     "source": "Mars Climate Database v6.2 (LMD/OU/IAA/ESA/CNES), climatology average solar scenario, surface temperature at local time 10.5 h, mean over the Mars year (Ls 0-345 in 15 deg steps). Local times chosen to match NASA Terra/MODIS overpass (~10:30 / 22:30)."
+    },
+    "lst_night_c": {
+     "value": -82.1,
+     "seasonal_range": [
+      -111.8,
+      -62.4
+     ],
+     "status": "sourced",
+     "source": "Mars Climate Database v6.2 (LMD/OU/IAA/ESA/CNES), climatology average solar scenario, surface temperature at local time 22.5 h, mean over the Mars year (Ls 0-345 in 15 deg steps). Local times chosen to match NASA Terra/MODIS overpass (~10:30 / 22:30)."
+    },
+    "slope_deg": {
+     "value": 0.24,
+     "status": "sourced",
+     "source": "Computed by TwinWorlds from MGS MOLA MEGDR 16 ppd (NASA PDS), resampled to 5.55 km pixels, mean over a 55 km box"
+    },
+    "ndvi": {
+     "value": 0.0,
+     "status": "sourced",
+     "source": "No vegetation on Mars"
+    },
+    "relief_55km_m": {
+     "value": 32,
+     "status": "sourced",
+     "source": "Computed by TwinWorlds from MGS MOLA MEGDR 16 ppd: std dev of elevation within a 55 km box"
+    },
+    "lst_swing_c": {
+     "value": 36.1,
+     "status": "sourced",
+     "source": "Derived: lst_day_c minus lst_night_c (Mars Climate Database v6.2)"
+    }
+   }
+  },
+  {
+   "id": "arcadia",
+   "world": "mars",
+   "name": "Arcadia Planitia",
+   "lat": 40.0,
+   "lon": -165.0,
+   "coords_note": "Approximate; refine from NASA SWIM (Subsurface Water Ice Mapping) project maps",
+   "why": "Shallow buried ice; candidate for human landings",
+   "features": {
+    "thermal_inertia_si": {
+     "value": null,
+     "status": "pending",
+     "source": "TES / THEMIS thermal inertia"
+    },
+    "albedo": {
+     "value": 0.24,
+     "box_range": [
+      0.233,
+      0.254
+     ],
+     "status": "sourced",
+     "source": "MGS TES Lambert albedo, USGS Astrogeology global mosaic (7410 m, 8 px/deg), mean over a ~55 km box. Earth side uses MODIS white-sky shortwave albedo; both are broadband surface reflectance."
+    },
+    "lst_day_c": {
+     "value": -35.7,
+     "seasonal_range": [
+      -76.0,
+      -7.6
+     ],
+     "status": "sourced",
+     "source": "Mars Climate Database v6.2 (LMD/OU/IAA/ESA/CNES), climatology average solar scenario, surface temperature at local time 10.5 h, mean over the Mars year (Ls 0-345 in 15 deg steps). Local times chosen to match NASA Terra/MODIS overpass (~10:30 / 22:30)."
+    },
+    "lst_night_c": {
+     "value": -92.8,
+     "seasonal_range": [
+      -106.7,
+      -81.0
+     ],
+     "status": "sourced",
+     "source": "Mars Climate Database v6.2 (LMD/OU/IAA/ESA/CNES), climatology average solar scenario, surface temperature at local time 22.5 h, mean over the Mars year (Ls 0-345 in 15 deg steps). Local times chosen to match NASA Terra/MODIS overpass (~10:30 / 22:30)."
+    },
+    "slope_deg": {
+     "value": 0.44,
+     "status": "sourced",
+     "source": "Computed by TwinWorlds from MGS MOLA MEGDR 16 ppd (NASA PDS), resampled to 5.55 km pixels, mean over a 55 km box"
+    },
+    "ice_depth_m": {
+     "value": null,
+     "status": "pending",
+     "source": "SWIM project / SHARAD"
+    },
+    "ndvi": {
+     "value": 0.0,
+     "status": "sourced",
+     "source": "No vegetation on Mars"
+    },
+    "relief_55km_m": {
+     "value": 100,
+     "status": "sourced",
+     "source": "Computed by TwinWorlds from MGS MOLA MEGDR 16 ppd: std dev of elevation within a 55 km box"
+    },
+    "lst_swing_c": {
+     "value": 57.1,
+     "status": "sourced",
+     "source": "Derived: lst_day_c minus lst_night_c (Mars Climate Database v6.2)"
+    }
+   }
+  },
+  {
+   "id": "shackleton",
+   "world": "moon",
+   "name": "Shackleton crater rim (lunar south pole)",
+   "lat": -89.67,
+   "lon": 129.8,
+   "coords_note": "Crater centre; rim/ridge sites lie within ~10 km. Refine from Artemis III candidate regions",
+   "why": "Artemis base candidate; near-constant low sun, cold traps",
+   "features": {
+    "lst_day_c": {
+     "value": -50,
+     "uncertainty": 10,
+     "status": "sourced",
+     "estimate": true,
+     "source": "Literature estimate for near-constantly illuminated rim sites: -50 +/- 10 C (Bussey, Robinson & Spudis 2004, LPSC XXXV, as cited on Wikipedia 'Shackleton (crater)'). Not a direct Diviner measurement."
+    },
+    "lst_night_c": {
+     "value": null,
+     "status": "not_applicable",
+     "source": "No regular night on the rim: it is sunlit 80-90% of the time (Spudis et al. 1995). Diviner's 22:30 local-time value for this 1 deg polar cell, -194.8 C, is dominated by the permanently shadowed crater floor, so it is not used for the rim"
+    },
+    "albedo": {
+     "value": 0.4068,
+     "status": "sourced",
+     "source": "LRO LOLA LDAM 4 ppd normal albedo at 1064 nm (Lemelin et al. 2016), mean of the 1 deg cell -89.5, 129.5. Single wavelength: approximate comparison with Earth/Mars broadband albedo"
+    },
+    "slope_deg": {
+     "value": 7.25,
+     "status": "sourced",
+     "source": "Computed by TwinWorlds from NASA PDS LRO LOLA LDEM 16 ppd, re-gridded to a flat 5.55 km polar grid, mean over a 55 km box (box includes the crater itself)"
+    },
+    "sun_elevation_deg": {
+     "value": null,
+     "status": "pending",
+     "source": "Computed from latitude: sun stays within ~1.5 deg of horizon at the pole"
+    },
+    "ndvi": {
+     "value": 0.0,
+     "status": "sourced",
+     "source": "No vegetation on the Moon"
+    },
+    "relief_55km_m": {
+     "value": 918,
+     "status": "sourced",
+     "source": "Computed by TwinWorlds from LRO LOLA LDEM 16 ppd: std dev of elevation within a 55 km box"
+    },
+    "illumination_pct": {
+     "range": [
+      80,
+      90
+     ],
+     "status": "sourced",
+     "source": "Spudis et al. 1995, LPSC XXVI, as cited on Wikipedia 'Shackleton (crater)'"
+    },
+    "lst_swing_c": {
+     "value": null,
+     "status": "not_applicable",
+     "source": "No regular day-night cycle on the rim (sunlit 80-90% of the time), so a day-night swing is not defined"
+    }
+   }
+  },
+  {
+   "id": "tranquillitatis_pit",
+   "world": "moon",
+   "name": "Mare Tranquillitatis pit",
+   "lat": 8.335,
+   "lon": 33.222,
+   "coords_note": "Pit location as reported by LROC; verify before demo",
+   "why": "Lava tube skylight; thermally stable shelter for a base",
+   "features": {
+    "lst_day_c": {
+     "value": 113.9,
+     "status": "sourced",
+     "source": "LRO Diviner Global Cumulative Product (Williams et al. 2017), 1 deg cell 8.5N 33.5E, mean of local-time bins centred on 10:30 (same local time as the Earth MODIS data). Horvath et al. 2022 (GRL) give the surrounding surface extremes: 127 C daytime high."
+    },
+    "lst_night_c": {
+     "value": -167.9,
+     "status": "sourced",
+     "source": "LRO Diviner Global Cumulative Product (Williams et al. 2017), 1 deg cell 8.5N 33.5E, mean of local-time bins centred on 22:30 (same local time as the Earth MODIS data). Horvath et al. 2022 (GRL) give the surrounding surface extremes: -173 C night low."
+    },
+    "pit_shade_temp_c": {
+     "value": 17,
+     "status": "sourced",
+     "source": "Horvath et al. 2022, GRL (permanently shadowed part of the pit stays near 17 C)"
+    },
+    "pit_depth_m": {
+     "value": 100,
+     "status": "sourced",
+     "source": "Horvath et al. 2022 / NASA release (pit roughly 100 m deep)"
+    },
+    "albedo": {
+     "value": 0.1566,
+     "status": "sourced",
+     "source": "LRO LOLA LDAM 4 ppd normal albedo at 1064 nm (Lemelin et al. 2016), mean of the 1 deg cell 8.5, 33.5. Single wavelength: approximate comparison with Earth/Mars broadband albedo"
+    },
+    "slope_deg": {
+     "value": 0.24,
+     "status": "sourced",
+     "source": "Computed by TwinWorlds from LRO LOLA LDEM 16 ppd (NASA PDS), resampled to 5.55 km pixels, mean over a 55 km box"
+    },
+    "ndvi": {
+     "value": 0.0,
+     "status": "sourced",
+     "source": "No vegetation on the Moon"
+    },
+    "relief_55km_m": {
+     "value": 41,
+     "status": "sourced",
+     "source": "Computed by TwinWorlds from LRO LOLA LDEM 16 ppd: std dev of elevation within a 55 km box"
+    },
+    "lst_swing_c": {
+     "value": 281.8,
+     "status": "sourced",
+     "source": "Derived: 113.9 C at 10:30 minus -167.9 C at 22:30 (LRO Diviner, same cell). Horvath et al. 2022 extremes give 300 C."
+    }
+   }
+  }
+ ]
 }

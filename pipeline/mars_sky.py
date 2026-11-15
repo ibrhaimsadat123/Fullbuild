@@ -6,6 +6,9 @@
 import json, os
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 src = json.load(open(os.path.join(ROOT, "data", "sources", "mcd", "mcd_sky_targets.json")))
+_m = os.path.join(ROOT, "data", "sources", "mcd", "mcd_sky_missions.json")   # NASA mission landing sites
+if os.path.exists(_m):
+    src["targets"].update(json.load(open(_m))["targets"])
 DU = 2.1415e-5
 out = {"source": src["source"], "units": {"dust": "column optical depth (visible)", "water_mm": "precipitable water, mm", "ozone_du": "Dobson units"},
        "earth_reference": {"ozone_du": 300, "ozone_note": "Earth's global average ozone column is about 300 Dobson units (well-established figure)"},

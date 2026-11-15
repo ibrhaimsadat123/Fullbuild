@@ -258,3 +258,5 @@ button.api-link { background: none; cursor: pointer; font: inherit; font-size: 1
 .ls-tag { position: absolute; top: 6px; font-size: 11px; background: rgba(14,18,32,0.8); padding: 2px 6px; border-radius: 4px; }
 .ls-tag.l { left: 6px; } .ls-tag.r { right: 6px; }
 #ls-slider { width: 100%; }
+
+.warn-box { background: rgba(255,176,0,0.10); border: 1px solid rgba(255,176,0,0.45); border-radius: 8px; padding: 8px 10px; font-size: 12.5px; margin: 6px 0; }

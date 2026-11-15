@@ -352,7 +352,9 @@ async function openBrief(cell, earthRow) {
   const tiT = state.ti?.ok ? state.ti.data.targets[state.target.id]?.ti : null;
   const tiE = state.ti?.ok ? await tiAt('earth', cell.lat, cell.lon) : null;
   try {
-    const r = await fieldBrief({ target: state.target, place, cell: { score: cell.score, top: cell.top, dims: cell.dims }, earth: earthRow,
+    const gapsSet = new Set(Object.keys(state.scores?.earth_gaps || {}));
+    const voteDims = Object.fromEntries(Object.entries(cell.dims || {}).filter(([d]) => !gapsSet.has(d)));
+    const r = await fieldBrief({ target: state.target, place, cell: { score: cell.score, top: cell.top, dims: voteDims }, earth: earthRow,
       beyondEarth: state.scores?.earth_gaps || null, gaps, ground: { target_thermal_inertia: tiT, earth_apparent_thermal_inertia: tiE, note: 'model estimate; Earth values read high' } });
     const b = r.brief;
     const list = (a) => `<ul>${(a || []).map((x) => `<li>${esc(x)}</li>`).join('')}</ul>`;
@@ -791,7 +793,8 @@ async function renderGround() {
   const TI = state.ti.data;
   const t = state.target;
   const tt = TI.targets[t.id];
-  let tv = tt ? tt.ti : await tiAt(state.world, t.lat, t.lon);
+  const noNight = t.features?.lst_swing_c?.status === 'not_applicable';
+  let tv = noNight ? null : tt ? tt.ti : await tiAt(state.world, t.lat, t.lon);
   const spot = state.cell || (state.heat?.ranked?.[0] && { lat: state.heat.ranked[0].lat, lon: state.heat.ranked[0].lon });
   const ev = spot ? await tiAt('earth', spot.lat, spot.lon) : null;
   const num = (v) => (typeof v === 'number' ? v : typeof v === 'string' ? +v.slice(1) : null);
@@ -806,7 +809,7 @@ async function renderGround() {
   card.innerHTML = `<h3>Ground type</h3>
     <p class="normal-only">How fast the ground heats by day and cools at night says whether it is loose dust, sand or solid rock (dust swings wildly, rock holds its heat). We work it out the same way on both worlds.</p>
     <div class="ti-scale">${bands}${mk(tv, '#e0703a', world)}${mk(ev, '#4aa3ff', 'Earth')}</div>
-    <table class="kv"><tr><td><span style="color:#e0703a">\u25cf</span> ${P.esc(t.name)}</td><td><b>${P.esc(cls(tv))}</b> <span class="muted">(${tv ?? 'n/a'})</span></td></tr>
+    <table class="kv"><tr><td><span style="color:#e0703a">\u25cf</span> ${P.esc(t.name)}</td><td>${noNight ? '<span class="muted">not defined: no regular night here, so no day-night swing</span>' : `<b>${P.esc(cls(tv))}</b> <span class="muted">(${tv ?? 'n/a'})</span>`}</td></tr>
     ${place ? `<tr><td><span style="color:#4aa3ff">\u25cf</span> ${P.esc(place)}</td><td><b>${P.esc(cls(ev))}</b>* <span class="muted">(${ev ?? 'n/a'})</span></td></tr>` : ''}</table>
     ${pub ? `<p class="muted">${pub}</p>` : ''}
     <p class="muted">* Earth\u2019s air and moisture damp its temperature swing, so Earth values read high (\u201capparent\u201d). Compare Earth places with each other; compare ${world} with its published values.</p>
@@ -1105,7 +1108,7 @@ async function findBestTime() {
   const weeks = Math.round((best.date - now.date) / (7 * 86400000));
   const round = (o) => Object.fromEntries(Object.entries(o).filter(([k]) => k !== 'lat' && k !== 'lon').map(([k, x]) => [k, typeof x === 'number' ? +x.toFixed(2) : x]));
   out.innerHTML = `<div class="time-chart"><canvas id="tt-canvas"></canvas></div>
-    <p><b>Best time:</b> ${fmtDate(best.date)}${weeks > 0 ? `, ${weeks} weeks from now` : ' (now)'}: match ${best.score.toFixed(2)}, top ${best.top.toFixed(1)}% of Earth. <b>Worst:</b> ${fmtDate(worst.date)} (${worst.score.toFixed(2)}). Today: ${now.score.toFixed(2)}.</p>
+    <p><b>Best time:</b> ${fmtDate(best.date)}${weeks > 0 ? `, ${weeks} weeks from now` : ' (now)'}: match ${best.score.toFixed(2)}, ${best.top < 0.05 ? 'the best place on Earth that week' : `top ${best.top.toFixed(1)}% of Earth`}. <b>Worst:</b> ${fmtDate(worst.date)} (${worst.score.toFixed(2)}). Today: ${now.score.toFixed(2)}.</p>
     ${apiEnabled() ? '<button id="tt-ai">Explain with AI</button>' : ''}<div id="tt-ai-out"></div>
     <span class="src nerd-only">Simulated every 2 weeks. Earth: NASA MODIS 2023 monthly data by calendar month (MOD11C3, MOD13C2, MCD43C3). Mars: Mars Climate Database v6.2 by season (Ls). Terrain stays fixed.</span>`;
   state.ttChart?.destroy();
@@ -1306,6 +1309,8 @@ async function explain(cell, earthRow) {
   const out = $('analyst-out');
   out.innerHTML = '<p class="empty">Writing…</p>';
   try {
+    const gapsSet = new Set(Object.keys(state.scores?.earth_gaps || {}));
+    cell = { ...cell, dims: Object.fromEntries(Object.entries(cell.dims || {}).filter(([d]) => !gapsSet.has(d))) };
     const r = await analyst({ target: state.target, cell, earth: earthRow, earthSources: state.grid?.sources, earthYear: state.grid?.year,
       place: P.placeName(cell.lat, cell.lon) || null, beyondEarth: state.scores?.earth_gaps || null });
     out.innerHTML = `<p>${P.esc(r.text)}</p><p class="ai-label">AI-generated from measured data (Gemini)</p>`;

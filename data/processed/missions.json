@@ -77,8 +77,8 @@
    "world": "mars",
    "name": "InSight lander (2018)",
    "kind": "lander",
-   "lat": 4.5,
-   "lon": 135.9,
+   "lat": 4.502,
+   "lon": 135.623,
    "why": "Elysium Planitia; measured marsquakes",
    "twin": null
   },

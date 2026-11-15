@@ -127,6 +127,7 @@ export function matchEmpty({ target, scoresError, heat, scores, exclude = null }
     .join('');
   return `<h3>Earth matches</h3>
     <p class="muted">Click anywhere on Earth to see how well it matches ${esc(target?.name || 'the target')}.</p>
+    ${tempWarning(scores)}
     <h4>Top places${exclude ? ' <span class="chip">undiscovered only</span>' : ''}</h4><table class="kv">${top}</table>${exclude ? '<p class="muted">Hidden: anywhere within 3\u00b0 of a well-studied (Benchmark) analog site.</p>' : ''}${scoresMeta(scores)}`;
 }
 
@@ -175,7 +176,7 @@ export function matchCell({ cell, target, earthRow, grid, apiOn, scores }) {
     </div>
     <div id="analyst-out"></div>`;
 
-  return head + dimsTable + compare + actions + scoresMeta(scores);
+  return head + tempWarning(scores) + dimsTable + compare + actions + scoresMeta(scores);
 }
 
 /** What the score is built from, what is not scored yet, and where Earth can't reach the target. */
@@ -333,4 +334,13 @@ export function mineralsCard(M) {
       <span class="src">Rocknest minerals: ${esc(M.minerals?.rocknest?.source || '')}</span>
     </div>
     ${srcs}`;
+}
+
+/** When the target's daytime temperature is beyond anything on Earth, say plainly what the matches are (not). */
+export function tempWarning(scores) {
+  const g = scores?.earth_gaps || {};
+  if (!g.lst_day_c) return '';
+  const dayCold = g.lst_day_c.gap < 0;
+  const nightTxt = g.lst_night_c ? (g.lst_night_c.gap < 0 ? ' and colder by night' : ' and hotter by night') : '';
+  return `<p class="warn-box"><b>Temperature cannot be matched here.</b> This site is ${dayCold ? 'colder' : 'hotter'} by day${nightTxt} than anywhere on Earth, so these places match on terrain, brightness and plant cover only${dayCold ? ', which is why warm deserts can appear' : ''}. Rehearse the temperature in a ${dayCold ? 'cold' : 'thermal vacuum'} chamber.</p>`;
 }
