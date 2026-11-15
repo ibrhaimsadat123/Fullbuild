@@ -569,7 +569,8 @@ async function explain(cell, earthRow) {
   const out = $('analyst-out');
   out.innerHTML = '<p class="empty">Writing…</p>';
   try {
-    const r = await analyst({ target: state.target, cell, earth: earthRow, earthSources: state.grid?.sources, earthYear: state.grid?.year });
+    const r = await analyst({ target: state.target, cell, earth: earthRow, earthSources: state.grid?.sources, earthYear: state.grid?.year,
+      place: P.placeName(cell.lat, cell.lon) || null, beyondEarth: state.scores?.earth_gaps || null });
     out.innerHTML = `<p>${P.esc(r.text)}</p><p class="ai-label">AI-generated from measured data (Gemini)</p>`;
   } catch (e) {
     out.innerHTML = `<p class="empty">${P.esc(e.message)}</p>`;
@@ -658,6 +659,12 @@ function toast(msg, ms = 3500) {
 }
 
 // Exposed for headless tests and debugging in the console.
+// Source lines are one line with "…"; click to read the full source.
+document.addEventListener('click', (e) => {
+  const src = e.target.closest?.('.src');
+  if (src) src.classList.toggle('open');
+});
+
 window.twinworlds = { state, selectTarget, selectCell, startDive, setWorld, startMission, loadNerd };
 
 boot().catch((e) => {

@@ -78,46 +78,46 @@
     },
     "shackleton": {
      "balanced": {
-      "score": 0.063,
-      "top_percent": 38.0
+      "score": 0.093,
+      "top_percent": 27.1
      },
      "landing": {
-      "score": 0.048,
-      "top_percent": 21.4
+      "score": 0.061,
+      "top_percent": 20.6
      },
      "rover": {
-      "score": 0.056,
-      "top_percent": 25.1
+      "score": 0.085,
+      "top_percent": 22.4
      },
      "thermal": {
-      "score": 0.023,
-      "top_percent": 58.2
+      "score": 0.031,
+      "top_percent": 58.7
      },
      "astrobiology": {
-      "score": 0.238,
-      "top_percent": 30.7
+      "score": 0.26,
+      "top_percent": 32.4
      }
     },
     "tranquillitatis_pit": {
      "balanced": {
-      "score": 0.383,
-      "top_percent": 30.4
+      "score": 0.438,
+      "top_percent": 16.1
      },
      "landing": {
-      "score": 0.336,
-      "top_percent": 70.0
+      "score": 0.373,
+      "top_percent": 65.9
      },
      "rover": {
-      "score": 0.368,
-      "top_percent": 56.4
+      "score": 0.43,
+      "top_percent": 35.5
      },
      "thermal": {
-      "score": 0.346,
-      "top_percent": 58.2
+      "score": 0.363,
+      "top_percent": 54.0
      },
      "astrobiology": {
-      "score": 0.527,
-      "top_percent": 17.1
+      "score": 0.563,
+      "top_percent": 10.1
      }
     }
    }
@@ -199,46 +199,46 @@
     },
     "shackleton": {
      "balanced": {
-      "score": 0.033,
-      "top_percent": 52.0
+      "score": 0.053,
+      "top_percent": 58.2
      },
      "landing": {
-      "score": 0.039,
-      "top_percent": 26.2
+      "score": 0.049,
+      "top_percent": 26.0
      },
      "rover": {
-      "score": 0.039,
-      "top_percent": 46.0
+      "score": 0.061,
+      "top_percent": 34.8
      },
      "thermal": {
-      "score": 0.017,
-      "top_percent": 67.8
+      "score": 0.023,
+      "top_percent": 72.3
      },
      "astrobiology": {
-      "score": 0.033,
-      "top_percent": 51.6
+      "score": 0.047,
+      "top_percent": 52.3
      }
     },
     "tranquillitatis_pit": {
      "balanced": {
-      "score": 0.322,
-      "top_percent": 44.6
+      "score": 0.378,
+      "top_percent": 25.5
      },
      "landing": {
-      "score": 0.382,
-      "top_percent": 66.2
+      "score": 0.418,
+      "top_percent": 59.4
      },
      "rover": {
-      "score": 0.359,
-      "top_percent": 58.6
+      "score": 0.422,
+      "top_percent": 37.3
      },
      "thermal": {
-      "score": 0.428,
-      "top_percent": 31.4
+      "score": 0.445,
+      "top_percent": 30.2
      },
      "astrobiology": {
-      "score": 0.153,
-      "top_percent": 50.5
+      "score": 0.186,
+      "top_percent": 49.9
      }
     }
    }
@@ -320,46 +320,46 @@
     },
     "shackleton": {
      "balanced": {
-      "score": 0.567,
-      "top_percent": 0.7
+      "score": 0.633,
+      "top_percent": 0.4
      },
      "landing": {
-      "score": 0.838,
-      "top_percent": 0.2
+      "score": 0.852,
+      "top_percent": 0.0
      },
      "rover": {
-      "score": 0.67,
-      "top_percent": 0.5
+      "score": 0.723,
+      "top_percent": 0.1
      },
      "thermal": {
-      "score": 0.239,
-      "top_percent": 23.6
+      "score": 0.276,
+      "top_percent": 18.5
      },
      "astrobiology": {
-      "score": 0.69,
-      "top_percent": 1.1
+      "score": 0.725,
+      "top_percent": 0.5
      }
     },
     "tranquillitatis_pit": {
      "balanced": {
-      "score": 0.227,
-      "top_percent": 78.8
+      "score": 0.233,
+      "top_percent": 73.3
      },
      "landing": {
-      "score": 0.059,
-      "top_percent": 93.8
+      "score": 0.068,
+      "top_percent": 94.7
      },
      "rover": {
-      "score": 0.135,
-      "top_percent": 91.0
+      "score": 0.151,
+      "top_percent": 89.9
      },
      "thermal": {
-      "score": 0.432,
-      "top_percent": 30.2
+      "score": 0.423,
+      "top_percent": 36.9
      },
      "astrobiology": {
-      "score": 0.521,
-      "top_percent": 17.9
+      "score": 0.486,
+      "top_percent": 12.6
      }
     }
    }
@@ -441,46 +441,46 @@
     },
     "shackleton": {
      "balanced": {
-      "score": 0.08,
-      "top_percent": 32.5
+      "score": 0.118,
+      "top_percent": 16.6
      },
      "landing": {
-      "score": 0.065,
-      "top_percent": 15.9
+      "score": 0.081,
+      "top_percent": 14.4
      },
      "rover": {
-      "score": 0.075,
-      "top_percent": 18.1
+      "score": 0.112,
+      "top_percent": 14.6
      },
      "thermal": {
-      "score": 0.025,
-      "top_percent": 55.4
+      "score": 0.034,
+      "top_percent": 54.1
      },
      "astrobiology": {
-      "score": 0.281,
-      "top_percent": 28.2
+      "score": 0.31,
+      "top_percent": 28.4
      }
     },
     "tranquillitatis_pit": {
      "balanced": {
-      "score": 0.49,
-      "top_percent": 16.1
+      "score": 0.538,
+      "top_percent": 10.8
      },
      "landing": {
-      "score": 0.318,
-      "top_percent": 71.3
+      "score": 0.353,
+      "top_percent": 68.1
      },
      "rover": {
-      "score": 0.413,
-      "top_percent": 41.7
+      "score": 0.47,
+      "top_percent": 24.5
      },
      "thermal": {
-      "score": 0.582,
-      "top_percent": 7.0
+      "score": 0.595,
+      "top_percent": 6.2
      },
      "astrobiology": {
-      "score": 0.694,
-      "top_percent": 5.0
+      "score": 0.716,
+      "top_percent": 2.9
      }
     }
    }
@@ -562,46 +562,46 @@
     },
     "shackleton": {
      "balanced": {
-      "score": 0.023,
-      "top_percent": 66.6
+      "score": 0.044,
+      "top_percent": 65.2
      },
      "landing": {
-      "score": 0.015,
-      "top_percent": 74.9
+      "score": 0.022,
+      "top_percent": 75.2
      },
      "rover": {
-      "score": 0.018,
-      "top_percent": 74.6
+      "score": 0.035,
+      "top_percent": 74.1
      },
      "thermal": {
-      "score": 0.015,
-      "top_percent": 78.3
+      "score": 0.021,
+      "top_percent": 76.3
      },
      "astrobiology": {
-      "score": 0.097,
-      "top_percent": 44.4
+      "score": 0.124,
+      "top_percent": 44.5
      }
     },
     "tranquillitatis_pit": {
      "balanced": {
-      "score": 0.397,
-      "top_percent": 28.5
+      "score": 0.449,
+      "top_percent": 15.4
      },
      "landing": {
-      "score": 0.418,
-      "top_percent": 62.4
+      "score": 0.451,
+      "top_percent": 53.1
      },
      "rover": {
-      "score": 0.394,
-      "top_percent": 48.7
+      "score": 0.452,
+      "top_percent": 30.0
      },
      "thermal": {
-      "score": 0.43,
-      "top_percent": 30.7
+      "score": 0.446,
+      "top_percent": 30.0
      },
      "astrobiology": {
-      "score": 0.377,
-      "top_percent": 37.7
+      "score": 0.415,
+      "top_percent": 15.0
      }
     }
    }
@@ -683,46 +683,46 @@
     },
     "shackleton": {
      "balanced": {
-      "score": 0.021,
-      "top_percent": 69.8
+      "score": 0.041,
+      "top_percent": 68.5
      },
      "landing": {
-      "score": 0.014,
-      "top_percent": 77.1
+      "score": 0.021,
+      "top_percent": 76.4
      },
      "rover": {
-      "score": 0.017,
-      "top_percent": 76.5
+      "score": 0.034,
+      "top_percent": 76.3
      },
      "thermal": {
-      "score": 0.014,
-      "top_percent": 80.3
+      "score": 0.02,
+      "top_percent": 78.1
      },
      "astrobiology": {
-      "score": 0.076,
-      "top_percent": 46.0
+      "score": 0.101,
+      "top_percent": 46.1
      }
     },
     "tranquillitatis_pit": {
      "balanced": {
-      "score": 0.52,
-      "top_percent": 12.3
+      "score": 0.566,
+      "top_percent": 9.6
      },
      "landing": {
-      "score": 0.684,
-      "top_percent": 19.4
+      "score": 0.705,
+      "top_percent": 8.4
      },
      "rover": {
-      "score": 0.588,
-      "top_percent": 12.6
+      "score": 0.633,
+      "top_percent": 8.2
      },
      "thermal": {
-      "score": 0.51,
-      "top_percent": 13.9
+      "score": 0.524,
+      "top_percent": 13.5
      },
      "astrobiology": {
-      "score": 0.368,
-      "top_percent": 38.8
+      "score": 0.406,
+      "top_percent": 15.4
      }
     }
    }
@@ -804,46 +804,46 @@
     },
     "shackleton": {
      "balanced": {
-      "score": 0.083,
-      "top_percent": 31.4
+      "score": 0.127,
+      "top_percent": 14.0
      },
      "landing": {
-      "score": 0.069,
-      "top_percent": 14.9
+      "score": 0.087,
+      "top_percent": 13.3
      },
      "rover": {
-      "score": 0.079,
-      "top_percent": 17.0
+      "score": 0.122,
+      "top_percent": 12.7
      },
      "thermal": {
-      "score": 0.026,
-      "top_percent": 54.1
+      "score": 0.036,
+      "top_percent": 53.3
      },
      "astrobiology": {
-      "score": 0.285,
-      "top_percent": 28.0
+      "score": 0.322,
+      "top_percent": 27.3
      }
     },
     "tranquillitatis_pit": {
      "balanced": {
-      "score": 0.513,
-      "top_percent": 13.1
+      "score": 0.553,
+      "top_percent": 10.2
      },
      "landing": {
-      "score": 0.327,
-      "top_percent": 70.7
+      "score": 0.359,
+      "top_percent": 67.5
      },
      "rover": {
-      "score": 0.426,
-      "top_percent": 36.8
+      "score": 0.477,
+      "top_percent": 22.5
      },
      "thermal": {
-      "score": 0.635,
-      "top_percent": 2.1
+      "score": 0.644,
+      "top_percent": 2.0
      },
      "astrobiology": {
-      "score": 0.718,
-      "top_percent": 3.8
+      "score": 0.733,
+      "top_percent": 2.1
      }
     }
    }
@@ -925,46 +925,46 @@
     },
     "shackleton": {
      "balanced": {
-      "score": 0.115,
-      "top_percent": 14.0
+      "score": 0.164,
+      "top_percent": 8.0
      },
      "landing": {
-      "score": 0.042,
-      "top_percent": 24.3
+      "score": 0.056,
+      "top_percent": 22.3
      },
      "rover": {
-      "score": 0.072,
-      "top_percent": 19.1
+      "score": 0.113,
+      "top_percent": 14.5
      },
      "thermal": {
-      "score": 0.206,
-      "top_percent": 24.6
+      "score": 0.233,
+      "top_percent": 23.6
      },
      "astrobiology": {
-      "score": 0.348,
-      "top_percent": 26.5
+      "score": 0.383,
+      "top_percent": 9.5
      }
     },
     "tranquillitatis_pit": {
      "balanced": {
-      "score": 0.512,
-      "top_percent": 13.2
+      "score": 0.385,
+      "top_percent": 22.9
      },
      "landing": {
-      "score": 0.675,
-      "top_percent": 20.4
+      "score": 0.544,
+      "top_percent": 26.5
      },
      "rover": {
-      "score": 0.571,
-      "top_percent": 14.8
+      "score": 0.41,
+      "top_percent": 40.1
      },
      "thermal": {
-      "score": 0.392,
-      "top_percent": 42.6
+      "score": 0.363,
+      "top_percent": 54.0
      },
      "astrobiology": {
-      "score": 0.509,
-      "top_percent": 19.5
+      "score": 0.413,
+      "top_percent": 15.1
      }
     }
    }
@@ -1046,46 +1046,46 @@
     },
     "shackleton": {
      "balanced": {
-      "score": 0.742,
-      "top_percent": 0.3
+      "score": 0.782,
+      "top_percent": 0.0
      },
      "landing": {
-      "score": 0.761,
-      "top_percent": 0.4
+      "score": 0.78,
+      "top_percent": 0.2
      },
      "rover": {
-      "score": 0.738,
-      "top_percent": 0.3
+      "score": 0.778,
+      "top_percent": 0.0
      },
      "thermal": {
-      "score": 0.641,
-      "top_percent": 0.3
+      "score": 0.667,
+      "top_percent": 0.1
      },
      "astrobiology": {
-      "score": 0.864,
-      "top_percent": 0.3
+      "score": 0.877,
+      "top_percent": 0.0
      }
     },
     "tranquillitatis_pit": {
      "balanced": {
-      "score": 0.193,
-      "top_percent": 86.1
+      "score": 0.198,
+      "top_percent": 83.1
      },
      "landing": {
-      "score": 0.071,
-      "top_percent": 91.9
+      "score": 0.08,
+      "top_percent": 92.4
      },
      "rover": {
-      "score": 0.134,
-      "top_percent": 91.2
+      "score": 0.146,
+      "top_percent": 90.6
      },
      "thermal": {
-      "score": 0.261,
-      "top_percent": 81.0
+      "score": 0.26,
+      "top_percent": 77.9
      },
      "astrobiology": {
-      "score": 0.405,
-      "top_percent": 34.0
+      "score": 0.381,
+      "top_percent": 18.0
      }
     }
    }
@@ -1167,46 +1167,46 @@
     },
     "shackleton": {
      "balanced": {
-      "score": 0.196,
-      "top_percent": 5.1
+      "score": 0.271,
+      "top_percent": 2.9
      },
      "landing": {
-      "score": 0.121,
-      "top_percent": 9.5
+      "score": 0.151,
+      "top_percent": 8.9
      },
      "rover": {
-      "score": 0.164,
-      "top_percent": 6.1
+      "score": 0.235,
+      "top_percent": 4.6
      },
      "thermal": {
-      "score": 0.142,
-      "top_percent": 27.7
+      "score": 0.173,
+      "top_percent": 27.4
      },
      "astrobiology": {
-      "score": 0.483,
-      "top_percent": 9.5
+      "score": 0.535,
+      "top_percent": 1.7
      }
     },
     "tranquillitatis_pit": {
      "balanced": {
-      "score": 0.295,
-      "top_percent": 56.8
+      "score": 0.297,
+      "top_percent": 51.6
      },
      "landing": {
-      "score": 0.144,
-      "top_percent": 85.9
+      "score": 0.155,
+      "top_percent": 84.0
      },
      "rover": {
-      "score": 0.222,
-      "top_percent": 79.0
+      "score": 0.234,
+      "top_percent": 75.3
      },
      "thermal": {
-      "score": 0.379,
-      "top_percent": 47.1
+      "score": 0.375,
+      "top_percent": 50.7
      },
      "astrobiology": {
-      "score": 0.522,
-      "top_percent": 17.8
+      "score": 0.494,
+      "top_percent": 12.3
      }
     }
    }
@@ -1288,45 +1288,45 @@
     },
     "shackleton": {
      "balanced": {
-      "score": 0.037,
-      "top_percent": 48.8
+      "score": 0.067,
+      "top_percent": 48.2
      },
      "landing": {
-      "score": 0.022,
-      "top_percent": 57.4
+      "score": 0.032,
+      "top_percent": 43.1
      },
      "rover": {
-      "score": 0.027,
-      "top_percent": 57.9
+      "score": 0.052,
+      "top_percent": 42.3
      },
      "thermal": {
-      "score": 0.018,
-      "top_percent": 65.9
+      "score": 0.026,
+      "top_percent": 65.2
      },
      "astrobiology": {
-      "score": 0.225,
-      "top_percent": 31.7
+      "score": 0.265,
+      "top_percent": 31.9
      }
     },
     "tranquillitatis_pit": {
      "balanced": {
-      "score": 0.822,
+      "score": 0.824,
       "top_percent": 0.0
      },
      "landing": {
-      "score": 0.925,
+      "score": 0.916,
       "top_percent": 0.0
      },
      "rover": {
-      "score": 0.858,
+      "score": 0.856,
       "top_percent": 0.0
      },
      "thermal": {
-      "score": 0.724,
+      "score": 0.729,
       "top_percent": 0.0
      },
      "astrobiology": {
-      "score": 0.866,
+      "score": 0.863,
       "top_percent": 0.0
      }
     }
@@ -1409,46 +1409,46 @@
     },
     "shackleton": {
      "balanced": {
-      "score": 0.084,
-      "top_percent": 31.2
+      "score": 0.129,
+      "top_percent": 13.5
      },
      "landing": {
-      "score": 0.074,
-      "top_percent": 13.8
+      "score": 0.094,
+      "top_percent": 12.5
      },
      "rover": {
-      "score": 0.084,
-      "top_percent": 16.0
+      "score": 0.129,
+      "top_percent": 11.5
      },
      "thermal": {
-      "score": 0.026,
-      "top_percent": 54.0
+      "score": 0.036,
+      "top_percent": 53.0
      },
      "astrobiology": {
-      "score": 0.249,
-      "top_percent": 30.1
+      "score": 0.289,
+      "top_percent": 29.9
      }
     },
     "tranquillitatis_pit": {
      "balanced": {
-      "score": 0.373,
-      "top_percent": 31.8
+      "score": 0.418,
+      "top_percent": 17.7
      },
      "landing": {
-      "score": 0.186,
-      "top_percent": 80.0
+      "score": 0.215,
+      "top_percent": 79.1
      },
      "rover": {
-      "score": 0.283,
-      "top_percent": 72.2
+      "score": 0.335,
+      "top_percent": 52.4
      },
      "thermal": {
-      "score": 0.537,
-      "top_percent": 11.4
+      "score": 0.548,
+      "top_percent": 11.2
      },
      "astrobiology": {
-      "score": 0.568,
-      "top_percent": 12.0
+      "score": 0.591,
+      "top_percent": 9.1
      }
     }
    }
@@ -1530,46 +1530,46 @@
     },
     "shackleton": {
      "balanced": {
-      "score": 0.057,
-      "top_percent": 40.1
+      "score": 0.08,
+      "top_percent": 43.4
      },
      "landing": {
-      "score": 0.043,
-      "top_percent": 23.6
+      "score": 0.053,
+      "top_percent": 23.4
      },
      "rover": {
-      "score": 0.051,
-      "top_percent": 27.2
+      "score": 0.073,
+      "top_percent": 27.4
      },
      "thermal": {
-      "score": 0.022,
-      "top_percent": 59.8
+      "score": 0.028,
+      "top_percent": 61.9
      },
      "astrobiology": {
-      "score": 0.204,
-      "top_percent": 34.1
+      "score": 0.216,
+      "top_percent": 38.3
      }
     },
     "tranquillitatis_pit": {
      "balanced": {
-      "score": 0.5,
-      "top_percent": 14.8
+      "score": 0.551,
+      "top_percent": 10.2
      },
      "landing": {
-      "score": 0.395,
-      "top_percent": 64.9
+      "score": 0.431,
+      "top_percent": 57.2
      },
      "rover": {
-      "score": 0.465,
-      "top_percent": 27.7
+      "score": 0.524,
+      "top_percent": 13.9
      },
      "thermal": {
-      "score": 0.539,
-      "top_percent": 11.2
+      "score": 0.554,
+      "top_percent": 10.6
      },
      "astrobiology": {
-      "score": 0.585,
-      "top_percent": 10.2
+      "score": 0.618,
+      "top_percent": 8.0
      }
     }
    }
@@ -1651,46 +1651,46 @@
     },
     "shackleton": {
      "balanced": {
-      "score": 0.086,
-      "top_percent": 30.7
+      "score": 0.106,
+      "top_percent": 20.8
      },
      "landing": {
-      "score": 0.332,
-      "top_percent": 3.5
+      "score": 0.322,
+      "top_percent": 3.9
      },
      "rover": {
-      "score": 0.175,
-      "top_percent": 5.5
+      "score": 0.188,
+      "top_percent": 6.7
      },
      "thermal": {
-      "score": 0.026,
-      "top_percent": 53.8
+      "score": 0.033,
+      "top_percent": 56.4
      },
      "astrobiology": {
-      "score": 0.02,
-      "top_percent": 58.7
+      "score": 0.029,
+      "top_percent": 62.5
      }
     },
     "tranquillitatis_pit": {
      "balanced": {
-      "score": 0.083,
-      "top_percent": 99.8
+      "score": 0.118,
+      "top_percent": 99.4
      },
      "landing": {
-      "score": 0.023,
+      "score": 0.033,
       "top_percent": 99.9
      },
      "rover": {
-      "score": 0.053,
-      "top_percent": 99.9
+      "score": 0.084,
+      "top_percent": 99.5
      },
      "thermal": {
-      "score": 0.319,
-      "top_percent": 66.8
+      "score": 0.335,
+      "top_percent": 60.7
      },
      "astrobiology": {
-      "score": 0.055,
-      "top_percent": 98.4
+      "score": 0.075,
+      "top_percent": 98.1
      }
     }
    }

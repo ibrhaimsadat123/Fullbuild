@@ -223,7 +223,7 @@ async function analogs(env, ctx, q) {
     earth_gaps: scores.earth_gaps || null,
     count: Math.min(limit, results.length),
     results: results.slice(0, limit),
-    method: 'Per-dimension Gaussian similarity, combined as a weighted mean (TwinWorlds PROJECT.md Section 12).',
+    method: 'Per-dimension Gaussian similarity, combined as a weighted geometric mean (pipeline/score.py).',
   };
 }
 
@@ -246,15 +246,17 @@ function compare(v, op, x) {
   return op === '<' ? v < x : op === '<=' ? v <= x : op === '>' ? v > x : v >= x;
 }
 function weightedMean(dims, weights) {
+  // Weighted GEOMETRIC mean, each dimension floored at 0.01: same rule as pipeline/score.py
+  // and the app (frontend/src/heatmap.js), so one badly failed dimension pulls the score down.
   let s = 0;
   let w = 0;
   for (const [k, wt] of Object.entries(weights)) {
     if (typeof dims?.[k] === 'number' && wt > 0) {
-      s += dims[k] * wt;
+      s += Math.log(Math.max(dims[k], 0.01)) * wt;
       w += wt;
     }
   }
-  return w > 0 ? s / w : null;
+  return w > 0 ? Math.exp(s / w) : null;
 }
 function cleanWeights(obj, allowed = null) {
   const out = {};
@@ -363,7 +365,8 @@ async function analystRoute(env, b) {
   if (typeof cell.lat !== 'number' || typeof cell.lon !== 'number') throw httpError(400, 'cell.lat and cell.lon are required');
   const facts = {
     target: { name: t.name, world: t.world, features: t.features },
-    earth_cell: { lat: cell.lat, lon: cell.lon, overall_score: cell.score, tier: cell.tier, dimension_scores: cell.dims },
+    earth_cell: { place: typeof b.place === 'string' ? b.place.slice(0, 120) : null, lat: cell.lat, lon: cell.lon, overall_score: cell.score, tier: cell.tier, dimension_scores: cell.dims },
+    beyond_earth: b.beyondEarth || null,
     earth_values: b.earth || null,
     earth_sources: b.earthSources || null,
     earth_data_year: b.earthYear || null,
@@ -373,6 +376,9 @@ async function analystRoute(env, b) {
     'Use ONLY the numbers in the data given. Do not add facts, places, history or numbers that are not in it.',
     'Scores run 0 to 1 (1 = identical). If a value is null or its status is "pending", say it has not been measured yet.',
     'Say which dimensions match well and which do not. 3 to 5 sentences. No headings, no lists.',
+    'Call the place by earth_cell.place if it is given, with no coordinates.',
+    'beyond_earth lists dimensions where the target lies outside anything on Earth. For those, a high score only means this place is among the closest Earth gets; never call it a match. Say plainly that no place on Earth reaches the target value there.',
+    'Ignore dimensions that were not scored (for example thermal inertia); do not mention them.',
   ].join(' ');
   const { text, model } = await gemini(env, { system, user: JSON.stringify(facts).slice(0, 12_000), temperature: 0.3 });
   return { text: text.trim(), label: 'AI-generated from measured data', model, ai_generated: true };

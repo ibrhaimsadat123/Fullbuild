@@ -129,7 +129,10 @@ body.world-moon #pane-planet .pane-label > span:first-child { color: var(--moon)
 .kv td { padding: 5px 0; border-top: 1px solid var(--line); vertical-align: top; }
 .kv td:last-child { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; padding-left: 8px; }
 .kv .pending { color: var(--pending); font-style: italic; }
-.src { display: block; font-size: 11px; color: var(--muted); margin-top: 2px; line-height: 1.35; }
+.src { display: block; font-size: 11px; color: var(--muted); margin-top: 2px; line-height: 1.35;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
+.src:hover { color: var(--text, #ddd); }
+.src.open { white-space: normal; cursor: zoom-out; }
 .chip { display: inline-block; font-size: 10px; padding: 1px 6px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); margin-left: 4px; }
 .chip.sourced { color: var(--ok); border-color: rgba(111, 209, 139, 0.4); }
 .chip.pending { color: var(--pending); }
@@ -166,3 +169,5 @@ body.world-moon #pane-planet .pane-label > span:first-child { color: var(--moon)
   .drawer-toggle { display: none; }
   .drawer-body { border-left: 0; padding: 10px 16px; }
 }
+/* Let one-line sources shrink inside table cells instead of widening the table. */
+.kv td:has(> .src) { max-width: 0; width: 62%; }
