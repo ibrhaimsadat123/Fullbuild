@@ -21,7 +21,7 @@ import { TwinDive } from './dive.js';
 import { MissionTwin } from './mission.js';
 import { DIVE_PAIRS, DIVE_VIEW, WORLDS } from './config.js';
 import { radarChart, overlayChart, sourcesHtml } from './charts.js';
-import { apiEnabled, askPlanet, analyst } from './api.js';
+import { apiEnabled, askPlanet, analyst, whatIf } from './api.js';
 import * as P from './panels.js';
 
 const $ = (id) => document.getElementById(id);
@@ -55,6 +55,9 @@ const WANTED = ['targets.json', 'earth_grid.json', 'lenses.json', 'sites.json', 
 // ---------- boot ----------
 async function boot() {
   const targets = await load('targets.json');
+  const missions = await load('missions.json');
+  state.missions = missions.ok ? missions.data.missions || [] : [];
+  state.missionsSource = missions.ok ? missions.data.source : '';
   state.targets = targets.ok ? targets.data.targets || [] : [];
   if (!targets.ok) toast(`Can't read targets.json: ${targets.error}`);
 
@@ -70,9 +73,12 @@ async function boot() {
 }
 
 async function loadSide() {
-  const [lenses, gaps, blind, sites, grid, mission] = await Promise.all(
-    ['lenses.json', 'gaps.json', 'blind_test.json', 'sites.json', 'earth_grid.json', 'mission_twin.json'].map(load),
+  const [lenses, gaps, blind, sites, grid] = await Promise.all(
+    ['lenses.json', 'gaps.json', 'blind_test.json', 'sites.json', 'earth_grid.json'].map(load),
   );
+  // Mission Twins: one file per rover, mission_twin_<id>.json.
+  const twinFiles = [...(await dataIndex())].filter((f) => /^mission_twin_[a-z0-9_]+\.json$/.test(f));
+  state.missionTwins = (await Promise.all(twinFiles.map(load))).filter((r) => r.ok && r.data?.planet?.path?.length).map((r) => r.data);
   // Place names (optional file): same cell order as earth_grid.json.
   load('earth_places.json').then((pl) => {
     if (!pl.ok || !grid.ok) return;
@@ -83,11 +89,8 @@ async function loadSide() {
     P.setPlaceLookup((lat, lon) => m.get(cellKey(lat, lon, res)) || '');
     if (state.target) renderMatch();
   });
-  if (mission.ok && mission.data?.planet?.path?.length && mission.data?.earth?.path?.length) {
-    state.mission = mission.data;
-    updateMissionButton();
-    addMissionInvite();
-  }
+  updateMissionButton();
+  addMissionInvite();
   if (lenses.ok) {
     state.lenses = lenses.data;
     const sel = $('lens-select');
@@ -137,13 +140,40 @@ async function setWorld(world) {
   const list = state.targets.filter((t) => t.world === world);
   const sel = $('target-select');
   sel.innerHTML = '';
-  for (const t of list) sel.add(new Option(t.name, t.id));
+  // One dropdown, two groups: real NASA missions, and the challenge's candidate base/landing sites.
+  const ms = (state.missions || []).filter((m) => m.world === world);
+  if (ms.length) {
+    const g1 = document.createElement('optgroup');
+    g1.label = world === 'moon' ? 'NASA missions (Apollo)' : 'NASA missions';
+    for (const m of ms) g1.appendChild(new Option(m.name, `mission:${m.id}`));
+    sel.appendChild(g1);
+  }
+  const g2 = document.createElement('optgroup');
+  g2.label = world === 'moon' ? 'Candidate Moon base sites' : 'Candidate Mars landing sites';
+  for (const t of list) g2.appendChild(new Option(t.name, t.id));
+  sel.appendChild(g2);
   await selectTarget(list[0]?.id || null);
 }
 
 function drawTargets() {
   const v = state.planet.viewer;
   v.entities.removeAll();
+  for (const m of (state.missions || []).filter((x) => x.world === state.world)) {
+    v.entities.add({
+      id: `mission:${m.id}`,
+      position: toCartesian(state.world, m.lon, m.lat, 0),
+      point: { pixelSize: 9, color: Color.fromCssColorString('#4aa3ff'), outlineColor: Color.WHITE, outlineWidth: 1.5, disableDepthTestDistance: Number.POSITIVE_INFINITY },
+      label: {
+        text: m.name.replace(/ \(.*\)$/, ''),
+        font: '500 11px Inter, system-ui, sans-serif',
+        style: LabelStyle.FILL_AND_OUTLINE, outlineWidth: 3, outlineColor: Color.BLACK,
+        fillColor: Color.fromCssColorString('#cfe6ff'),
+        verticalOrigin: VerticalOrigin.TOP, pixelOffset: new Cartesian2(0, 8),
+        disableDepthTestDistance: Number.POSITIVE_INFINITY,
+        distanceDisplayCondition: new DistanceDisplayCondition(0, 9_000_000),
+      },
+    });
+  }
   for (const t of state.targets.filter((x) => x.world === state.world)) {
     v.entities.add({
       id: `target:${t.id}`,
@@ -170,6 +200,8 @@ async function selectTarget(id) {
   $('planet-site').textContent = state.target ? state.target.name : '';
   $('card-target').innerHTML = P.targetCard(state.target, state.world);
   addMissionInvite();
+  state.whatIf = null; state.whatIfDiff = null; state.whatIfBefore = null;
+  queueMicrotask(renderWhatIf);
   highlightTarget();
   if (state.target && !state.dive?.active) {
     flyToPoint(state.planet.viewer, state.world, state.target.lon, state.target.lat, null, 1.6);
@@ -183,6 +215,7 @@ async function selectTarget(id) {
 
 function highlightTarget() {
   for (const e of state.planet.viewer.entities.values) {
+    if (!String(e.id).startsWith('target:')) continue;
     const on = state.target && e.id === `target:${state.target.id}`;
     e.point.pixelSize = on ? 15 : 10;
     e.point.color = Color.fromCssColorString(on ? '#ffb000' : '#d9d9d9');
@@ -191,6 +224,7 @@ function highlightTarget() {
 
 // ---------- scores / heatmap ----------
 async function loadScores() {
+  if (!state._keepWhatIf) { state.whatIf = null; state.whatIfDiff = null; state.whatIfBefore = null; }
   removeHeat();
   state.scores = null;
   state.heat = null;
@@ -350,6 +384,7 @@ function wirePlanetClicks() {
     const picked = v.scene.pick(e.position);
     const id = picked?.id?.id;
     if (typeof id === 'string' && id.startsWith('target:') && id !== 'target:live') return selectTarget(id.slice(7));
+    if (typeof id === 'string' && id.startsWith('mission:')) return selectMission(id.slice(8));
     // Anywhere else: score that exact spot against all of Earth, live.
     let p = v.scene.pickPositionSupported ? v.scene.pickPosition(e.position) : undefined;
     if (!defined(p)) p = v.camera.pickEllipsoid(e.position, WORLDS[state.world].ellipsoid);
@@ -361,7 +396,15 @@ function wirePlanetClicks() {
 
 // ---------- Click anywhere on Mars / the Moon ----------
 const LIVE_SOURCES = { ndvi: 'No vegetation (target value by definition)' };
-async function selectLiveSpot(lat, lon) {
+async function selectMission(id) {
+  const m = (state.missions || []).find((x) => x.id === id);
+  if (!m) return;
+  if (m.world !== state.world) await setWorld(m.world);
+  if (!state.dive?.active) flyToPoint(state.planet.viewer, state.world, m.lon, m.lat, null, 1.6);
+  await selectLiveSpot(m.lat, m.lon, { id: `mission:${m.id}`, name: m.name, why: `${m.why}. Its landing spot is scored live against all of Earth.`, mission: m });
+}
+
+async function selectLiveSpot(lat, lon, meta = {}) {
   const file = `${state.world}_grid.json`;
   state.planetGrids ||= {};
   if (!state.planetGrids[state.world]) {
@@ -385,15 +428,19 @@ async function selectLiveSpot(lat, lon) {
   }
   const label = `${Math.abs(lat).toFixed(1)}°${lat >= 0 ? 'N' : 'S'}, ${Math.abs(lon).toFixed(1)}°${lon >= 0 ? 'E' : 'W'}`;
   state.target = {
-    id: 'live', live: true, world: state.world, lat: cell.lat, lon: cell.lon,
-    name: `${state.world === 'moon' ? 'Moon' : 'Mars'} spot ${label}`,
-    why: `Any spot you click is scored live against all of Earth (${g.res}° cell).`,
+    id: meta.id || 'live', live: true, world: state.world, lat: cell.lat, lon: cell.lon,
+    name: meta.name || `${state.world === 'moon' ? 'Moon' : 'Mars'} spot ${label}`,
+    why: meta.why || `Any spot you click is scored live against all of Earth (${g.res}° cell).`,
+    mission: meta.mission || null,
+    coords_note: meta.mission ? `Landing site ${label}. ${state.missionsSource || ''}` : undefined,
     features,
   };
-  $('target-select').value = '';
+  $('target-select').value = meta.id || '';
   $('planet-site').textContent = state.target.name;
   $('card-target').innerHTML = P.targetCard(state.target, state.world);
   addMissionInvite();
+  state.whatIf = null; state.whatIfDiff = null; state.whatIfBefore = null;
+  queueMicrotask(renderWhatIf);
   placeLiveMarker(cell.lat, cell.lon);
   highlightTarget();
   state.cell = null;
@@ -528,14 +575,23 @@ function pathExtentM(world, path) {
 }
 
 // Mission Twin only makes sense on its own world; invite from its target's card.
+/** The Mission Twin for the selected site or mission, if one exists. */
+function twinForTarget() {
+  const t = state.target;
+  if (!t) return null;
+  return (state.missionTwins || []).find((m) =>
+    m.planet.target === t.id || m.id === t.mission?.id || (t.mission?.twin && m.planet.target === t.mission.twin)) || null;
+}
 function updateMissionButton() {
-  const m = state.mission;
+  const m = twinForTarget();
   $('mt-btn').hidden = !m || (m.planet.world || 'mars') !== state.world;
+  if (m) $('mt-btn').title = `Rehearse ${m.planet.rover}'s real drive on a matched path on Earth (${m.earth.site})`;
 }
 function addMissionInvite() {
-  const m = state.mission;
+  updateMissionButton();
+  const m = twinForTarget();
   const card = $('card-target');
-  if (!m || !state.target || state.target.id !== m.planet.target || card.querySelector('.mt-invite')) return;
+  if (!m || card.querySelector('.mt-invite')) return;
   const div = document.createElement('div');
   div.className = 'mt-invite';
   div.innerHTML = `<b>Mission Twin:</b> rehearse ${P.esc(m.planet.rover || 'the rover')}'s real ${m.distance_km ? `${m.distance_km} km ` : ''}drive here on a matched path on Earth (${P.esc(m.earth.site || '')}).<br><button class="mt-start">▶ Rehearse the drive</button>`;
@@ -544,17 +600,18 @@ function addMissionInvite() {
 }
 
 async function startMission() {
-  const m = state.mission;
-  if (!m) return;
+  const m = twinForTarget();
+  if (!m) return toast('Pick a mission with a rover route (Perseverance or Curiosity) first.');
   if (m.planet.world && m.planet.world !== state.world) await setWorld(m.planet.world);
   stopMission();
   const card = $('card-mission');
-  state.mt = new MissionTwin(state.planet, state.earth, m, {
+  const mt = new MissionTwin(state.planet, state.earth, m, {
     onSegment: (i) => {
       card.innerHTML = P.missionCard(m, i);
     },
   });
-  state.mt.draw();
+  state.mt = mt;
+  card.innerHTML = P.missionCard(m, 0);
   card.hidden = false;
   $('mt-play').hidden = false;
   $('mt-seek').hidden = false;
@@ -563,8 +620,103 @@ async function startMission() {
   const range = Math.min(60_000, Math.max(800, extent * 1.8));
   $('earth-site').textContent = m.earth.site || 'matched path';
   card.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  await state.dive.start(s.planet, s.earth, { ...DIVE_VIEW, range });
-  state.mt?.play();
+  // Fly in first, so the ground under both routes is loaded; then measure it and draw on it.
+  await Promise.race([state.dive.start(s.planet, s.earth, { ...DIVE_VIEW, range }), new Promise((r) => setTimeout(r, 8000))]);
+  if (state.mt !== mt) return; // stopped or restarted meanwhile
+  toast('Placing both routes on the real ground…', 2500);
+  await mt.draw();
+  if (state.mt === mt) mt.play();
+}
+
+// ---------- What if... (change the target, watch Earth's matches move) ----------
+const WHATIF_RANGE = {
+  slope_deg: [0, 15, 0.1], relief_55km_m: [0, 2500, 10], lst_day_c: [-150, 130, 1], lst_night_c: [-200, 40, 1],
+  lst_swing_c: [0, 300, 1], albedo: [0, 0.8, 0.01], ndvi: [0, 0.9, 0.01],
+};
+function baseValues() {
+  return Object.fromEntries(Object.entries(state.target?.features || {})
+    .filter(([k, f]) => k in WHATIF_RANGE && f?.status === 'sourced' && typeof f.value === 'number').map(([k, f]) => [k, f.value]));
+}
+/** Best cell in each of n different named places. */
+function topPlaces(heat, n = 5) {
+  const seen = new Set(); const out = [];
+  for (const c of heat?.ranked || []) {
+    const p = P.placeName(c.lat, c.lon) || `${c.lat.toFixed(1)}, ${c.lon.toFixed(1)}`;
+    if (seen.has(p)) continue;
+    seen.add(p); out.push({ place: p, score: +c.score.toFixed(3) });
+    if (out.length === n) break;
+  }
+  return out;
+}
+function renderWhatIf() {
+  const card = $('card-whatif');
+  const base = baseValues();
+  if (!state.target || !Object.keys(base).length) { card.hidden = true; return; }
+  card.hidden = false;
+  const cur = { ...base, ...(state.whatIf || {}) };
+  const rows = Object.keys(WHATIF_RANGE).filter((k) => k in base).map((k) => {
+    const [lo, hi, st] = WHATIF_RANGE[k];
+    const m = P.featureMeta(k);
+    const changed = state.whatIf && k in state.whatIf && state.whatIf[k] !== base[k];
+    return `<div class="wi-row${changed ? ' changed' : ''}"><label for="wi-${k}">${P.esc(m.normal)}</label>
+      <input type="range" id="wi-${k}" data-dim="${k}" min="${Math.min(lo, base[k])}" max="${Math.max(hi, base[k])}" step="${st}" value="${cur[k]}">
+      <span class="wi-val">${P.esc(String(+(+cur[k]).toFixed(st < 1 ? 2 : 0)))}${m.unit ? ' ' + P.esc(m.unit) : ''}</span>
+      <span class="wi-base muted">real: ${P.esc(String(+base[k].toFixed(st < 1 ? 2 : 0)))}</span></div>`;
+  }).join('');
+  const diff = state.whatIfDiff;
+  const diffHtml = diff ? `<div class="wi-diff"><div><h4>Before</h4><ol>${diff.before.map((x) => `<li class="${diff.after.some((y) => y.place === x.place) ? '' : 'out'}">${P.esc(x.place)}</li>`).join('')}</ol></div>
+    <div><h4>After</h4><ol>${diff.after.map((x) => `<li class="${diff.before.some((y) => y.place === x.place) ? '' : 'in'}">${P.esc(x.place)}</li>`).join('')}</ol></div></div>
+    <p class="muted"><span class="in">● new</span> · <span class="out">● dropped out</span></p>` : '<p class="muted">Move a slider: all of Earth is re-scored live and the heatmap redraws.</p>';
+  card.innerHTML = `<h3>What if…</h3>
+    <p class="muted">Change ${P.esc(state.target.name)}'s measurements and see which places on Earth would match instead.</p>
+    ${rows}${diffHtml}
+    <div class="row"><button id="wi-reset"${state.whatIf ? '' : ' disabled'}>Reset to real values</button>${apiEnabled() ? `<button id="wi-explain"${diff ? '' : ' disabled'}>Explain with AI</button>` : ''}</div>
+    <div id="wi-ai"></div>`;
+  card.querySelectorAll('input[type=range]').forEach((el) => el.addEventListener('input', onWhatIfInput));
+  $('wi-reset').onclick = () => { state.whatIf = null; state.whatIfDiff = null; loadScores().then(renderWhatIf); };
+  const ex = $('wi-explain');
+  if (ex) ex.onclick = explainWhatIf;
+}
+let _wiTimer = null;
+function onWhatIfInput(e) {
+  const k = e.target.dataset.dim;
+  const v = +e.target.value;
+  const base = baseValues();
+  state.whatIf = { ...(state.whatIf || {}), [k]: v };
+  // Keep the swing consistent with day and night (swing = day - night).
+  if ((k === 'lst_day_c' || k === 'lst_night_c') && 'lst_swing_c' in base) {
+    const cur = { ...base, ...state.whatIf };
+    state.whatIf.lst_swing_c = +(cur.lst_day_c - cur.lst_night_c).toFixed(1);
+  }
+  e.target.parentElement.querySelector('.wi-val').textContent = `${+v.toFixed(e.target.step < 1 ? 2 : 0)}${P.featureMeta(k).unit ? ' ' + P.featureMeta(k).unit : ''}`;
+  clearTimeout(_wiTimer);
+  _wiTimer = setTimeout(applyWhatIf, 250);
+}
+async function applyWhatIf() {
+  if (!state.gridRaw || !state.target) return;
+  const before = state.whatIfBefore || topPlaces(state.heat);
+  state.whatIfBefore = before;
+  state.earthModel ||= buildEarthModel(state.gridRaw);
+  const vals = { ...baseValues(), ...state.whatIf };
+  const res = scoreLive(state.earthModel, vals, { id: state.target.id, world: state.world, name: `${state.target.name} (what if)` });
+  if (res.error) return toast(res.error, 4000);
+  state.scores = res;
+  await drawHeat();
+  state.whatIfDiff = { before, after: topPlaces(state.heat), gaps: Object.keys(res.earth_gaps || {}) };
+  renderWhatIf();
+}
+async function explainWhatIf() {
+  const out = $('wi-ai');
+  const base = baseValues();
+  const changes = Object.entries(state.whatIf || {}).filter(([k, v]) => v !== base[k])
+    .map(([k, v]) => ({ dim: k, label: P.featureMeta(k).normal, unit: P.featureMeta(k).unit || '', from: base[k], to: v }));
+  out.innerHTML = '<p class="empty">Writing…</p>';
+  try {
+    const r = await whatIf({ target: state.target.name, world: state.world, changes, before: state.whatIfDiff.before, after: state.whatIfDiff.after, beyond_earth_after: state.whatIfDiff.gaps });
+    out.innerHTML = `<p>${P.esc(r.text)}</p><p class="ai-label">AI-generated from the numbers above (Gemini)</p>`;
+  } catch (e) {
+    out.innerHTML = `<p class="empty">${P.esc(e.message)}</p>`;
+  }
 }
 
 // ---------- Ask the Planet + Analyst ----------
@@ -631,7 +783,11 @@ function wireUi() {
   document.querySelectorAll('.seg button').forEach((b) =>
     b.addEventListener('click', () => b.dataset.world !== state.world && setWorld(b.dataset.world)),
   );
-  $('target-select').addEventListener('change', (e) => selectTarget(e.target.value));
+  $('target-select').addEventListener('change', (e) => {
+    const v = e.target.value;
+    if (v.startsWith('mission:')) selectMission(v.slice(8));
+    else selectTarget(v);
+  });
   $('lens-select').addEventListener('change', async (e) => {
     const lens = e.target.value === '__ask' ? state.askLens : state.lenses?.lenses?.find((l) => l.id === e.target.value);
     state.weights = lens ? lens.weights : null;

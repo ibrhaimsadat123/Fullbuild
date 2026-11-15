@@ -26,7 +26,7 @@ export default {
         case 'GET /':
           res = json({
             name: 'TwinWorlds API',
-            endpoints: ['GET /health', 'GET /v1/targets', 'POST /v1/analogs', 'POST /ask', 'POST /analyst'],
+            endpoints: ['GET /health', 'GET /v1/targets', 'POST /v1/analogs', 'POST /ask', 'POST /analyst', 'POST /whatif'],
             docs: env.DOCS_URL || null,
           });
           break;
@@ -47,6 +47,9 @@ export default {
           break;
         case 'POST /analyst':
           res = json(await analystRoute(env, await readBody(request)));
+          break;
+        case 'POST /whatif':
+          res = json(await whatIfRoute(env, await readBody(request)));
           break;
         default:
           res = json({ error: `No route ${route}` }, 404);
@@ -394,4 +397,28 @@ async function analystRoute(env, b) {
   ].join(' ');
   const { text, model } = await gemini(env, { system, user: JSON.stringify(facts).slice(0, 12_000), temperature: 0.3 });
   return { text: text.trim(), label: 'AI-generated from measured data', model, ai_generated: true };
+}
+
+// ---------- /whatif ----------
+// The app changed some target values, re-scored all of Earth, and sends the top places before and after.
+async function whatIfRoute(env, b) {
+  const clip = (a, n) => (Array.isArray(a) ? a.slice(0, n) : []);
+  const facts = {
+    target: String(b.target || '').slice(0, 120),
+    world: String(b.world || '').slice(0, 10),
+    changes: clip(b.changes, 7).map((c) => ({ measurement: String(c.label || c.dim).slice(0, 60), unit: String(c.unit || '').slice(0, 10), real_value: c.from, what_if_value: c.to })),
+    top_places_before: clip(b.before, 5),
+    top_places_after: clip(b.after, 5),
+    beyond_anything_on_earth_after: clip(b.beyond_earth_after, 7),
+  };
+  if (!facts.changes.length) throw httpError(400, 'No changes to explain');
+  const system = [
+    'You explain a what-if experiment in TwinWorlds, a tool that finds places on Earth that match a site on Mars or the Moon.',
+    'The user changed some measurements of the site; all of Earth was re-scored. Explain in plain English why the best-matching Earth places changed.',
+    'Use ONLY the data given. Do not invent places, numbers or facts not in it. Mention which places entered or left the top list.',
+    'If a changed value is beyond anything on Earth, say no place on Earth can match it, so it no longer helps choose between places.',
+    '3 to 4 sentences. No headings, no lists.',
+  ].join(' ');
+  const { text, model } = await gemini(env, { system, user: JSON.stringify(facts), temperature: 0.3 });
+  return { text: text.trim(), label: 'AI-generated from the numbers given', model, ai_generated: true };
 }

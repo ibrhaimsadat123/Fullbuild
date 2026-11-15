@@ -105,6 +105,7 @@ export default defineConfig({
     proxy: {
       '/pds': { target: 'https://pds-geosciences.wustl.edu', changeOrigin: true, rewrite: (p) => p.replace(/^\/pds/, '') },
       '/marsnasa': { target: 'https://mars.nasa.gov', changeOrigin: true, rewrite: (p) => p.replace(/^\/marsnasa/, '') },
+      '/mcd': { target: 'https://www-mars.lmd.jussieu.fr', changeOrigin: true, rewrite: (p) => p.replace(/^\/mcd/, '') },
     },
   },
   build: {

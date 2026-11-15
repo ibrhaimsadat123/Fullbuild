@@ -12,7 +12,8 @@ AI-assisted code (Claude). Method: PROJECT.md Section 12 (Mission Twin path matc
    plus Hingol, Atacama, Qaidam). The route's real shape is tried at every 400 m offset and
    every 15 degrees of rotation. Paths over perfectly flat ground (water, filled gaps) are rejected.
 4. Each candidate's segment sequence is compared with Mars by Dynamic Time Warping (window 2),
-   per-segment cost = ((dslope / 0.5 deg)^2 + (dclimb / 3 m)^2); segment match = exp(-cost / 2).
+   per-segment cost = (dslope / 0.5 deg)^2 + (dclimb / max(3 m, 25% of the Mars climb))^2; match = exp(-cost / 2).
+   The route shape is tried rotated (every 15 deg) and mirrored.
 5. Output data/processed/mission_twin.json (shape: frontend/DATA-SHAPES.md).
 
 Run from the repo root:  python pipeline/mission_twin.py
@@ -21,29 +22,50 @@ import json, glob, os, math
 import numpy as np
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-SRC = os.path.join(ROOT, "data", "sources", "mission", "M20_traverse.json")
-RAW = os.path.join(ROOT, "data", "raw", "mission")
-OUT = os.path.join(ROOT, "data", "processed", "mission_twin.json")
-SOL0, SOL1 = 388, 420
+SRCDIR = os.path.join(ROOT, "data", "sources", "mission")
+RAWDIR = os.path.join(ROOT, "data", "raw", "mission")
+OUTDIR = os.path.join(ROOT, "data", "processed")
+
+# One entry per mission. Routes are NASA/JPL-Caltech public traverse files from mars.nasa.gov (MMGIS).
+MISSIONS = {
+    "perseverance": dict(
+        rover="Perseverance", target="jezero", file="M20_traverse.json", kind="traverse", sols=(388, 420),
+        title="Perseverance, Jezero crater floor to the delta front (sols 388-420)",
+        ends=["Start, sol 388", "Delta front, sol 419"], earth_ends=["Start", "Climb (delta-front twin)"],
+        source="NASA/JPL-Caltech Mars 2020 traverse (mars.nasa.gov MMGIS M20_traverse.json), sols 388-420; elevations from rover localization"),
+    "curiosity": dict(
+        rover="Curiosity", target="mission:curiosity", file="MSL_waypoints.json", kind="waypoints", dist=(14000, 18000),
+        title="Curiosity, climbing Mount Sharp toward Vera Rubin ridge",
+        ends=None, earth_ends=["Start", "End of climb"],
+        source="NASA/JPL-Caltech MSL waypoints (mars.nasa.gov MMGIS MSL_waypoints.json), 14-18 km of total drive; elevations relative to the Mars geoid"),
+}
 STEP, SEG = 25.0, 250.0
 S_SLOPE, S_CLIMB = 0.5, 3.0
 R_MARS = 3389500.0
 rad = math.pi / 180
 
 
-def mars_route():
-    j = json.load(open(SRC))
+def mars_route(cfg):
     pts, sols = [], []
-    for f in j["features"]:
-        s = f["properties"]["sol"]
-        if not (SOL0 <= s <= SOL1):
-            continue
-        g = f["geometry"]
-        cs = g["coordinates"] if g["type"] == "LineString" else [c for part in g["coordinates"] for c in part]
-        for c in cs:
-            if c[2] == 0 or (pts and pts[-1][:2] == c[:2]):
+    j = json.load(open(os.path.join(SRCDIR, cfg["file"])))
+    if cfg["kind"] == "traverse":
+        s0, s1 = cfg["sols"]
+        for f in j["features"]:
+            s = f["properties"]["sol"]
+            if not (s0 <= s <= s1):
                 continue
-            pts.append(c[:3]); sols.append(s)
+            g = f["geometry"]
+            cs = g["coordinates"] if g["type"] == "LineString" else [c for part in g["coordinates"] for c in part]
+            for c in cs:
+                if c[2] == 0 or (pts and pts[-1][:2] == c[:2]):
+                    continue
+                pts.append(c[:3]); sols.append(s)
+    else:  # waypoints with sol, lon, lat, elev_geoid, dist_total_m
+        d0, d1 = cfg["dist"]
+        for f in j["features"]:
+            p = f["properties"]
+            if d0 <= p["dist_total_m"] <= d1 and not (pts and pts[-1][:2] == [p["lon"], p["lat"]]):
+                pts.append([p["lon"], p["lat"], p["elev_geoid"]]); sols.append(p["sol"])
     P = np.array(pts)
     dx = np.diff(P[:, 0]) * rad * R_MARS * np.cos(P[1:, 1] * rad)
     dy = np.diff(P[:, 1]) * rad * R_MARS
@@ -68,9 +90,14 @@ def seg_features(z):
     return np.array(out)
 
 
+def climb_sigma(A):
+    return np.maximum(S_CLIMB, 0.25 * np.abs(A[:, 1]))
+
+
 def dtw(A, B, w=2):
     n, m = len(A), len(B)
-    C = ((A[:, None, 0] - B[None, :, 0]) / S_SLOPE) ** 2 + ((A[:, None, 1] - B[None, :, 1]) / S_CLIMB) ** 2
+    sc = climb_sigma(A)[:, None]
+    C = ((A[:, None, 0] - B[None, :, 0]) / S_SLOPE) ** 2 + ((A[:, None, 1] - B[None, :, 1]) / sc) ** 2
     D = np.full((n + 1, m + 1), np.inf); D[0, 0] = 0
     for i in range(1, n + 1):
         for j in range(max(1, i - w), min(m, i + w) + 1):
@@ -100,43 +127,46 @@ def search(route, A, g):
     la, lo = g["center"]
     mlat, mlon = 111320.0, 111320.0 * math.cos(la * rad)
     best = None
-    E, N = route["east"], route["north"]
     half = (g["n"] - 1) * 50 / 2
-    for th in range(0, 360, 15):
-        c, s_ = math.cos(th * rad), math.sin(th * rad)
-        e = E * c - N * s_; nn = E * s_ + N * c
-        e -= (e.min() + e.max()) / 2; nn -= (nn.min() + nn.max()) / 2
-        span_e, span_n = (e.max() - e.min()) / 2, (nn.max() - nn.min()) / 2
-        for oy in np.arange(-half + span_n + 100, half - span_n - 100, 400):
-            for ox in np.arange(-half + span_e + 100, half - span_e - 100, 400):
-                lat = la + (nn + oy) / mlat; lon = lo + (e + ox) / mlon
-                z = bilinear(g, lat, lon)
-                if np.isnan(z).any():
-                    continue
-                if (np.abs(np.diff(z)) < 0.05).mean() > 0.3:   # water or filled gaps
-                    continue
-                B = seg_features(z)
-                cost = (((A[:, 0] - B[:, 0]) / S_SLOPE) ** 2 + ((A[:, 1] - B[:, 1]) / S_CLIMB) ** 2).mean()
-                if best is None or cost < best[0]:
-                    best = (cost, th, lat, lon, z, B)
+    sc = climb_sigma(A)
+    for mirror in (False, True):
+      E, N = route["east"], (-route["north"] if mirror else route["north"])
+      for th in range(0, 360, 15):
+          c, s_ = math.cos(th * rad), math.sin(th * rad)
+          e = E * c - N * s_; nn = E * s_ + N * c
+          e -= (e.min() + e.max()) / 2; nn -= (nn.min() + nn.max()) / 2
+          span_e, span_n = (e.max() - e.min()) / 2, (nn.max() - nn.min()) / 2
+          for oy in np.arange(-half + span_n + 100, half - span_n - 100, 400):
+              for ox in np.arange(-half + span_e + 100, half - span_e - 100, 400):
+                  lat = la + (nn + oy) / mlat; lon = lo + (e + ox) / mlon
+                  z = bilinear(g, lat, lon)
+                  if np.isnan(z).any():
+                      continue
+                  if (np.abs(np.diff(z)) < 0.05).mean() > 0.3:   # water or filled gaps
+                      continue
+                  B = seg_features(z)
+                  cost = (((A[:, 0] - B[:, 0]) / S_SLOPE) ** 2 + ((A[:, 1] - B[:, 1]) / sc) ** 2).mean()
+                  if best is None or cost < best[0]:
+                      best = (cost, th + (1000 if mirror else 0), lat, lon, z, B)
     return best
 
 
 def label(slope, climb):
-    if climb > 8: return "steep climb"
+    if climb > 8 and slope > 3: return "steep climb"
+    if climb > 8: return "steady climb"
     if climb < -8: return "steep descent"
     if slope < 0.8: return "flat"
     if slope < 1.5: return "gentle, rolling"
     return "uneven"
 
 
-def main():
-    route = mars_route()
+def run(mid, cfg):
+    route = mars_route(cfg)
     A = seg_features(route["z"])
     per = int(SEG / STEP)
     print(f"Mars: {route['s'][-1]:.0f} m, {len(A)} segments")
     results = []
-    for f in sorted(glob.glob(os.path.join(RAW, "earth_*.json"))):
+    for f in sorted(glob.glob(os.path.join(RAWDIR, mid, "earth_*.json"))):
         g = json.load(open(f))
         g["H"] = np.array(g["h"], dtype="float64").reshape(g["n"], g["n"])
         b = search(route, A, g)
@@ -171,26 +201,32 @@ def main():
         if first_sol != last:
             day += 1; last = first_sol
             itinerary.append({"day": day, "time": "10:30", "segment": sg["id"],
-                              "text": f"Segment {sg['id']} onward ({sg['label']}), as Perseverance drove from sol {first_sol}"})
+                              "text": f"Segment {sg['id']} onward ({sg['label']}), as {cfg['rover']} drove from sol {first_sol}"})
     others = [{"site": r[1]["name"], "dtw_cost": round(r[0], 2), "mean_match": round(float(np.exp(-np.diag(r[4]) / 2).mean()), 2)} for r in results]
+    sol_lo, sol_hi = int(route["sol"].min()), int(route["sol"].max())
+    ends = cfg["ends"] or [f"Start, sol {sol_lo}", f"End, sol {sol_hi}"]
     out = {
-        "mission": "Perseverance, Jezero crater floor to the delta front (sols 388-420)",
+        "id": mid,
+        "mission": cfg["title"],
         "playback_seconds": 28,
         "distance_km": round(float(route["s"][-1]) / 1000, 1),
-        "planet": {"world": "mars", "target": "jezero", "rover": "Perseverance", "path": planet_path, "ends": [f"Start, sol {SOL0}", "Delta front, sol 419"],
-                   "source": "NASA/JPL-Caltech Mars 2020 traverse (mars.nasa.gov MMGIS M20_traverse.json), sols 388-420; elevations from rover localization"},
-        "earth": {"site": g["name"], "rover": "Earth twin", "path": earth_path, "ends": ["Start", "Climb (delta-front twin)"],
-                  "source": f"Route shape matched on Cesium World Terrain (50 m grid), rotated {th} deg; Dynamic Time Warping on segment slope and climb"},
+        "planet": {"world": "mars", "target": cfg["target"], "rover": cfg["rover"], "path": planet_path, "ends": ends,
+                   "source": cfg["source"]},
+        "earth": {"site": g["name"], "rover": "Earth twin", "path": earth_path, "ends": cfg["earth_ends"],
+                  "source": f"Route shape matched on Cesium World Terrain (50 m grid), rotated {th % 1000} deg{' and mirrored' if th >= 1000 else ''}; Dynamic Time Warping on segment slope and climb"},
         "segments": segs,
         "itinerary": itinerary,
         "candidates": others,
-        "method": "250 m segments; fingerprint = mean slope (50 m baseline) and climb; Earth paths = the real route shape at every 400 m offset and 15 deg rotation in 16 x 16 km candidate regions; DTW window 2; match = exp(-cost/2), cost = (dslope/0.5 deg)^2 + (dclimb/3 m)^2. Sub-metre roughness is not compared (1 m HiRISE on Mars vs ~30 m terrain on Earth).",
+        "method": "250 m segments; fingerprint = mean slope (50 m baseline) and climb; Earth paths = the real route shape at every 400 m offset and 15 deg rotation in 16 x 16 km candidate regions; DTW window 2; match = exp(-cost/2), cost = (dslope/0.5 deg)^2 + (dclimb/max(3 m, 25% of the Mars climb))^2; shape tried rotated and mirrored. Sub-metre roughness is not compared (1 m HiRISE on Mars vs ~30 m terrain on Earth).",
         "timing_note": "A Mars day (sol) is about 24 h 39 min and Mars seasons are about twice as long. We match ground conditions, not clocks: one rehearsal day per sol of driving, at 10:30 local time (the hour our temperatures are compared at).",
     }
-    json.dump(out, open(OUT, "w"), indent=1)
+    json.dump(out, open(os.path.join(OUTDIR, f"mission_twin_{mid}.json"), "w"), indent=1)
     print("best:", g["name"], "mean segment match", round(float(np.mean([s['match'] or 0 for s in segs])), 2))
     for s in segs: print(s["id"], s["label"], s["sols"], s["planet"], s["earth"], s["match"])
 
 
 if __name__ == "__main__":
-    main()
+    import sys
+    for mid in (sys.argv[1:] or MISSIONS):
+        print(f"\n=== {mid} ===")
+        run(mid, MISSIONS[mid])

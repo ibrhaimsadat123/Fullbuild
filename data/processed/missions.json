@@ -1,0 +1,156 @@
+{
+ "note": "NASA landing sites. Selecting one scores that exact spot against all of Earth, live, from mars_grid.json / moon_grid.json.",
+ "source": "Landing coordinates as listed in Wikipedia, 'List of landings on extraterrestrial bodies' (accessed 15 Nov 2026), from NASA mission data",
+ "missions": [
+  {
+   "id": "viking1",
+   "world": "mars",
+   "name": "Viking 1 lander (1976)",
+   "kind": "lander",
+   "lat": 22.697,
+   "lon": -48.222,
+   "why": "First successful US Mars landing, Chryse Planitia",
+   "twin": null
+  },
+  {
+   "id": "viking2",
+   "world": "mars",
+   "name": "Viking 2 lander (1976)",
+   "kind": "lander",
+   "lat": 48.269,
+   "lon": 134.01,
+   "why": "Utopia Planitia; saw frost on the ground",
+   "twin": null
+  },
+  {
+   "id": "pathfinder",
+   "world": "mars",
+   "name": "Mars Pathfinder + Sojourner (1997)",
+   "kind": "rover",
+   "lat": 19.13,
+   "lon": -33.22,
+   "why": "First Mars rover, Ares Vallis flood plain",
+   "twin": null
+  },
+  {
+   "id": "spirit",
+   "world": "mars",
+   "name": "Spirit rover (2004)",
+   "kind": "rover",
+   "lat": -14.5718,
+   "lon": 175.4785,
+   "why": "Gusev crater; found silica deposits from hot springs",
+   "twin": null
+  },
+  {
+   "id": "opportunity",
+   "world": "mars",
+   "name": "Opportunity rover (2004)",
+   "kind": "rover",
+   "lat": -1.9462,
+   "lon": -5.5266,
+   "why": "Meridiani Planum; drove 45 km over 14 years",
+   "twin": null
+  },
+  {
+   "id": "phoenix",
+   "world": "mars",
+   "name": "Phoenix lander (2008)",
+   "kind": "lander",
+   "lat": 68.2188,
+   "lon": -125.7492,
+   "why": "Arctic plains; dug up water ice",
+   "twin": null
+  },
+  {
+   "id": "curiosity",
+   "world": "mars",
+   "name": "Curiosity rover (2012)",
+   "kind": "rover",
+   "lat": -4.5895,
+   "lon": 137.4417,
+   "why": "Gale crater; climbing Mount Sharp",
+   "twin": null
+  },
+  {
+   "id": "insight",
+   "world": "mars",
+   "name": "InSight lander (2018)",
+   "kind": "lander",
+   "lat": 4.5,
+   "lon": 135.9,
+   "why": "Elysium Planitia; measured marsquakes",
+   "twin": null
+  },
+  {
+   "id": "perseverance",
+   "world": "mars",
+   "name": "Perseverance rover (2021)",
+   "kind": "rover",
+   "lat": 18.4447,
+   "lon": 77.4508,
+   "why": "Jezero crater; ancient lake and delta, collecting samples",
+   "twin": "jezero"
+  },
+  {
+   "id": "apollo11",
+   "world": "moon",
+   "name": "Apollo 11 (1969)",
+   "kind": "crewed",
+   "lat": 0.6740806,
+   "lon": 23.4729694,
+   "why": "First crewed landing, Mare Tranquillitatis",
+   "twin": null
+  },
+  {
+   "id": "apollo12",
+   "world": "moon",
+   "name": "Apollo 12 (1969)",
+   "kind": "crewed",
+   "lat": -3.012389,
+   "lon": -23.421569,
+   "why": "Oceanus Procellarum, beside Surveyor 3",
+   "twin": null
+  },
+  {
+   "id": "apollo14",
+   "world": "moon",
+   "name": "Apollo 14 (1971)",
+   "kind": "crewed",
+   "lat": -3.6453,
+   "lon": -17.4713611,
+   "why": "Fra Mauro highlands",
+   "twin": null
+  },
+  {
+   "id": "apollo15",
+   "world": "moon",
+   "name": "Apollo 15 (1971)",
+   "kind": "crewed",
+   "lat": 26.1322194,
+   "lon": 3.6338611,
+   "why": "Hadley Rille; first lunar rover",
+   "twin": null
+  },
+  {
+   "id": "apollo16",
+   "world": "moon",
+   "name": "Apollo 16 (1972)",
+   "kind": "crewed",
+   "lat": -8.9730111,
+   "lon": 15.5001889,
+   "why": "Descartes highlands",
+   "twin": null
+  },
+  {
+   "id": "apollo17",
+   "world": "moon",
+   "name": "Apollo 17 (1972)",
+   "kind": "crewed",
+   "lat": 20.1908,
+   "lon": 30.7716806,
+   "why": "Taurus-Littrow valley; last crewed landing",
+   "twin": null
+  }
+ ]
+}

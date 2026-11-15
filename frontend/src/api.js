@@ -36,3 +36,8 @@ export function askPlanet({ question, target, dims, lenses }) {
 export function analyst(payload) {
   return post('/analyst', payload);
 }
+
+/** What-if: Gemini explains how changing target values changed Earth's best matches (numbers only). */
+export function whatIf(payload) {
+  return post('/whatif', payload);
+}
