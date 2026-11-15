@@ -33,6 +33,6 @@ Then set `VITE_API_BASE` in the frontend to the `workers.dev` URL that the deplo
 
 ## Notes
 
-- `GEMINI_MODEL` in `wrangler.jsonc` is `gemini-2.5-flash`. Change it there if Google retires that name.
+- `GEMINI_MODEL` in `wrangler.jsonc` is a comma-separated list. Models are tried in order; a retired (404) or busy (429/5xx) model falls through to the next.
 - Free Workers plans allow little CPU per request. Parsing a full 60k-cell `scores_<target>.json` can exceed it, so `/v1/analogs` uses `top_<target>.json` when it exists (see `frontend/DATA-SHAPES.md`).
 - `GEMINI_BASE_URL` is only for local tests against a mock server. Leave it unset in production.

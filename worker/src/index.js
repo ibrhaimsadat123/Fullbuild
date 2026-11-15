@@ -273,7 +273,9 @@ const round = (n) => Math.round(n * 1e4) / 1e4;
 // ---------- Gemini ----------
 async function gemini(env, { system, user, schema, temperature = 0.2 }) {
   if (!env.GEMINI_API_KEY) throw httpError(503, 'Gemini is not configured on the backend yet');
-  const model = env.GEMINI_MODEL || 'gemini-2.5-flash';
+  // GEMINI_MODEL may list several names, comma-separated. If Google has retired one
+  // (404) or a model is busy (429/5xx), the next is tried, so a renamed model does not break the app.
+  const models = String(env.GEMINI_MODEL || 'gemini-flash-latest').split(',').map((m) => m.trim()).filter(Boolean);
   const body = {
     systemInstruction: { parts: [{ text: system }] },
     contents: [{ role: 'user', parts: [{ text: user }] }],
@@ -283,19 +285,26 @@ async function gemini(env, { system, user, schema, temperature = 0.2 }) {
   };
   // GEMINI_BASE_URL is only for local tests against a mock server.
   const base = env.GEMINI_BASE_URL || 'https://generativelanguage.googleapis.com';
-  const r = await fetch(`${base}/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'x-goog-api-key': env.GEMINI_API_KEY },
-    body: JSON.stringify(body),
-  });
-  const j = await r.json().catch(() => ({}));
-  if (!r.ok) {
-    console.error('Gemini error', r.status, JSON.stringify(j).slice(0, 500));
-    throw httpError(502, `Gemini returned ${r.status}`);
+  let lastStatus = 0;
+  for (const model of models) {
+    const r = await fetch(`${base}/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-goog-api-key': env.GEMINI_API_KEY },
+      body: JSON.stringify(body),
+    });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) {
+      lastStatus = r.status;
+      console.error('Gemini error', model, r.status, JSON.stringify(j).slice(0, 500));
+      // 404 = retired name; 429/5xx = busy or not served on this plan. Try the next model.
+      if (r.status === 404 || r.status === 429 || r.status >= 500) continue;
+      throw httpError(502, `Gemini returned ${r.status}`);
+    }
+    const text = j.candidates?.[0]?.content?.parts?.map((p) => p.text || '').join('') || '';
+    if (!text) throw httpError(502, 'Gemini returned no text');
+    return { text, model };
   }
-  const text = j.candidates?.[0]?.content?.parts?.map((p) => p.text || '').join('') || '';
-  if (!text) throw httpError(502, 'Gemini returned no text');
-  return { text, model };
+  throw httpError(502, `Gemini returned ${lastStatus} for every model name tried`);
 }
 
 // ---------- /ask ----------
