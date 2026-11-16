@@ -26,3 +26,12 @@ Tested on the dev build (same code as twinworlds.pages.dev): all 12 Mars and 8 M
 - Fixed: switching targets quickly could stack two heatmaps and threw "Cannot read properties of null (reading 'res')". Heatmap drawing now discards a layer that finished loading after a newer request.
 - Swept all 12 Mars and 8 Moon sites again after the redesign: 0 JavaScript errors, cards appear in the right tabs, temperature warning shows for Phoenix, all Apollo sites and the Tranquillitatis pit.
 - Data weight on first load: ~23 MB uncompressed in dev (scores 4.3 MB, Earth grid 5.6 MB, Mars grid 3.2 MB); Cloudflare compresses JSON, so roughly 4-6 MB over the wire.
+
+## Pass 4: load and judge-suggested improvements
+
+- Smoother first load: the splash now waits for both globes' first tiles (at most 4 s, forced after 12 s), then the two panes open from the seam; the side drawer and dock stay hidden until then. Verified in the browser: `body.ready` set, splash removed, heatmap drawn.
+- Lazy tabs: Science and Explore cards render only when their tab is opened (always on phones, where all cards stack).
+- Top places: new "Closest / Spread worldwide" toggle. Spread keeps each pick at least 2,000 km from the ones above it. Jezero: Kunlun, Gobi (China), Iceland, Patagonia, Iran, Altiplano.
+- Sky card for click-anywhere Mars spots uses the nearest modelled point within 1,500 km and says so.
+- Fixed: Sky card showed coordinates instead of the Earth place name when it rendered before place names loaded.
+- Minerals: Jezero and Perseverance now show Perseverance's own SuperCam chemistry of the Máaz crater floor (SiO2 48-50, Al2O3 9.3-10, FeO 18-19 wt%). Only the oxides the paper reports are shown; no full PIXL table was found, so none is invented.

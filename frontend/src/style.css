@@ -438,9 +438,12 @@ body.world-moon #card-target { border-left-color: #8C93A3; background: linear-gr
 
 /* The one orchestrated moment: on load the two worlds slide apart from the seam */
 @media (min-width: 821px) {
-  #pane-planet { animation: partL 1.1s cubic-bezier(.2,.8,.2,1) .15s both; }
-  #pane-earth { animation: partR 1.1s cubic-bezier(.2,.8,.2,1) .15s both; }
-  .drawer { animation: drawerIn .7s cubic-bezier(.2,.8,.2,1) .9s both; }
+  body:not(.ready) #pane-planet { clip-path: inset(0 0 0 100%); } body:not(.ready) #pane-earth { clip-path: inset(0 100% 0 0); }
+  body:not(.ready) .drawer, body:not(.ready) .dive-hud { opacity: 0; }
+  body.ready #pane-planet { animation: partL 1s cubic-bezier(.2,.8,.2,1) .25s both; }
+  body.ready #pane-earth { animation: partR 1s cubic-bezier(.2,.8,.2,1) .25s both; }
+  body.ready .drawer { animation: drawerIn .6s cubic-bezier(.2,.8,.2,1) .8s both; }
+  body.ready .dive-hud { animation: fadeIn .5s ease 1s both; }
 }
 @keyframes partL { from { clip-path: inset(0 0 0 100%); } to { clip-path: inset(0 0 0 0); } }
 @keyframes partR { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
@@ -456,3 +459,13 @@ body.world-moon #card-target { border-left-color: #8C93A3; background: linear-gr
 
 .loc-note { font-size: 12.5px; color: var(--muted); border-left: 3px solid var(--mars); padding: 2px 0 2px 8px; margin: 6px 0 8px; }
 .loc-note b { color: var(--text); }
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+#splash { transition: opacity .6s ease .1s, visibility .7s; }
+.sp-sub::after { content: ''; display: block; height: 2px; margin: 12px auto 0; width: 160px; background: linear-gradient(90deg, transparent, var(--accent), transparent); background-size: 200% 100%; animation: spBar 1.4s linear infinite; }
+@keyframes spBar { from { background-position: 100% 0; } to { background-position: -100% 0; } }
+@media (prefers-reduced-motion: reduce) { body:not(.ready) #pane-planet, body:not(.ready) #pane-earth { clip-path: none; } body:not(.ready) .drawer, body:not(.ready) .dive-hud { opacity: 1; } }
+
+.top-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 12px; }
+.top-head h4 { margin: 0; }
+.mini-seg button { font-size: 11.5px; padding: 3px 8px; }

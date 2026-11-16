@@ -121,3 +121,7 @@ Approximate public coordinates for Atacama (Yungay), Haughton Crater, McMurdo Dr
 ## Landsat then and now (added Sun 15 Nov)
 
 - USGS/NASA Landsat Collection 2 Level-2 surface reflectance via Google Earth Engine (`pipeline/landsat_colab.py`). Then: Landsat 5 TM 1985-1990, median of clear pixels (QA_PIXEL cloud and shadow bits). Now: Landsat 8 and 9 OLI 2023-2024. True colour, same stretch. 10 sites, 0.5 x 0.5 deg boxes. Images in `frontend/public/landsat/` with `index.json` (scene counts per site).
+
+## Perseverance crater-floor chemistry (Jezero note in Minerals)
+- Udry, A. et al. (2022) The igneous nature of the Máaz formation, Jezero crater. LPSC 53. SuperCam LIBS major oxides. https://ntrs.nasa.gov/citations/20220000502
+- Values used: SiO2 48-50, Al2O3 9.3-10, FeO 18-19 wt%. Stored in data/processed/minerals.json as site_notes.

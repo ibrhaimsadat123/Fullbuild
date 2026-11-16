@@ -19,7 +19,7 @@ for tid, t in src["targets"].items():
     water = [round(r[1], 4) for r in t["col_h2ovapor"]["rows"]]
     oz = [round(r[1] / DU, 3) for r in t["col_o3"]["rows"]]
     m = lambda a: round(sum(a) / len(a), 4)
-    out["targets"][tid] = {"name": t["name"], "ls": ls, "dust": dust, "water_mm": water, "ozone_du": oz,
+    out["targets"][tid] = {"name": t["name"], "lat": t["lat"], "lon": t["lon"], "ls": ls, "dust": dust, "water_mm": water, "ozone_du": oz,
                            "mean": {"dust": m(dust), "water_mm": m(water), "ozone_du": m(oz)},
                            "max": {"dust": max(dust), "water_mm": max(water), "ozone_du": max(oz)}}
     print(tid, out["targets"][tid]["mean"], out["targets"][tid]["max"])

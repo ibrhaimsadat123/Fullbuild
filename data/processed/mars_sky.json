@@ -12,6 +12,8 @@
  "targets": {
   "jezero": {
    "name": "Jezero crater floor",
+   "lat": 18.44,
+   "lon": 77.45,
    "ls": [
     0,
     15,
@@ -133,6 +135,8 @@
   },
   "acidalia": {
    "name": "Acidalia Planitia mound field",
+   "lat": 44,
+   "lon": -30,
    "ls": [
     0,
     15,
@@ -254,6 +258,8 @@
   },
   "arcadia": {
    "name": "Arcadia Planitia",
+   "lat": 40,
+   "lon": -165,
    "ls": [
     0,
     15,
@@ -375,6 +381,8 @@
   },
   "mission:viking1": {
    "name": "Viking 1 lander (1976)",
+   "lat": 22.697,
+   "lon": -48.222,
    "ls": [
     0,
     15,
@@ -496,6 +504,8 @@
   },
   "mission:viking2": {
    "name": "Viking 2 lander (1976)",
+   "lat": 48.269,
+   "lon": 134.01,
    "ls": [
     0,
     15,
@@ -617,6 +627,8 @@
   },
   "mission:pathfinder": {
    "name": "Mars Pathfinder + Sojourner (1997)",
+   "lat": 19.13,
+   "lon": -33.22,
    "ls": [
     0,
     15,
@@ -738,6 +750,8 @@
   },
   "mission:spirit": {
    "name": "Spirit rover (2004)",
+   "lat": -14.5718,
+   "lon": 175.4785,
    "ls": [
     0,
     15,
@@ -859,6 +873,8 @@
   },
   "mission:opportunity": {
    "name": "Opportunity rover (2004)",
+   "lat": -1.9462,
+   "lon": -5.5266,
    "ls": [
     0,
     15,
@@ -980,6 +996,8 @@
   },
   "mission:phoenix": {
    "name": "Phoenix lander (2008)",
+   "lat": 68.2188,
+   "lon": -125.7492,
    "ls": [
     0,
     15,
@@ -1101,6 +1119,8 @@
   },
   "mission:curiosity": {
    "name": "Curiosity rover (2012)",
+   "lat": -4.5895,
+   "lon": 137.4417,
    "ls": [
     0,
     15,
@@ -1222,6 +1242,8 @@
   },
   "mission:insight": {
    "name": "InSight lander (2018)",
+   "lat": 4.502,
+   "lon": 135.623,
    "ls": [
     0,
     15,
@@ -1343,6 +1365,8 @@
   },
   "mission:perseverance": {
    "name": "Perseverance rover (2021)",
+   "lat": 18.4447,
+   "lon": 77.4508,
    "ls": [
     0,
     15,

@@ -103,7 +103,7 @@ export function tierChip(tier) {
   return `<span class="tier" style="background:${c}" title="Among the best ${esc(label.replace('Top ', ''))} of Earth's land for this target">${esc(label)}</span>`;
 }
 
-export function matchEmpty({ target, scoresError, heat, scores, exclude = null }) {
+export function matchEmpty({ target, scoresError, heat, scores, exclude = null, spread = false }) {
   if (scoresError) {
     return `<h3>Earth matches</h3>
       <p class="empty">Waiting for the similarity engine: ${esc(scoresError)}.</p>
@@ -113,13 +113,17 @@ export function matchEmpty({ target, scoresError, heat, scores, exclude = null }
   // Best cell in each of 5 different named places (falls back to raw cells without names).
   const seen = new Set();
   const picks = [];
+  const km = (a, b) => { const r = Math.PI / 180; const h = Math.sin((b.lat - a.lat) * r / 2) ** 2 + Math.cos(a.lat * r) * Math.cos(b.lat * r) * Math.sin((b.lon - a.lon) * r / 2) ** 2; return 12742 * Math.asin(Math.min(1, Math.sqrt(h))); };
+  const N = spread ? 6 : 5;
   for (const c of heat.ranked) {
     if (exclude && exclude(c)) continue;
     const p = placeOf(c.lat, c.lon);
     if (p && seen.has(p)) continue;
+    // Spread view: each pick at least 2,000 km from the ones above it, so one region cannot fill the list.
+    if (spread && picks.some((q) => km(q, c) < 2000)) continue;
     if (p) seen.add(p);
     picks.push(c);
-    if (picks.length === 5) break;
+    if (picks.length === N) break;
   }
   const top = picks
     .map((c, i) => `<tr data-lat="${c.lat}" data-lon="${c.lon}" class="top-row" style="cursor:pointer">
@@ -128,7 +132,9 @@ export function matchEmpty({ target, scoresError, heat, scores, exclude = null }
   return `<h3>Earth matches</h3>
     <p class="muted">Click anywhere on Earth to see how well it matches ${esc(target?.name || 'the target')}.</p>
     ${tempWarning(scores)}
-    <h4>Top places${exclude ? ' <span class="chip">undiscovered only</span>' : ''}</h4><table class="kv">${top}</table>${exclude ? '<p class="muted">Hidden: anywhere within 3\u00b0 of a well-studied (Benchmark) analog site.</p>' : ''}${scoresMeta(scores)}`;
+    <div class="top-head"><h4>Top places${exclude ? ' <span class="chip">undiscovered only</span>' : ''}</h4>
+      <div class="seg mini-seg" role="group" aria-label="List style"><button data-spread="0" class="${spread ? '' : 'on'}">Closest</button><button data-spread="1" class="${spread ? 'on' : ''}">Spread worldwide</button></div></div>
+    <table class="kv">${top}</table>${spread ? '<p class="muted">Each place is at least 2,000 km from the ones above it, so you see the best option in different parts of the world, not just the single best region.</p>' : ''}${exclude ? '<p class="muted">Hidden: anywhere within 3\u00b0 of a well-studied (Benchmark) analog site.</p>' : ''}${scoresMeta(scores)}`;
 }
 
 export function matchCell({ cell, target, earthRow, grid, apiOn, scores }) {

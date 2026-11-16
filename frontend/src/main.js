@@ -31,7 +31,7 @@ import { apiEnabled, askPlanet, analyst, whatIf, whenBest, liveNow, fieldBrief }
 import * as P from './panels.js';
 
 const $ = (id) => document.getElementById(id);
-queueMicrotask(() => { if (import.meta.env.DEV) window.__tw = state; });
+queueMicrotask(() => { if (import.meta.env.DEV) { window.__tw = state; window.__P = P; } });
 
 const state = {
   world: 'mars',
@@ -94,7 +94,7 @@ async function loadSide() {
     const m = new Map();
     grid.data.cells.forEach((r, i) => m.set(cellKey(r[iLa], r[iLo], res), pl.data.names[pl.data.cells[i]]));
     P.setPlaceLookup((lat, lon) => m.get(cellKey(lat, lon, res)) || '');
-    if (state.target) { renderMatch(); resetTime(); }
+    if (state.target) { renderMatch(); resetTime(); renderSky(); }
   });
   updateMissionButton();
   addMissionInvite();
@@ -391,7 +391,8 @@ function renderMatch() {
   if (state.cell && (state.scores || state.grid)) return selectCell(state.cell.lat, state.cell.lon);
   state.radar?.destroy();
   state.radar = null;
-  $('card-match').innerHTML = P.matchEmpty({ target: state.target, scoresError: state.scoresError, heat: state.heat, scores: state.scores, exclude: benchmarkFilter() });
+  $('card-match').innerHTML = P.matchEmpty({ target: state.target, scoresError: state.scoresError, heat: state.heat, scores: state.scores, exclude: benchmarkFilter(), spread: !!state.spread });
+  document.querySelectorAll('[data-spread]').forEach((b) => b.addEventListener('click', () => { state.spread = b.dataset.spread === '1'; renderMatch(); }));
   document.querySelectorAll('.top-row').forEach((tr) =>
     tr.addEventListener('click', () => selectCell(+tr.dataset.lat, +tr.dataset.lon, true)),
   );
@@ -669,10 +670,28 @@ async function loadNerd(site) {
 }
 
 // ---------- Splash ----------
-function hideSplash() { const el = document.getElementById('splash'); if (el && !el.classList.contains('out')) { el.classList.add('out'); setTimeout(() => el.remove(), 800); } }
-setTimeout(hideSplash, 9000);
+// Wait until the heatmap is drawn AND the globes have their first tiles (or 4 s), so the reveal is not a pop-in.
+let _splashDone = false;
+async function hideSplash(force = false) {
+  if (_splashDone) return;
+  if (!force) {
+    const t0 = performance.now();
+    const settled = () => (state.earth?.viewer.scene.globe.tilesLoaded ?? true)
+      && (state.planet?.tileset ? state.planet.tileset.tilesLoaded !== false : (state.planet?.viewer.scene.globe.tilesLoaded ?? true));
+    while (!settled() && performance.now() - t0 < 4000) await new Promise((r) => setTimeout(r, 150));
+  }
+  if (_splashDone) return;
+  _splashDone = true;
+  const el = document.getElementById('splash');
+  document.body.classList.add('ready');
+  if (el) { el.classList.add('out'); setTimeout(() => el.remove(), 900); }
+}
+setTimeout(() => hideSplash(true), 12000);
 
 // ---------- Drawer tabs ----------
+// Science and Explore cards render only when their tab is open (saves ~1.5 MB and work on first load).
+const _dirty = new Set();
+const tabOpen = (t) => document.querySelector('.drawer-body')?.dataset.tab === t || window.innerWidth <= 820;
 function showTab(name) {
   const body = document.querySelector('.drawer-body');
   if (!body) return;
@@ -685,6 +704,8 @@ function showTab(name) {
   });
   body.scrollTop = 0;
   body.classList.remove('swap'); void body.offsetWidth; body.classList.add('swap');
+  const fns = { renderSky, renderGround, renderMinerals, renderLandsat };
+  for (const f of [..._dirty]) if (({ renderSky: 'science', renderGround: 'science', renderMinerals: 'science', renderLandsat: 'explore' })[f] === name) { _dirty.delete(f); fns[f](); }
 }
 
 // ---------- Story Mode: a scripted ~30 s tour for the demo video ----------
@@ -714,6 +735,7 @@ async function playStory() {
 // ---------- Landsat then and now (1985-1990 vs 2023-2024) ----------
 let _landsat = null;
 async function renderLandsat(pickId) {
+  if (!tabOpen('explore')) { _dirty.add('renderLandsat'); return; }
   const card = $('card-landsat');
   if (!_landsat) {
     try { const r = await fetch('/landsat/index.json', { cache: 'no-store' }); _landsat = r.ok && (r.headers.get('content-type') || '').includes('json') ? await r.json() : { sites: [] }; }
@@ -758,16 +780,22 @@ async function powerAt(lat, lon) {
 
 let _skySeq = 0;
 async function renderSky() {
+  if (!tabOpen('science')) { _dirty.add('renderSky'); return; }
   const card = $('card-sky');
   const seq = ++_skySeq;
   if (!state.target) { card.hidden = true; return; }
-  const spot = state.cell || (state.heat?.ranked?.[0] && { lat: state.heat.ranked[0].lat, lon: state.heat.ranked[0].lon });
-  const place = spot ? (P.placeName(spot.lat, spot.lon) || `${spot.lat.toFixed(2)}, ${spot.lon.toFixed(2)}`) : null;
+  const spot = state.cell || (state.heat?.ranked?.[0] && { lat: state.heat.ranked[0].lat, lon: state.heat.ranked[0].lon, name: state.heat.ranked[0].name || state.heat.ranked[0].place });
+  const place = spot ? (spot.name || P.placeName(spot.lat, spot.lon) || `${spot.lat.toFixed(2)}, ${spot.lon.toFixed(2)}`) : null;
   const moon = state.world === 'moon';
   let mars = null;
   if (!moon) {
     state.sky ||= await load('mars_sky.json');
     mars = state.sky.ok ? state.sky.data.targets[state.target.id] : null;
+    // Click-anywhere: use the nearest modelled Mars point if it is within 1,500 km, and say so.
+    if (!mars && state.sky.ok) {
+      const near = Object.values(state.sky.data.targets).map((x) => [x, marsKm(state.target, x)]).sort((a, b) => a[1] - b[1])[0];
+      if (near && near[1] < 1500) mars = { ...near[0], nearKm: near[1] };
+    }
   }
   if (!moon && !mars) { card.hidden = true; return; }
   card.hidden = false;
@@ -788,7 +816,8 @@ async function renderSky() {
     ['UV shield (ozone, Dobson units)', `${f(mars.mean.ozone_du, 2)}`, 'about 300 (Earth average)'],
   ];
   const uv = ann('ALLSKY_SFC_UV_INDEX');
-  card.innerHTML = `<h3>Sky: dust, water, UV</h3>
+  const nearTxt = mars?.nearKm != null ? `<p class="loc-note">Mars values from the nearest modelled point, ${P.esc(mars.name)}, ${Math.round(mars.nearKm).toLocaleString()} km away.</p>` : '';
+  card.innerHTML = `<h3>Sky: dust, water, UV</h3>${nearTxt}
     <table class="kv"><tr><th></th><th style="color:#e0703a">${tName}</th><th style="color:#4aa3ff">${P.esc(place || 'Earth place')}</th></tr>
     ${rows.map(([a, b, c]) => `<tr><td>${a}</td><td>${b}</td><td>${c}</td></tr>`).join('')}</table>
     <p class="normal-only">${moon ? 'The Moon has no air: no dust haze, no water, nothing to block ultraviolet light.' : `${ann('AOD_55') != null && mars.mean.dust > ann('AOD_55') ? 'Dust haze here is thicker than at this Earth place' : 'Dust haze here is lighter than at this Earth place, though Mars dust storms can raise it far higher'}, the air holds hundreds of times less water than even Earth\u2019s driest places, and with almost no ozone the ground gets the Sun\u2019s UV nearly unfiltered.`} ${uv != null ? `The Earth place averages UV index ${f(uv, 1)}.` : ''} Earth cannot reproduce ${moon ? 'airlessness' : 'the missing ozone'} outdoors: test UV damage in a lamp chamber.</p>
@@ -815,6 +844,7 @@ async function tiAt(world, lat, lon) {
 }
 
 async function renderGround() {
+  if (!tabOpen('science')) { _dirty.add('renderGround'); return; }
   const card = $('card-ground');
   if (!state.target) { card.hidden = true; return; }
   state.ti ||= await load('thermal_inertia.json');
@@ -1358,6 +1388,7 @@ function renderGaps() {
 }
 
 async function renderMinerals() {
+  if (!tabOpen('science')) { _dirty.add('renderMinerals'); return; }
   const card = $('card-minerals');
   if (state.world !== 'mars') { card.hidden = true; return; }
   state.minerals ||= await load('minerals.json');
@@ -1368,7 +1399,9 @@ async function renderMinerals() {
   const chemNote = dGale == null ? '' : dGale < 60
     ? `<p class="loc-note">This is Gale crater: the rover chemistry below was measured here.</p>`
     : `<p class="loc-note">Rover chemistry exists for one Mars site, Gale crater (Rocknest), <b>${Math.round(dGale).toLocaleString()} km</b> from ${P.esc(t.name)}. Martian soil is wind-mixed basaltic sand planet-wide, so it is the standard reference; the spectra below are matched to ${P.esc(t.name)} itself.</p>`;
-  card.innerHTML = P.mineralsCard(state.minerals.data).replace('</h3>', `</h3>${chemNote}`) + `<div id="spec-box"></div>`;
+  const sn = state.minerals.data.site_notes?.[t?.id];
+  const siteNote = sn ? `<p class="loc-note">${P.esc(sn.text)}</p><span class="src">${P.esc(sn.source)}</span>` : '';
+  card.innerHTML = P.mineralsCard(state.minerals.data).replace('</h3>', `</h3>${chemNote}${siteNote}`) + `<div id="spec-box"></div>`;
   card.hidden = false;
   state.spectra ||= await load('spectra.json');
   if (!state.spectra.ok) return;

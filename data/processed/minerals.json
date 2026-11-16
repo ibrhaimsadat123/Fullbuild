@@ -167,5 +167,15 @@
     ]
    ]
   }
+ },
+ "site_notes": {
+  "jezero": {
+   "text": "Perseverance measured the Jezero crater floor itself: the Máaz lava rocks have 48–50 wt% SiO₂, 9.3–10 wt% Al₂O₃ and 18–19 wt% FeO (SuperCam), close to Rocknest’s 43 / 9.4 / 19.2: Jezero’s floor is the same iron-rich basalt family as the soil below.",
+   "source": "Udry et al. (2022), LPSC 53, 'The igneous nature of the Máaz formation, Jezero crater' (SuperCam LIBS major-oxide compositions), ntrs.nasa.gov/citations/20220000502"
+  },
+  "mission:perseverance": {
+   "text": "Perseverance measured the Jezero crater floor itself: the Máaz lava rocks have 48–50 wt% SiO₂, 9.3–10 wt% Al₂O₃ and 18–19 wt% FeO (SuperCam), close to Rocknest’s 43 / 9.4 / 19.2: Jezero’s floor is the same iron-rich basalt family as the soil below.",
+   "source": "Udry et al. (2022), LPSC 53, 'The igneous nature of the Máaz formation, Jezero crater' (SuperCam LIBS major-oxide compositions), ntrs.nasa.gov/citations/20220000502"
+  }
  }
 }
