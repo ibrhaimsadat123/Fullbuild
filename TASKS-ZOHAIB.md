@@ -1,5 +1,7 @@
 # Tasks: Zohaib Riaz
 
+> **Planning document from the build weekend (14 to 16 Nov 2026).** Kept for the record; some plans changed. The finished project is described in [README.md](README.md).
+
 **Role: 3D + Frontend Lead, and Backend + Integrations Lead**
 
 You own everything the judges see and click: the CesiumJS Twin Globes, Twin Dive, Mission Twin playback, the Normal/Nerd UI, the Cloudflare backend, Gemini and deployment. You also own the 30-second demo video, since it's recorded from your app.

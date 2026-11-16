@@ -1,11 +1,13 @@
 # TwinWorlds
 
+> **Planning document from the build weekend (14 to 16 Nov 2026).** Kept for the record; some plans changed. The finished project is described in [README.md](README.md).
+
 **Before a rover drives a single meter on Mars, drive the same route on Earth.**
 
 TwinWorlds finds the places on Earth that best match real sites on the Moon and Mars, using only measurements taken the same way on both worlds. You can dive into both in synchronized 3D, compare them dimension by dimension in plain language or full scientific detail, and rehearse a real mission traverse on a matched Earth path, step by step.
 
 Built for **NASA Space Apps Challenge 2026**, NYC Local Event (virtual).
-Team: **Ibrahim Sadat**, **Zohaib Riaz** (+ teammates).
+Team **Connected, No Internet**: **Ibrahim Sadat**, **Zohaib Riaz**.
 
 > One sentence a judge can repeat: *"TwinWorlds lets mission teams rehearse a Moon or Mars mission on matched terrain on Earth, and shows honestly where Earth can't prepare us."*
 

@@ -1,5 +1,7 @@
 # Data shapes the app reads
 
+> **Planning document from the build weekend (14 to 16 Nov 2026).** Kept for the record; some plans changed. The finished project is described in [README.md](../README.md).
+
 Proposed by Zohaib for the 10 PM check-in. The app reads `earth_grid.json`, `targets.json` and `scores_<target>.json` as Ibrahim committed them. The rest are proposals: change anything, just tell me so I can match it.
 
 All files sit in `data/processed/`. The app never fills gaps: a missing file shows "waiting for <file>", and a `null` value shows "pending".

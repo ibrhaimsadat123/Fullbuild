@@ -1,5 +1,7 @@
 # Tasks: Ibrahim Sadat
 
+> **Planning document from the build weekend (14 to 16 Nov 2026).** Kept for the record; some plans changed. The finished project is described in [README.md](README.md).
+
 **Role: Data + Science Lead, and Submission Lead**
 
 You own everything the judges will poke at scientifically: the data, the similarity engine, the blind test, Mission Twin path matching and the numbers behind Nerd Mode. You also own the one-pager and the written submission. As the maths major, you are the person who explains the scoring on stage.

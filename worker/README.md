@@ -4,9 +4,15 @@
 | --- | --- |
 | `GET /health` | Status. Says whether Gemini is configured; never shows the key. |
 | `GET /v1/targets` | Mars/Moon targets (`targets.json`) |
-| `POST /v1/analogs` | Ranked Earth cells for a target. Body: `{ "target": "jezero", "lens": "rover_testing", "limit": 10, "needs": ["slope < 10"] }`. `target` can be an id or a name. `needs` filter on `earth_grid.json` fields; anything unparseable is returned in `needs_ignored`. |
-| `POST /ask` | Gemini "Ask the Planet". `{ question, target, dims }` returns `{ label, weights, explanation }`. Weights only use the `dims` sent and are normalised. |
-| `POST /analyst` | Gemini "Analog Analyst". It explains a cell using only the numbers sent, and the reply is labelled "AI-generated from measured data". |
+| `GET` or `POST /v1/analogs` | Ranked Earth cells for a target. `{ "target": "jezero", "lens": "rover", "limit": 10, "needs": ["slope < 10"] }`. Lenses: balanced, landing, rover, lunar_base, thermal, astrobiology. `needs` filter on `earth_grid.json` fields; anything unparseable is returned in `needs_ignored`. |
+| `GET /v1/now?target=jezero` | Live Mars local time (Mars24), season (Ls) and modelled ground temperature. Cached; refreshed hourly by a Cron Trigger. |
+| `POST /ask` | Gemini "Ask the Planet": a question becomes lens weights plus an explanation. |
+| `POST /analyst` | Gemini explains a cell using only the numbers sent. |
+| `POST /brief` | Gemini Field Brief for a matched site (JSON schema output). |
+| `POST /whatif` | Gemini explains how matches move when Earth values change. |
+| `POST /when` | Gemini plus seasonal data: when in the year a place is closest. |
+
+Every Gemini reply is labelled "AI-generated from measured data" and never changes a score. Docs with "Try it": https://twinworlds.us/api.html
 
 Data comes from the deployed frontend's `/data` folder (`DATA_BASE_URL`), so the app and the API always read the same files.
 

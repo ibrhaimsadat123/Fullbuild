@@ -87,7 +87,7 @@ cp .env.example .env     # optional: add your own free Cesium ion token
 npm run dev              # open http://localhost:5173
 ```
 
-The processed data is already in `data/processed`, so the app runs without re-running the pipeline. To rebuild the data, install `numpy` (and `earthengine-api` for the Earth Engine scripts) and run the scripts in `pipeline/`; `score.py` produces the match scores.
+The processed data is already in `data/processed`, so the app runs without re-running the pipeline. To rebuild the data, run `pip install -r pipeline/requirements.txt` and run the scripts in `pipeline/`; `score.py` produces the match scores.
 
 To run your own API, deploy `worker/` with Wrangler and add your own Gemini key as a secret (`npx wrangler secret put GEMINI_API_KEY`). No keys are stored in this repository.
 

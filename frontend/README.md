@@ -24,13 +24,21 @@ The ion token is meant to sit in the browser (Cesium tokens are public). In the 
 
 ## Build and deploy (Cloudflare Pages)
 
+From the repo root on Windows, one command deploys the Worker, builds the app, deploys it to Cloudflare Pages, then commits and pushes:
+
+```powershell
+.\deploy "what changed"
+```
+
+By hand:
+
 ```bash
 npm run build                      # writes dist/, including dist/data/ from data/processed
 cd ../worker                       # Wrangler is installed there
 npx wrangler pages deploy ../frontend/dist --project-name twinworlds
 ```
 
-The first deploy needs `npx wrangler login`, then `npx wrangler pages project create twinworlds` (both run from `worker/`). The `twinworlds.pages.dev` name is an assumption until that project exists. If the name is taken, update `DATA_BASE_URL` and `ALLOWED_ORIGINS` in `worker/wrangler.jsonc`.
+Live at https://twinworlds.us (custom domain on the `twinworlds` Pages project; also https://twinworlds.pages.dev).
 
 ## Where things are
 
@@ -43,6 +51,15 @@ The first deploy needs `npx wrangler login`, then `npx wrangler pages project cr
 | `src/panels.js` | Side cards (target, match, gaps, blind test, Mission Twin) |
 | `src/charts.js` | Fingerprint radar + the one reusable overlay chart |
 | `src/api.js` | Calls to the Worker |
+| `src/zones.js` | Match-zone outlines (marching squares on the score grid) |
+| `src/rehearse.js` | Rehearsability Map layer for Mars and the Moon |
+| `src/sun.js` | Sun slider: real sun direction and shadows on each world |
+| `src/nerd.js` | Nerd Mode maths table, histograms and day/year charts |
+| `src/timetravel.js`, `src/timesim.js` | Seasons on both worlds, month by month |
+| `src/livescore.js` | Scores for any clicked Mars or Moon spot, in the browser |
+| `src/main.js` | App wiring: tabs, cards, lazy loading, splash |
+| `public/api.html` | Public API docs with "Try it" |
+| `public/landsat/` | Landsat 1985 vs 2024 images for hero sites |
 | `DATA-SHAPES.md` | The file shapes this app reads |
 
 ## How Twin Dive keeps the cameras in sync

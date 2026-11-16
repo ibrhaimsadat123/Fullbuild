@@ -9,7 +9,7 @@
   "vars": {
     // Where the deployed frontend serves data/processed (Cloudflare Pages URL + /data).
     "DATA_BASE_URL": "https://twinworlds.pages.dev/data",
-    "DOCS_URL": "https://twinworlds.pages.dev/api.html",
+    "DOCS_URL": "https://twinworlds.us/api.html",
     // Comma-separated list of sites allowed to call the API (twinworlds.us = GoDaddy Registry domain).
     "ALLOWED_ORIGINS": "https://twinworlds.us,https://www.twinworlds.us,https://twinworlds.pages.dev,http://localhost:5173",
     // Tried in order; a retired (404) or busy (429/5xx) model falls through to the next.

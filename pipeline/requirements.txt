@@ -1,0 +1,4 @@
+# Data pipeline (Python 3.10+)
+numpy
+# Only for the Google Earth Engine scripts (emit_colab*.py, landsat_colab.py), usually run in Colab
+earthengine-api
