@@ -60,7 +60,10 @@ export function buildEarthModel(grid) {
     for (const v of raw) { if (v < lo) lo = v; if (v > hi) hi = v; }
     dims[dim] = { log, raw, t, sigma, rank, lo, hi };
   }
-  return { n, lat, lon, dims, resolution_deg: grid.resolution_deg || 0.5 };
+  const iLand = f.indexOf('land_frac');
+  const land = new Float64Array(n).fill(1);
+  if (iLand >= 0) grid.cells.forEach((r, k) => { land[k] = r[iLand]; });
+  return { n, lat, lon, dims, land, resolution_deg: grid.resolution_deg || 0.5 };
 }
 
 /**
@@ -101,7 +104,7 @@ export function scoreLive(model, values, meta = {}, weights = null) {
   for (let k = 0; k < model.n; k++) {
     let acc = 0;
     for (let j = 0; j < sims.length; j++) if (w[j] > 0) acc += Math.log(Math.max(sims[j][1][k], 0.01)) * w[j];
-    score[k] = Math.exp(acc / wsum);
+    score[k] = Math.exp(acc / wsum) * model.land[k]; // open water cannot be an analog
   }
   const sorted = Float64Array.from(score).sort();
   const q = (top) => sorted[Math.max(0, Math.min(model.n - 1, Math.floor(model.n * (1 - top / 100))))];
@@ -110,7 +113,7 @@ export function scoreLive(model, values, meta = {}, weights = null) {
   const cells = new Array(model.n);
   for (let k = 0; k < model.n; k++) {
     cells[k] = {
-      lat: model.lat[k], lon: model.lon[k], score: score[k], tier: tierOf(score[k]),
+      lat: model.lat[k], lon: model.lon[k], score: score[k], tier: tierOf(score[k]), land: model.land[k],
       dims: Object.fromEntries(sims.map(([dim, s]) => [dim, s[k]])),
     };
   }

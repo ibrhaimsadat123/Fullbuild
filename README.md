@@ -49,7 +49,7 @@ Rovers, habitats, drills and crews are tested on Earth before they fly. But the 
 
 1. **Same measurements on both worlds.** Elevation gives slope and hilliness (MOLA, LOLA, USGS GMTED2010). Thermal instruments give day and night surface temperature (TES and the Mars Climate Database, Diviner, MODIS). Albedo and plant cover come from matching instruments.
 2. **Similarity per condition.** Each condition is scored with a Gaussian, with width set by Earth's own spread (a quarter of the 5th to 95th percentile range).
-3. **Combine.** A weighted geometric mean, so one terrible condition cannot be hidden by good ones. Lenses change the weights.
+3. **Combine.** A weighted geometric mean, so one terrible condition cannot be hidden by good ones. Lenses change the weights. The result is multiplied by the share of the cell that is land, so a lake or inland sea (the Caspian, Lake Balkhash) can never pass as an analog just because water is flat and has no plants.
 4. **Honesty rules.** A condition where the target is outside anything on Earth does not vote; it is listed as a gap instead. Tiers are relative (top 0.5, 2, 5 and 10% of Earth's land).
 5. **Validate.** The blind test above, plus a known-bias check: high, cold, dry Asian plateaus win often for Mars and the Moon, the app says so, and Spread view shows the best alternative everywhere else.
 

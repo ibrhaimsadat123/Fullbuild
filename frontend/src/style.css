@@ -350,9 +350,7 @@ body.world-moon #card-target { border-color: rgba(201,204,211,.3); background: l
 #card-now h3 { display: flex; align-items: center; gap: 6px; }
 .warn-box { animation: cardIn .4s var(--ease) both; }
 
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation: none !important; transition: none !important; }
-}
+/* Reduced motion is tiered (accessible-animation): movement goes, short fades stay. Final rules at the end of the file. */
 @media (max-width: 820px) {
   .drawer { flex-direction: column; }
   .tabs { position: sticky; top: 0; z-index: 3; background: rgba(10,12,18,.95); }
@@ -469,3 +467,50 @@ body.world-moon #card-target { border-left-color: #8C93A3; background: linear-gr
 .top-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 12px; }
 .top-head h4 { margin: 0; }
 .mini-seg button { font-size: 11.5px; padding: 3px 8px; }
+
+
+/* ---------- Motion pass (web-animation-skills: micro-interaction, 60fps, accessible-animation) ----------
+   Only transform and opacity animate; clicks answer in 100-200 ms; entrances ease out, exits ease in. */
+:root { --out: cubic-bezier(0.16, 1, 0.3, 1); --in: cubic-bezier(0.4, 0, 1, 1); --pop: cubic-bezier(0.34, 1.56, 0.64, 1); }
+
+/* Press feedback on every control */
+button, .mini, select { -webkit-tap-highlight-color: transparent; }
+button:not(:disabled) { transition: transform .12s var(--out), background-color .2s, border-color .2s, color .2s, opacity .2s; }
+button:not(:disabled):active { transform: scale(.96); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+select:focus-visible, input:focus-visible { outline-offset: 1px; }
+
+/* Tab underline slides on the compositor */
+.tab-ink { left: 0; transition: transform .32s var(--out), width .32s var(--out); will-change: transform; }
+
+/* Top places: rows arrive in a quick stagger whenever the list changes; hover shows an accent bar */
+.top-row { position: relative; animation: rowIn .32s var(--out) both; }
+.top-row:nth-child(2) { animation-delay: .03s; } .top-row:nth-child(3) { animation-delay: .06s; }
+.top-row:nth-child(4) { animation-delay: .09s; } .top-row:nth-child(5) { animation-delay: .12s; } .top-row:nth-child(6) { animation-delay: .15s; }
+.top-row td:first-child { position: relative; }
+.top-row td:first-child::before { content: ""; position: absolute; left: -8px; top: 18%; bottom: 18%; width: 3px; border-radius: 3px;
+  background: var(--accent); transform: scaleY(0); transition: transform .18s var(--out); }
+.top-row:hover td:first-child::before { transform: scaleY(1); }
+@keyframes rowIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+/* Tier chips pop in */
+.top-row .tier { display: inline-block; animation: chipPop .36s var(--pop) both; animation-delay: .12s; }
+@keyframes chipPop { from { opacity: 0; transform: scale(.7); } to { opacity: 1; transform: none; } }
+
+/* Toast: arrive gently, leave promptly */
+.toast { animation: toastUp .28s var(--out) both; }
+.toast.out { animation: toastDown .18s var(--in) both; }
+@keyframes toastUp { from { opacity: 0; transform: translate(-50%, -8px); } to { opacity: 1; transform: translate(-50%, 0); } }
+@keyframes toastDown { to { opacity: 0; transform: translate(-50%, -6px); } }
+
+/* Segmented toggles: the chosen side settles with a tiny scale */
+.seg button.on, .mini-seg button.on { animation: segOn .22s var(--out); }
+@keyframes segOn { from { transform: scale(.94); } to { transform: none; } }
+
+/* Tier 2/3 reduced motion: no movement, keep short fades so nothing teleports */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+  .drawer-body.swap, .toast, .top-row { animation: fadeOnly .15s ease-out both !important; }
+  button:not(:disabled):active { transform: none; }
+}
+@keyframes fadeOnly { from { opacity: 0; } to { opacity: 1; } }

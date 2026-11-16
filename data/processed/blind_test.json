@@ -3,22 +3,22 @@
  "per_target": {
   "acidalia": {
    "sites": {
-    "Atacama Desert (Yungay), Chile": 37.9,
-    "Haughton Crater, Devon Island": 15.1,
-    "McMurdo Dry Valleys, Antarctica": 84.0,
-    "Icelandic highlands (Askja)": 77.5,
-    "Mauna Kea, Hawaii": 99.8,
-    "Rio Tinto, Spain": 79.3,
-    "Mojave Desert, USA": 66.1,
-    "Mars Desert Research Station, Utah": 74.9,
-    "Svalbard (AMASE), Norway": 89.6,
+    "Atacama Desert (Yungay), Chile": 37.0,
+    "Haughton Crater, Devon Island": 14.6,
+    "McMurdo Dry Valleys, Antarctica": 83.3,
+    "Icelandic highlands (Askja)": 76.6,
+    "Mauna Kea, Hawaii": 99.5,
+    "Rio Tinto, Spain": 78.4,
+    "Mojave Desert, USA": 64.4,
+    "Mars Desert Research Station, Utah": 73.7,
+    "Svalbard (AMASE), Norway": 89.1,
     "Qaidam Basin, China": 0.1,
-    "Death Valley, USA": 84.3,
-    "Danakil Depression, Ethiopia": 46.7,
-    "Pilbara, Australia": 2.9,
-    "Lanzarote, Canary Islands": 14.2
+    "Death Valley, USA": 83.7,
+    "Danakil Depression, Ethiopia": 45.0,
+    "Pilbara, Australia": 2.7,
+    "Lanzarote, Canary Islands": 13.8
    },
-   "median_top_percent": 70.5,
+   "median_top_percent": 69.1,
    "why": [
     {
      "dim": "slope_deg",
@@ -30,34 +30,34 @@
      "dim": "relief_55km_m",
      "label": "hilliness",
      "famous_sites": 0.29,
-     "best_places": 0.94
+     "best_places": 0.95
     }
    ]
   },
   "arcadia": {
    "sites": {
-    "Atacama Desert (Yungay), Chile": 8.3,
-    "Haughton Crater, Devon Island": 4.2,
-    "McMurdo Dry Valleys, Antarctica": 45.2,
-    "Icelandic highlands (Askja)": 13.0,
-    "Mauna Kea, Hawaii": 99.9,
-    "Rio Tinto, Spain": 59.9,
-    "Mojave Desert, USA": 14.1,
-    "Mars Desert Research Station, Utah": 14.3,
-    "Svalbard (AMASE), Norway": 69.2,
-    "Qaidam Basin, China": 0.6,
-    "Death Valley, USA": 41.9,
-    "Danakil Depression, Ethiopia": 10.1,
-    "Pilbara, Australia": 9.9,
-    "Lanzarote, Canary Islands": 9.1
+    "Atacama Desert (Yungay), Chile": 8.1,
+    "Haughton Crater, Devon Island": 4.1,
+    "McMurdo Dry Valleys, Antarctica": 44.0,
+    "Icelandic highlands (Askja)": 12.6,
+    "Mauna Kea, Hawaii": 99.6,
+    "Rio Tinto, Spain": 58.5,
+    "Mojave Desert, USA": 13.7,
+    "Mars Desert Research Station, Utah": 13.9,
+    "Svalbard (AMASE), Norway": 67.8,
+    "Qaidam Basin, China": 0.5,
+    "Death Valley, USA": 40.8,
+    "Danakil Depression, Ethiopia": 9.8,
+    "Pilbara, Australia": 9.6,
+    "Lanzarote, Canary Islands": 8.9
    },
-   "median_top_percent": 13.6,
+   "median_top_percent": 13.1,
    "why": [
     {
      "dim": "slope_deg",
      "label": "slope",
      "famous_sites": 0.36,
-     "best_places": 0.9
+     "best_places": 0.91
     },
     {
      "dim": "relief_55km_m",
@@ -70,19 +70,19 @@
   "jezero": {
    "sites": {
     "Atacama Desert (Yungay), Chile": 1.4,
-    "Haughton Crater, Devon Island": 10.4,
-    "McMurdo Dry Valleys, Antarctica": 31.2,
+    "Haughton Crater, Devon Island": 10.2,
+    "McMurdo Dry Valleys, Antarctica": 30.6,
     "Icelandic highlands (Askja)": 1.5,
-    "Mauna Kea, Hawaii": 68.3,
-    "Rio Tinto, Spain": 22.0,
+    "Mauna Kea, Hawaii": 67.4,
+    "Rio Tinto, Spain": 21.6,
     "Mojave Desert, USA": 1.1,
-    "Mars Desert Research Station, Utah": 0.8,
-    "Svalbard (AMASE), Norway": 17.8,
-    "Qaidam Basin, China": 8.6,
-    "Death Valley, USA": 3.1,
+    "Mars Desert Research Station, Utah": 0.7,
+    "Svalbard (AMASE), Norway": 17.5,
+    "Qaidam Basin, China": 8.5,
+    "Death Valley, USA": 3.0,
     "Danakil Depression, Ethiopia": 1.3,
-    "Pilbara, Australia": 34.6,
-    "Lanzarote, Canary Islands": 2.5
+    "Pilbara, Australia": 33.9,
+    "Lanzarote, Canary Islands": 2.4
    },
    "median_top_percent": 5.8,
    "why": [
@@ -102,20 +102,20 @@
   },
   "shackleton": {
    "sites": {
-    "Atacama Desert (Yungay), Chile": 6.9,
-    "Haughton Crater, Devon Island": 14.4,
+    "Atacama Desert (Yungay), Chile": 6.8,
+    "Haughton Crater, Devon Island": 14.3,
     "McMurdo Dry Valleys, Antarctica": 0.1,
     "Icelandic highlands (Askja)": 3.2,
-    "Mauna Kea, Hawaii": 9.6,
-    "Rio Tinto, Spain": 63.0,
-    "Mojave Desert, USA": 6.3,
+    "Mauna Kea, Hawaii": 9.5,
+    "Rio Tinto, Spain": 62.3,
+    "Mojave Desert, USA": 6.2,
     "Mars Desert Research Station, Utah": 6.0,
     "Svalbard (AMASE), Norway": 0.7,
-    "Qaidam Basin, China": 30.6,
+    "Qaidam Basin, China": 30.4,
     "Death Valley, USA": 3.8,
     "Danakil Depression, Ethiopia": 6.8,
-    "Pilbara, Australia": 53.3,
-    "Lanzarote, Canary Islands": 20.4
+    "Pilbara, Australia": 52.8,
+    "Lanzarote, Canary Islands": 20.3
    },
    "median_top_percent": 6.8,
    "why": [
@@ -135,22 +135,22 @@
   },
   "tranquillitatis_pit": {
    "sites": {
-    "Atacama Desert (Yungay), Chile": 16.3,
-    "Haughton Crater, Devon Island": 16.8,
-    "McMurdo Dry Valleys, Antarctica": 85.6,
-    "Icelandic highlands (Askja)": 74.7,
-    "Mauna Kea, Hawaii": 99.9,
-    "Rio Tinto, Spain": 73.9,
-    "Mojave Desert, USA": 21.8,
-    "Mars Desert Research Station, Utah": 57.2,
-    "Svalbard (AMASE), Norway": 90.0,
+    "Atacama Desert (Yungay), Chile": 15.9,
+    "Haughton Crater, Devon Island": 16.4,
+    "McMurdo Dry Valleys, Antarctica": 85.0,
+    "Icelandic highlands (Askja)": 73.5,
+    "Mauna Kea, Hawaii": 99.7,
+    "Rio Tinto, Spain": 72.7,
+    "Mojave Desert, USA": 21.1,
+    "Mars Desert Research Station, Utah": 55.4,
+    "Svalbard (AMASE), Norway": 89.5,
     "Qaidam Basin, China": 0.1,
-    "Death Valley, USA": 79.8,
-    "Danakil Depression, Ethiopia": 18.3,
-    "Pilbara, Australia": 3.6,
-    "Lanzarote, Canary Islands": 12.1
+    "Death Valley, USA": 78.9,
+    "Danakil Depression, Ethiopia": 17.7,
+    "Pilbara, Australia": 3.5,
+    "Lanzarote, Canary Islands": 11.9
    },
-   "median_top_percent": 39.5,
+   "median_top_percent": 38.2,
    "why": [
     {
      "dim": "slope_deg",
@@ -168,19 +168,19 @@
   }
  },
  "per_site_mean_top_percent": {
-  "Atacama Desert (Yungay), Chile": 14.2,
-  "Haughton Crater, Devon Island": 12.2,
-  "McMurdo Dry Valleys, Antarctica": 49.2,
-  "Icelandic highlands (Askja)": 34.0,
-  "Mauna Kea, Hawaii": 75.5,
-  "Rio Tinto, Spain": 59.6,
-  "Mojave Desert, USA": 21.9,
-  "Mars Desert Research Station, Utah": 30.6,
-  "Svalbard (AMASE), Norway": 53.5,
-  "Qaidam Basin, China": 8.0,
-  "Death Valley, USA": 42.6,
-  "Danakil Depression, Ethiopia": 16.6,
-  "Pilbara, Australia": 20.9,
-  "Lanzarote, Canary Islands": 11.7
+  "Atacama Desert (Yungay), Chile": 13.8,
+  "Haughton Crater, Devon Island": 11.9,
+  "McMurdo Dry Valleys, Antarctica": 48.6,
+  "Icelandic highlands (Askja)": 33.5,
+  "Mauna Kea, Hawaii": 75.1,
+  "Rio Tinto, Spain": 58.7,
+  "Mojave Desert, USA": 21.3,
+  "Mars Desert Research Station, Utah": 29.9,
+  "Svalbard (AMASE), Norway": 52.9,
+  "Qaidam Basin, China": 7.9,
+  "Death Valley, USA": 42.0,
+  "Danakil Depression, Ethiopia": 16.1,
+  "Pilbara, Australia": 20.5,
+  "Lanzarote, Canary Islands": 11.5
  }
 }

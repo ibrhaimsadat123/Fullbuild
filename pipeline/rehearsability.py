@@ -28,6 +28,7 @@ def run(world):
         te = tx(e, L); p5, p95 = np.percentile(te, [5, 95])
         earth.append(te); sig.append(max((p95 - p5) / 4, 1e-6)); logs.append(L)
     earth = np.array(earth)                     # (D, N)
+    land = ec[:, ef.index("land_frac")] if "land_frac" in ef else np.ones(ec.shape[0])
     sig = np.array(sig)[:, None]
     lo, hi = np.array(lo), np.array(hi)
     # target values: NDVI is zero on Mars and the Moon
@@ -49,7 +50,7 @@ def run(world):
             tk = np.nan_to_num(t[:, k])[:, None]
             s = np.exp(-((earth[k][None, :] - tk) ** 2) / (2 * sig[k] ** 2))
             acc += wk * np.log(np.maximum(s, 0.01))
-        sc = np.exp(acc / np.maximum(w.sum(axis=1)[:, None], 1e-9))
+        sc = np.exp(acc / np.maximum(w.sum(axis=1)[:, None], 1e-9)) * land[None, :]   # open water cannot be an analog
         best_i[a:a + CH] = sc.argmax(axis=1); best[a:a + CH] = sc.max(axis=1)
     out = []
     for m in range(len(gc)):

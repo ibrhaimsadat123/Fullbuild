@@ -35,3 +35,15 @@ Tested on the dev build (same code as twinworlds.pages.dev): all 12 Mars and 8 M
 - Sky card for click-anywhere Mars spots uses the nearest modelled point within 1,500 km and says so.
 - Fixed: Sky card showed coordinates instead of the Earth place name when it rendered before place names loaded.
 - Minerals: Jezero and Perseverance now show Perseverance's own SuperCam chemistry of the Máaz crater floor (SiO2 48-50, Al2O3 9.3-10, FeO 18-19 wt%). Only the oxides the paper reports are shown; no full PIXL table was found, so none is invented.
+
+
+## Pass 5: final judge review (Mon 16 Nov, morning)
+
+Checked against outside sources:
+- Landing coordinates of all 9 Mars and 6 Apollo missions match NASA/NSSDCA values.
+- Mars time: the live API gave Ls 22.5 and local mean solar time 17.9 h at 00:49 UTC on 16 Nov 2026; an independent run of the Mars24 algorithm (Allison and McEwen 2000) gives Ls 22.53 and 17.95 h.
+- Earth temperatures (MODIS 2023 annual means) are plausible: Atacama 43 / 10 C day/night, Lut 45 / 21 C, Vostok -58 / -60 C, Amazon 28 / 24 C.
+
+Bug found and fixed: lakes counted as analogs. "Turkmenistan 41.75N 53.75E" was 96% Caspian Sea, "Kazakhstan 46.75N 74.75E" 59% Lake Balkhash, "Canadian Shield 59.25N 109.25W" 86% Lake Athabasca. Water has NDVI near 0 and no slope, so when Mars is colder than anywhere on Earth (temperatures stop voting) lakes won. Fix: water mask (see SOURCES.md), applied in every scorer. Re-ran score, sites, blind test, live candidates, Rehearsability.
+
+Polish: motion pass (press feedback, staggered top-place rows, tier chips, tab underline on transform, heatmap fades in when Earth relights, toast exit), tiered reduced-motion support, visible keyboard focus.

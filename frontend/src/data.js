@@ -90,6 +90,7 @@ export function normalizeScores(raw) {
   const iLon = f.indexOf('lon');
   const iScore = f.indexOf('score');
   const iTier = f.indexOf('tier');
+  const iLand = f.indexOf('land');
   const dimCols = f.map((name, i) => [name, i]).filter(([n]) => n.startsWith('s_')).map(([n, i]) => [n.slice(2), i]);
   const cuts = raw.tiers && typeof raw.tiers === 'object' ? Object.entries(raw.tiers).sort((a, b) => b[1] - a[1]) : null;
   const tierOf = (s) => (cuts && typeof s === 'number' ? cuts.find(([, t]) => s >= t)?.[0] || null : null);
@@ -99,6 +100,7 @@ export function normalizeScores(raw) {
     score: r[iScore],
     tier: iTier >= 0 ? r[iTier] : tierOf(r[iScore]),
     dims: Object.fromEntries(dimCols.map(([n, i]) => [n, r[i]])),
+    land: iLand >= 0 ? r[iLand] : 1,
   }));
   return { ...raw, cells };
 }

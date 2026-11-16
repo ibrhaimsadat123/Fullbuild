@@ -116,28 +116,33 @@ def score_target(grid, target, weights=None):
     S = np.vstack(sims)                       # (dims, cells)
     W = np.array(w)[:, None]
     score = np.exp((np.log(np.maximum(S, 0.01)) * W).sum(axis=0) / W.sum())
+    # Open water is not an analog: multiply by the share of the cell that is land (Natural Earth),
+    # so a cell that is mostly lake or sea (Caspian, Balkhash, Athabasca) cannot rank on flatness alone.
+    if "land_frac" in col:
+        score = score * cells[:, col["land_frac"]]
     return cells, used, missing, gaps, S, score
 
 
-def export(target, cells, used, missing, gaps, S, score):
+def export(target, cells, used, missing, gaps, S, score, land=None):
     order = np.argsort(-score)
     th = tier_thresholds(score)
     rows = []
     for i in range(len(score)):
         rows.append([round(cells[i, 0], 2), round(cells[i, 1], 2), round(float(score[i]), 3)] +
-                    [round(float(v), 2) for v in S[:, i]])
+                    [round(float(v), 2) for v in S[:, i]] + ([round(float(land[i]), 2)] if land is not None else []))
     top = [{"lat": round(cells[i, 0], 2), "lon": round(cells[i, 1], 2),
             "score": round(float(score[i]), 3), "tier": tier_of(score[i], th)} for i in order[:50]]
     out = {
         "target": target["id"], "world": target["world"], "name": target["name"],
         "dims_used": used, "dims_missing": missing, "earth_gaps": gaps,
         "tiers": th, "tiers_note": "relative: exact = top 0.5% of Earth land cells, strong = top 2%, moderate = top 5%, variable = top 10%",
-        "fields": ["lat", "lon", "score"] + [f"s_{d}" for d in used],
+        "fields": ["lat", "lon", "score"] + [f"s_{d}" for d in used] + (["land"] if land is not None else []),
         "cells": rows, "top50": top,
         "dims_voting": [d for d in used if d not in gaps],
         "method": "Gaussian similarity per dimension, sigma = 1/4 of Earth 5-95th percentile range; "
                   "slope and relief in log space; weighted geometric mean across dimensions. Day/night/swing temperature "
-                  "share one vote; dimensions beyond anything on Earth (earth_gaps) are reported but do not vote",
+                  "share one vote; dimensions beyond anything on Earth (earth_gaps) are reported but do not vote; "
+                  "the result is multiplied by the cell's land share (land), so open water cannot rank",
     }
     path = os.path.join(DATA, f"scores_{target['id']}.json")
     json.dump(out, open(path, "w"), separators=(",", ":"))
@@ -152,7 +157,8 @@ if __name__ == "__main__":
         except ValueError as e:
             print("SKIP", e)
             continue
-        path, top = export(t, *res)
+        land = res[0][:, grid["fields"].index("land_frac")] if "land_frac" in grid["fields"] else None
+        path, top = export(t, *res, land=land)
         print(f"\n{t['name']}  ->  {os.path.basename(path)}")
         print("  dims used:   ", res[1])
         print("  dims missing:", res[2])

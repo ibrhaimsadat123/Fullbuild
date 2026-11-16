@@ -53,7 +53,8 @@ export function rescore(cell, weights, skip = null) {
       wsum += w;
     }
   }
-  return wsum > 0 ? Math.exp(sum / wsum) : null;
+  // Same as the engine: times the share of the cell that is land, so open water cannot rank.
+  return wsum > 0 ? Math.exp(sum / wsum) * (cell.land ?? 1) : null;
 }
 
 /**

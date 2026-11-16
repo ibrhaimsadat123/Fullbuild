@@ -285,6 +285,13 @@ async function drawHeat() {
   // A newer target or lens arrived while this layer was loading: drop this one so heatmaps never stack.
   if (seq !== _heatSeq) { state.earth.viewer.imageryLayers.remove(layer, true); return; }
   state.heatLayer = layer;
+  // Earth "relights": fade the new heatmap in over ~450 ms (opacity only; instant with reduced motion)
+  if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    layer.alpha = 0; const t0 = performance.now();
+    const step = (t) => { if (state.heatLayer !== layer) return; const k = Math.min(1, (t - t0) / 450); layer.alpha = 1 - Math.pow(1 - k, 3); if (k < 1) requestAnimationFrame(step); };
+    requestAnimationFrame(step);
+    setTimeout(() => { if (state.heatLayer === layer) layer.alpha = 1; }, 700); // never stay hidden if frames are paused (background tab)
+  }
   if (state.showZones !== false && !state.travelPlaying) state.zones = drawZones(state.earth.viewer, heat);
   $('legend').hidden = false;
   renderBadges();
@@ -700,7 +707,7 @@ function showTab(name) {
     const on = b.dataset.tab === name;
     b.classList.toggle('on', on);
     b.setAttribute('aria-selected', String(on));
-    if (on) { const ink = document.querySelector('.tab-ink'); if (ink) { ink.style.left = `${b.offsetLeft}px`; ink.style.width = `${b.offsetWidth}px`; } }
+    if (on) { const ink = document.querySelector('.tab-ink'); if (ink) { ink.style.transform = `translateX(${b.offsetLeft}px)`; ink.style.width = `${b.offsetWidth}px`; } }
   });
   body.scrollTop = 0;
   body.classList.remove('swap'); void body.offsetWidth; body.classList.add('swap');
@@ -933,7 +940,8 @@ async function renderNerd() {
   const rows = N.mathRows(model, target, row, state.weights, gaps);
   const voting = rows.filter((r) => r.w > 0 && r.sim != null);
   const wsum = voting.reduce((a, r) => a + r.w, 0);
-  const score = wsum ? Math.exp(voting.reduce((a, r) => a + r.w * Math.log(Math.max(r.sim, 0.01)), 0) / wsum) : null;
+  const landShare = row && typeof row.land_frac === 'number' ? row.land_frac : 1;
+  const score = wsum ? Math.exp(voting.reduce((a, r) => a + r.w * Math.log(Math.max(r.sim, 0.01)), 0) / wsum) * landShare : null;
   const f = (x, k = 2) => (x == null || !Number.isFinite(x) ? '\u2014' : Math.abs(x) >= 100 ? x.toFixed(0) : x.toFixed(k));
   const table = rows.map((r) => `<tr class="${r.beyond ? 'beyond' : ''}"><td>${P.esc(P.featureMeta(r.d).nerd)}</td><td>${f(r.t)}</td><td>${f(r.e)}</td>
       <td>${r.log ? 'ln(1+x)' : 'x'}</td><td>${f(r.sigma, 3)}</td><td>${r.beyond ? 'rank' : f(r.z)}</td><td>${f(r.sim, 3)}</td><td>${r.w ? f(r.w, 2) : '0 (beyond Earth)'}</td></tr>`).join('');
@@ -941,7 +949,7 @@ async function renderNerd() {
   const isMars = state.world === 'mars';
   card.innerHTML = `<h3>\ud83e\udd13 Nerd view${place ? `: ${P.esc(state.target.name)} vs ${P.esc(place)}` : ''}</h3>
     <h4>The maths</h4>
-    <pre class="formula">s\u1d62 = exp(\u2212(x\u1d07 \u2212 x\u209c)\u00b2 / 2\u03c3\u1d62\u00b2)    \u03c3\u1d62 = \u00bc (p95 \u2212 p5) of Earth\nscore = exp( \u03a3 w\u1d62 ln max(s\u1d62, 0.01) / \u03a3 w\u1d62 )\nw: temperature family shares one vote (\u2153 each); beyond-Earth dims get w = 0</pre>
+    <pre class="formula">s\u1d62 = exp(\u2212(x\u1d07 \u2212 x\u209c)\u00b2 / 2\u03c3\u1d62\u00b2)    \u03c3\u1d62 = \u00bc (p95 \u2212 p5) of Earth\nscore = exp( \u03a3 w\u1d62 ln max(s\u1d62, 0.01) / \u03a3 w\u1d62 )\nw: temperature family shares one vote (\u2153 each); beyond-Earth dims get w = 0\nscore \u00d7= land share of the cell (open water cannot be an analog)${landShare < 0.999 ? `: here ${(landShare * 100).toFixed(0)}% land` : ''}</pre>
     ${row ? `<div class="nerd-table-wrap"><table class="kv nerd-table"><tr><th>Measurement</th><th>Target</th><th>Earth</th><th>Scale</th><th>\u03c3</th><th>z</th><th>s</th><th>w</th></tr>${table}</table></div>
       <p class="muted">Score from these rows: <b>${f(score, 3)}</b>${state.weights ? ` (lens: ${P.esc(state.lensLabel || 'custom')})` : ''}. Earth values are 2023 yearly means; \u03c3 and ranks come from all ${model.n.toLocaleString()} Earth land cells.</p>`
       : '<p class="empty">No land data at this spot (ocean or no terrain data).</p>'}
@@ -1574,8 +1582,10 @@ function toast(msg, ms = 3500) {
     document.querySelector('.stage').appendChild(el);
   }
   el.textContent = msg;
+  el.classList.remove('out');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => el.remove(), ms);
+  // leave faster than it arrived (ease-in, 180 ms), then remove
+  toastTimer = setTimeout(() => { el.classList.add('out'); setTimeout(() => el.classList.contains('out') && el.remove(), 200); }, ms);
 }
 
 // Exposed for headless tests and debugging in the console.

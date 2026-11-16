@@ -92,7 +92,7 @@ Approximate public coordinates for Atacama (Yungay), Haughton Crater, McMurdo Dr
 - Lab: RELAB spectral library (NASA/Keck Reflectance Experiment Laboratory, Brown University), PDS bundle urn:nasa:pds:relab, the specimen each CRISM label names as its lab analog: casc02 (San Carlos AZ olivine), capo05 (fayalite, Crystal Park CO), c1pp22 (diopside, Hawaii), capp47 (bronzite, locality unknown), c1ls04 (plagioclase, Apollo 17 lunar sample).
 - Method: continuum removed (upper convex hull, 0.75-2.6 um); Pearson r, masking 1.62-1.70 um and 1.95-2.08 um.
 - Left out: Fe/Ca carbonate and Fe-smectite (RELAB spectra resolved for CAGR01 and NCJB26 not clearly the named specimens; r 0.13 and 0.46).
-- Not used: NASA EMIT orbital spectra of Earth (Earthdata login required, 1-2 GB per scene). Roadmap.
+- NASA EMIT orbital spectra of Earth: added later the same day, see the EMIT section below.
 
 ## EMIT (Earth from orbit) spectra (added Sun 15 Nov)
 
@@ -125,3 +125,9 @@ Approximate public coordinates for Atacama (Yungay), Haughton Crater, McMurdo Dr
 ## Perseverance crater-floor chemistry (Jezero note in Minerals)
 - Udry, A. et al. (2022) The igneous nature of the Máaz formation, Jezero crater. LPSC 53. SuperCam LIBS major oxides. https://ntrs.nasa.gov/citations/20220000502
 - Values used: SiO2 48-50, Al2O3 9.3-10, FeO 18-19 wt%. Stored in data/processed/minerals.json as site_notes.
+
+
+## Water mask (added Mon 16 Nov)
+- Natural Earth 1:10m lakes, plus inland seas (holes in the 1:10m land polygons, e.g. the Caspian), public domain, from github.com/nvkelso/natural-earth-vector. Rasterised at 0.05 deg; `land_frac` in `earth_grid.json` = share of each 0.5 deg cell NOT covered by inland water.
+- Every score (pipeline, browser, API, Rehearsability Map) is multiplied by `land_frac`. Why: MODIS land products include inland water, so lake cells looked flat, plant-free and Mars-like; before the fix the Caspian Sea, Lake Balkhash and Lake Athabasca appeared as top matches (31 of Acidalia's top 200 cells were mostly water). Sea coasts are not penalised, because MODIS land products already exclude the ocean.
+- Effect: lakes left every top list; the blind test is unchanged within 0.1 points (Jezero median top 5.8%); Shackleton's best match became the McMurdo Dry Valleys region, Antarctica.

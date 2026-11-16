@@ -230,3 +230,4 @@ data/raw/
 *.zip
 .DS_Store
 Thumbs.db
+data/processed/earth_water.json
